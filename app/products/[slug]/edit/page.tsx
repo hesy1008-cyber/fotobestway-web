@@ -52,9 +52,57 @@ Edit Product
 <EditProductForm
 
 product={{
-    id:product.id,
-    title:product.title,
-    slug:product.slug
+
+id: product.id,
+
+title: product.title,
+
+slug: product.slug,
+
+image: product.image,
+
+overview: product.overview,
+
+category: product.category,
+
+
+features:
+Array.isArray(product.features)
+?
+product.features.filter(
+(item): item is string =>
+typeof item === "string"
+)
+:
+[],
+
+
+applications:
+Array.isArray(product.applications)
+?
+product.applications.filter(
+(item): item is string =>
+typeof item === "string"
+)
+:
+[],
+
+
+specs:
+typeof product.specs === "object"
+&&
+product.specs !== null
+&&
+!Array.isArray(product.specs)
+
+?
+
+product.specs as Record<string,string>
+
+:
+
+{}
+
 }}
 
 />
