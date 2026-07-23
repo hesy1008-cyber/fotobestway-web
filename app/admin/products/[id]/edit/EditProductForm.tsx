@@ -5,11 +5,38 @@ import { updateProduct } from "@/app/actions/product";
 import { useState } from "react";
 
 
+type Product = {
+
+id:number;
+
+title:string;
+
+slug:string;
+
+image?:string | null;
+
+overview?:string | null;
+
+category?:string | null;
+
+features?:string[] | null;
+
+applications?:string[] | null;
+
+specs?:Record<string,string> | null;
+
+};
+
+
 
 export default function EditProductForm({
+
 product
+
 }:{
-product:any
+
+product:Product
+
 }){
 
 
@@ -18,7 +45,9 @@ const [loading,setLoading]=useState(false);
 
 
 async function handleSubmit(
+
 e:React.FormEvent<HTMLFormElement>
+
 ){
 
 e.preventDefault();
@@ -27,20 +56,26 @@ e.preventDefault();
 setLoading(true);
 
 
+
+try{
+
+
 const formData=new FormData(
+
 e.currentTarget
+
 );
 
 
 
 await updateProduct(
+
 product.id,
+
 formData
+
 );
 
-
-
-setLoading(false);
 
 
 window.location.href="/admin/products";
@@ -48,11 +83,41 @@ window.location.href="/admin/products";
 
 }
 
+catch(error){
+
+console.error(
+"Update product failed:",
+error
+);
+
+
+alert(
+"保存失败，请检查服务器"
+);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
+
+}
+
+
 
 
 function jsonToText(
-obj:any
+
+obj:Record<string,string>|null|undefined
+
 ){
+
 
 if(
 !obj ||
@@ -67,14 +132,19 @@ return "";
 return Object.entries(obj)
 
 .map(
+
 ([key,value])=>
+
 `${key}: ${value}`
+
 )
 
 .join("\n");
 
 
 }
+
+
 
 
 
@@ -89,7 +159,6 @@ className="adminForm"
 >
 
 
-
 <label>
 Title
 </label>
@@ -99,10 +168,11 @@ Title
 
 name="title"
 
-defaultValue={product.title}
+defaultValue={
+product.title
+}
 
 />
-
 
 
 
@@ -134,11 +204,10 @@ Image
 name="image"
 
 defaultValue={
-product.image
+product.image ?? ""
 }
 
 />
-
 
 
 
@@ -152,7 +221,7 @@ Overview
 name="overview"
 
 defaultValue={
-product.overview
+product.overview ?? ""
 }
 
 />
@@ -170,7 +239,7 @@ Category
 name="category"
 
 defaultValue={
-product.category
+product.category ?? ""
 }
 
 />
@@ -189,15 +258,7 @@ name="features"
 
 defaultValue={
 
-Array.isArray(product.features)
-
-?
-
-product.features.join("\n")
-
-:
-
-""
+product.features?.join("\n") ?? ""
 
 }
 
@@ -217,15 +278,7 @@ name="applications"
 
 defaultValue={
 
-Array.isArray(product.applications)
-
-?
-
-product.applications.join("\n")
-
-:
-
-""
+product.applications?.join("\n") ?? ""
 
 }
 
@@ -254,10 +307,17 @@ jsonToText(product.specs)
 
 
 
-<button disabled={loading}>
+<button
+
+type="submit"
+
+disabled={loading}
+
+>
 
 
 {
+
 loading
 
 ?
@@ -276,7 +336,6 @@ loading
 
 
 </form>
-
 
 );
 
