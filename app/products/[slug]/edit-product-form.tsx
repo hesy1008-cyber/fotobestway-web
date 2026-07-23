@@ -2,26 +2,35 @@
 
 
 import { useState } from "react";
-import { updateProduct } from "@/app/actions/product";
+import { useRouter } from "next/navigation";
 
+
+type Product = {
+  id:number;
+  title:string;
+  slug:string;
+  image:string | null;
+  overview:string | null;
+  category:string | null;
+  features:string[] | null;
+  applications:string[] | null;
+  specs:any;
+};
 
 
 export default function EditProductForm({
-
-product
-
+ product
 }:{
-
-product:{
-    id:number;
-    title:string;
-    slug:string;
-}
-
+ product:Product;
 }){
 
 
+const router = useRouter();
+
+
 const [title,setTitle]=useState(product.title);
+
+const [loading,setLoading]=useState(false);
 
 
 
@@ -32,10 +41,40 @@ e:React.FormEvent
 e.preventDefault();
 
 
-await updateProduct(
-    product.id,
-    title
-);
+setLoading(true);
+
+
+
+const res = await fetch("/api/products/update",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+id:product.id,
+
+title
+
+})
+
+});
+
+
+
+if(res.ok){
+
+router.push(`/products/${product.slug}`);
+
+router.refresh();
+
+}
+
+
+setLoading(false);
 
 
 }
@@ -45,14 +84,24 @@ await updateProduct(
 return (
 
 <form
+
 onSubmit={handleSubmit}
-className="editForm"
+
+style={{
+display:"flex",
+flexDirection:"column",
+gap:"20px",
+maxWidth:"500px"
+}}
+
 >
 
 
-<h2>
-Edit Product
-</h2>
+<label>
+
+Product Title
+
+</label>
 
 
 
@@ -60,17 +109,32 @@ Edit Product
 
 value={title}
 
-onChange={(e)=>
-setTitle(e.target.value)
-}
+onChange={(e)=>setTitle(e.target.value)}
+
+style={{
+padding:"10px"
+}}
 
 />
 
 
 
-<button type="submit">
+<button
 
-Save Changes
+type="submit"
+
+disabled={loading}
+
+>
+
+{
+loading
+?
+"Saving..."
+:
+"Save Changes"
+}
+
 
 </button>
 
