@@ -1,0 +1,715 @@
+/* =========================
+   Product Detail Page
+========================= */
+
+
+.product-detail{
+
+max-width:1400px;
+
+margin:0 auto;
+
+padding:50px 40px;
+
+background:#fff;
+
+color:#111;
+
+}
+
+
+
+/* =========================
+   Hero
+========================= */
+
+
+.product-hero{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:70px;
+
+align-items:center;
+
+padding-bottom:20px;
+
+border-bottom:1px solid #eee;
+
+}
+
+
+
+.product-info{
+
+max-width:620px;
+
+}
+
+
+
+.product-category{
+
+font-size:13px;
+
+letter-spacing:3px;
+
+text-transform:uppercase;
+
+color:#888;
+
+margin-bottom:25px;
+
+}
+
+
+
+.product-info h1{
+
+font-size:48px;
+
+line-height:1.15;
+
+font-weight:700;
+
+margin:0 0 30px;
+
+}
+
+
+
+.product-overview{
+
+font-size:19px;
+
+line-height:1.8;
+
+color:#555;
+
+max-width:600px;
+
+}
+
+
+
+/* =========================
+   Button
+========================= */
+
+
+.inquiry-btn{
+
+margin-top:40px;
+
+padding:15px 45px;
+
+border:none;
+
+background:#e60012;
+
+color:white;
+
+font-size:15px;
+
+cursor:pointer;
+
+transition:.3s;
+
+display:inline-block;
+
+text-decoration:none;
+
+}
+
+
+
+.inquiry-btn:hover{
+
+background:#b0000d;
+
+}
+
+
+
+/* =========================
+   Product Image
+========================= */
+
+
+.product-image{
+
+height:480px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+transform:none;
+
+}
+
+
+
+.product-image img{
+
+width:110%;
+
+height:110%;
+
+object-fit:contain;
+
+}
+
+
+
+/* =========================
+   Sections
+========================= */
+
+
+.product-section{
+
+margin-top:40px;
+
+padding-top:30px;
+
+border-top:1px solid #eee;
+
+}
+
+
+
+.product-section h2{
+
+font-size:36px;
+
+font-weight:700;
+
+margin-bottom:40px;
+
+}
+
+
+
+/* =========================
+   Features
+========================= */
+
+
+.feature-grid{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:25px;
+
+}
+
+
+
+.feature-card{
+
+border:1px solid #e5e5e5;
+
+padding:35px;
+
+min-height:150px;
+
+background:#fff;
+
+transition:.3s;
+
+}
+
+
+
+.feature-card:hover{
+
+transform:translateY(-5px);
+
+box-shadow:0 15px 35px rgba(0,0,0,.08);
+
+}
+
+
+
+.feature-number{
+
+font-size:12px;
+
+letter-spacing:2px;
+
+color:#999;
+
+margin-bottom:25px;
+
+}
+
+
+
+.feature-card p{
+
+font-size:17px;
+
+font-weight:600;
+
+line-height:1.6;
+
+}
+
+
+
+/* =========================
+   Applications
+========================= */
+
+
+.application-grid{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:25px;
+
+}
+
+
+
+.application-card{
+
+height:120px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+border:1px solid #e5e5e5;
+
+font-size:17px;
+
+background:#fff;
+
+transition:.3s;
+
+}
+
+
+
+.application-card:hover{
+
+background:#111;
+
+color:white;
+
+}
+
+
+
+/* =========================
+   Specs
+========================= */
+
+
+.spec-table{
+
+border-top:1px solid #ddd;
+
+}
+
+
+
+.spec-row{
+
+display:grid;
+
+grid-template-columns:280px 1fr;
+
+padding:22px 0;
+
+border-bottom:1px solid #ddd;
+
+}
+
+
+
+.spec-key{
+
+font-weight:600;
+
+}
+
+
+
+.spec-value{
+
+color:#666;
+
+}
+
+
+
+/* =========================
+   Contact
+========================= */
+
+
+.contact-box{
+
+margin-top:100px;
+
+padding:70px 40px;
+
+background:#111;
+
+color:white;
+
+text-align:center;
+
+}
+
+
+
+.contact-box h2{
+
+font-size:36px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.contact-box p{
+
+font-size:18px;
+
+color:#ccc;
+
+}
+
+
+
+.contact-box a{
+
+margin-top:30px;
+
+padding:15px 45px;
+
+display:inline-block;
+
+background:white;
+
+color:#111;
+
+text-decoration:none;
+
+transition:.3s;
+
+}
+
+
+
+.contact-box a:hover{
+
+background:#e60012;
+
+color:white;
+
+}
+
+
+
+/* =========================
+   Related Products
+========================= */
+
+
+.relatedSection{
+
+margin-top:90px;
+
+}
+
+
+
+.relatedSection h2{
+
+font-size:36px;
+
+margin-bottom:40px;
+
+}
+
+
+
+.relatedGrid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+gap:35px;
+
+}
+
+
+
+/* 修复卡片高度 */
+
+.relatedCard{
+
+border:1px solid #e5e5e5;
+
+background:white;
+
+display:flex;
+
+flex-direction:column;
+
+overflow:hidden;
+
+min-height:520px;
+
+transition:.3s;
+
+}
+
+
+
+.relatedCard:hover{
+
+transform:translateY(-6px);
+
+box-shadow:0 20px 40px rgba(0,0,0,.08);
+
+}
+
+
+
+/* 图片区域 */
+
+.relatedImage{
+
+height:240px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+overflow:hidden;
+
+flex-shrink:0;
+
+}
+
+
+
+.relatedImage img{
+
+width:100%;
+
+height:100%;
+
+object-fit:contain;
+
+padding:20px;
+
+}
+
+
+
+/* 标题 */
+
+.relatedCard h3{
+
+font-size:22px;
+
+padding:0 25px;
+
+margin:20px 0;
+
+}
+
+
+
+/* 描述 */
+
+.relatedCard p{
+
+padding:0 25px;
+
+color:#666;
+
+line-height:1.7;
+
+font-size:15px;
+
+height:80px;
+
+overflow:hidden;
+
+margin:0;
+
+}
+
+
+
+/* 按钮 */
+
+.relatedCard a{
+
+margin:25px;
+
+margin-top:auto;
+
+display:inline-block;
+
+padding:12px 30px;
+
+border:1px solid #111;
+
+text-decoration:none;
+
+color:#111;
+
+width:max-content;
+
+transition:.3s;
+
+}
+
+
+
+.relatedCard a:hover{
+
+background:#111;
+
+color:white;
+
+}
+
+
+
+/* =========================
+ Responsive
+========================= */
+
+
+@media(max-width:800px){
+
+
+.product-hero{
+
+grid-template-columns:1fr;
+
+gap:40px;
+
+}
+
+
+
+.product-image{
+
+height:420px;
+
+transform:none;
+
+}
+
+
+
+.feature-grid,
+.application-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+
+.relatedGrid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+}
+
+
+
+
+
+@media(max-width:600px){
+
+
+.product-detail{
+
+padding:40px 20px;
+
+}
+
+
+
+.product-info h1{
+
+font-size:36px;
+
+}
+
+
+
+.product-overview{
+
+font-size:16px;
+
+}
+
+
+
+.product-image{
+
+height:320px;
+
+}
+
+
+
+.feature-grid,
+.application-grid,
+.relatedGrid{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.spec-row{
+
+grid-template-columns:1fr;
+
+gap:10px;
+
+}
+
+
+
+.product-section h2{
+
+font-size:28px;
+
+}
+
+
+}

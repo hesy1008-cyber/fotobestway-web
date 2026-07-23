@@ -1,0 +1,224 @@
+/* =========================
+ WHY US
+========================= */
+
+
+.why{
+
+padding:100px 50px;
+
+background:#f7f7f7;
+
+}
+
+
+
+
+.why h2{
+
+text-align:center;
+
+font-size:42px;
+
+margin:0 0 60px;
+
+}
+
+
+
+
+.features{
+
+max-width:1400px;
+
+margin:auto;
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:35px;
+
+}
+
+
+
+
+.features div{
+
+
+background:white;
+
+
+padding:45px;
+
+
+border:1px solid #eee;
+
+
+transition:.35s;
+
+
+}
+
+
+
+
+.features div:hover{
+
+
+transform:translateY(-8px);
+
+
+box-shadow:
+
+0 20px 50px rgba(0,0,0,.08);
+
+
+}
+
+
+
+
+
+.features h3{
+
+font-size:26px;
+
+margin:0 0 20px;
+
+}
+
+
+
+
+.features p{
+
+font-size:16px;
+
+line-height:1.8;
+
+color:#666;
+
+}
+
+
+
+
+/* =========================
+ CONTACT
+========================= */
+
+
+.contact{
+
+position:relative;
+
+background:#050505;
+
+color:white;
+
+text-align:center;
+
+padding:120px 20px;
+
+overflow:hidden;
+
+}
+
+
+
+.contact::before{
+
+content:"";
+
+position:absolute;
+
+inset:0;
+
+
+background:
+
+radial-gradient(
+
+circle at center,
+
+rgba(230,0,18,.25),
+
+transparent 45%
+
+);
+
+
+}
+
+
+
+.contact h2,
+.contact p,
+.contact button{
+
+position:relative;
+
+}
+
+
+
+.contact h2{
+
+font-size:46px;
+
+margin:0 0 20px;
+
+}
+
+
+
+
+.contact p{
+
+font-size:20px;
+
+color:#bbb;
+
+}
+
+
+
+
+.contact button{
+
+margin-top:40px;
+
+padding:18px 65px;
+
+border:none;
+
+background:white;
+
+}
+
+
+
+.contact button:hover{
+
+background:#e60012;
+
+color:white;
+
+}
+
+
+
+
+@media(max-width:900px){
+
+
+.features{
+
+grid-template-columns:1fr;
+
+}
+
+
+}

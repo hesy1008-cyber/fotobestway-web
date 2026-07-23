@@ -1,0 +1,43 @@
+/* =========================
+ GLOBAL RESET
+========================= */
+
+*{
+  box-sizing:border-box;
+}
+
+
+html,
+body{
+
+  margin:0;
+  padding:0;
+
+  font-family:
+  Arial,
+  Helvetica,
+  sans-serif;
+
+  color:#111;
+
+  background:#fff;
+
+}
+
+
+a{
+
+  text-decoration:none;
+
+  color:inherit;
+
+}
+
+
+button{
+
+  font-family:inherit;
+
+  cursor:pointer;
+
+}
