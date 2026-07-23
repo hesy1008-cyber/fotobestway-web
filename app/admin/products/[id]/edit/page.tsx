@@ -42,7 +42,27 @@ Edit Product
 
 
 <EditProductForm
-product={product}
+product={{
+  ...product,
+
+  features:
+    Array.isArray(product.features)
+      ? product.features as string[]
+      : [],
+
+  applications:
+    Array.isArray(product.applications)
+      ? product.applications as string[]
+      : [],
+
+  specs:
+    typeof product.specs === "object" &&
+    product.specs !== null &&
+    !Array.isArray(product.specs)
+      ? product.specs as Record<string,string>
+      : {}
+
+}}
 />
 
 
