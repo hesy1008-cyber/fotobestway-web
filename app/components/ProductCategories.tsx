@@ -94,10 +94,9 @@ categories.map((item)=>(
 
 key={item.slug}
 
-href={`/category/${item.slug}`}
+href={`/products?category=${item.slug}`}
 
 className="categoryItem"
-
 
 >
 

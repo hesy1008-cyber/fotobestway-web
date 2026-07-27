@@ -138,6 +138,54 @@ background:#b0000d;
 ========================= */
 
 
+
+.product-slider {
+
+position:relative;
+
+width:100%;
+
+height:500px;
+
+overflow:hidden;
+
+}
+
+
+
+.slider-image {
+
+
+position:absolute;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+object-fit:contain;
+
+
+opacity:0;
+
+
+}
+
+
+
+
+.slider-image:first-child{
+
+
+opacity:1;
+
+
+}
+
+
 .product-image{
 
 height:480px;
@@ -711,5 +759,231 @@ font-size:28px;
 
 }
 
+
+}
+/* Product Gallery */
+
+.product-gallery{
+
+margin-top:80px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:60px;
+
+}
+
+
+.gallery-item{
+
+width:100%;
+
+display:flex;
+
+justify-content:center;
+
+}
+
+
+.gallery-item img{
+
+width:100%;
+
+max-width:900px;
+
+height:auto;
+
+object-fit:contain;
+
+}
+
+.product-slider{
+
+width:100%;
+
+}
+
+
+.slider-main{
+
+position:relative;
+
+width:100%;
+
+height:520px;
+
+}
+
+
+
+.slider-main img{
+
+object-fit:contain;
+
+}
+
+
+
+.slider-prev,
+.slider-next{
+
+position:absolute;
+
+top:50%;
+
+transform:translateY(-50%);
+
+background:white;
+
+border:none;
+
+width:40px;
+
+height:40px;
+
+font-size:30px;
+
+cursor:pointer;
+
+}
+
+
+
+.slider-prev{
+
+left:10px;
+
+}
+
+
+.slider-next{
+
+right:10px;
+
+}
+
+
+
+.slider-dots{
+
+display:flex;
+
+justify-content:center;
+
+gap:10px;
+
+margin-top:15px;
+
+}
+
+
+
+.slider-dots button{
+
+width:8px;
+
+height:8px;
+
+border-radius:50%;
+
+border:none;
+
+background:#ccc;
+
+}
+
+
+
+.slider-dots button.active{
+
+background:#111;
+
+}
+.product-detail-images{
+
+width:100%;
+margin-top:80px;
+
+}
+
+
+.detail-image-box{
+
+width:100%;
+margin-bottom:50px;
+
+}
+
+
+.detail-image-box img{
+
+width:100%;
+height:auto;
+display:block;
+
+}
+
+.product-gallery{
+    width:100%;
+    margin-top:80px;
+}
+
+
+.gallery-main{
+
+    width:100%;
+    display:flex;
+    justify-content:center;
+
+}
+
+
+
+.gallery-main-image{
+
+    width:100%;
+    max-width:1000px;
+    height:auto;
+    object-fit:contain;
+
+}
+
+
+
+.gallery-thumbs{
+
+    display:flex;
+    gap:15px;
+    margin-top:30px;
+    flex-wrap:wrap;
+
+}
+
+
+
+.gallery-thumbs button{
+
+    border:1px solid #ddd;
+    background:white;
+    padding:5px;
+    cursor:pointer;
+
+}
+
+
+
+.gallery-thumbs button.active{
+
+    border:2px solid #111;
+
+}
+
+
+
+.thumb-image{
+
+    object-fit:cover;
 
 }

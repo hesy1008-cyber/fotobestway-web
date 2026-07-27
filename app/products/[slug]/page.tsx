@@ -1,15 +1,19 @@
 import { prisma } from "@/app/lib/prisma";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 
 import ProductFeatures from "@/app/components/ProductFeatures";
 import ProductApplications from "@/app/components/ProductApplications";
 import ProductSpecs from "@/app/components/ProductSpecs";
 import RelatedProducts from "@/app/components/RelatedProducts";
+import ProductSlider from "@/app/components/ProductSlider";
+import ProductGallery from "@/app/components/ProductGallery";
 
 import "@/app/styles/detail.css";
+
+
 console.log("PRODUCT DETAIL ROUTE LOADED");
+
 
 export default async function ProductDetailPage({
 
@@ -31,11 +35,12 @@ const { slug } = await params;
 const product = await prisma.product.findUnique({
 
 where:{
-slug: slug,
+slug,
 },
 
 
 select:{
+
 
 id:true,
 
@@ -44,6 +49,10 @@ slug:true,
 title:true,
 
 image:true,
+
+coverImage:true,
+
+detailImages:true,
 
 overview:true,
 
@@ -54,6 +63,7 @@ features:true,
 applications:true,
 
 specs:true,
+
 
 }
 
@@ -69,27 +79,77 @@ notFound();
 
 
 
+
+// =======================
+// 主图
+// =======================
+
+const mainImage =
+product.coverImage ||
+product.image ||
+"";
+
+
+
+
+
+// =======================
+// 详情图片
+// =======================
+
+const detailImages = Array.isArray(product.detailImages)
+
+?
+
+(product.detailImages as string[])
+.map((img)=>img.trim())
+.filter((img)=>img !== "")
+.filter((img)=>img !== mainImage)
+
+:
+
+[];
+
+// 顶部轮播图片
+const sliderImages = [
+mainImage,
+
+...detailImages.filter(
+(img)=>!img.includes("wagon-detail.webp")
+)
+
+];
+
+
+
 const relatedProducts = await prisma.product.findMany({
 
 where:{
 
+
 category:product.category,
+
 
 NOT:{
 id:product.id
 }
 
+
 },
+
 
 take:3,
 
+
 orderBy:{
-
 id:"desc"
-
 }
 
+
 });
+
+
+
 
 
 
@@ -98,7 +158,11 @@ return (
 <main className="product-detail">
 
 
+
+{/* 产品顶部 */}
+
 <section className="product-hero">
+
 
 
 <div className="product-info">
@@ -120,11 +184,15 @@ return (
 
 
 
+
+
 <p className="product-overview">
 
 {product.overview}
 
 </p>
+
+
 
 
 
@@ -146,20 +214,16 @@ Contact Us
 
 
 
+
+
 <div className="product-image">
 
 
-<Image
+<ProductSlider
 
-src={product.image}
+images={sliderImages}
 
-alt={product.title}
-
-width={800}
-
-height={800}
-
-className="detail-image"
+title={product.title}
 
 />
 
@@ -174,7 +238,13 @@ className="detail-image"
 
 
 
+
+
+
+{/* Features */}
+
 <section className="product-section">
+
 
 <ProductFeatures
 
@@ -182,13 +252,49 @@ features={product.features}
 
 />
 
+
 </section>
 
 
 
 
 
+
+
+
+{/* 产品详情图片 */}
+
+{
+detailImages.length > 0 && (
+
+<section className="product-detail-images">
+
+
+<ProductGallery
+
+images={detailImages}
+
+/>
+
+
+</section>
+
+)
+
+}
+
+
+
+
+
+
+
+
+
+{/* Applications */}
+
 <section className="product-section">
+
 
 <ProductApplications
 
@@ -196,13 +302,20 @@ applications={product.applications}
 
 />
 
+
 </section>
 
 
 
 
 
+
+
+
+{/* Specifications */}
+
 <section className="product-section">
+
 
 <ProductSpecs
 
@@ -210,7 +323,12 @@ specs={product.specs}
 
 />
 
+
 </section>
+
+
+
+
 
 
 
@@ -218,7 +336,9 @@ specs={product.specs}
 
 {
 
-relatedProducts.length > 0 && (
+relatedProducts.length >0 &&
+
+(
 
 <RelatedProducts
 
@@ -229,6 +349,11 @@ products={relatedProducts}
 )
 
 }
+
+
+
+
+
 
 
 
@@ -245,11 +370,15 @@ Interested in this product?
 
 
 
+
+
 <p>
 
 Contact Fotobestway for professional solutions.
 
 </p>
+
+
 
 
 
@@ -264,12 +393,20 @@ Send Inquiry
 </Link>
 
 
+
+
 </section>
+
+
+
+
 
 
 
 </main>
 
+
 )
+
 
 }

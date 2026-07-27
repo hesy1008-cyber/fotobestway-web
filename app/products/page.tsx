@@ -3,363 +3,248 @@ import { prisma } from "@/app/lib/prisma";
 import ProductCard from "@/app/components/ProductCard";
 import "../styles/products.css";
 
-
-
 const categories = [
-
   {
-    number:"01",
-    name:"Studio Lighting",
-    slug:"lighting"
+    number: "01",
+    name: "Lighting",
+    slug: "lighting",
   },
-
   {
-    number:"02",
-    name:"Light Stand",
-    slug:"stand"
+    number: "02",
+    name: "Background",
+    slug: "background",
   },
-
   {
-    number:"03",
-    name:"Softbox",
-    slug:"softbox"
+    number: "03",
+    name: "Lighting Accessories",
+    slug: "lighting-accessories",
   },
-
   {
-    number:"04",
-    name:"Butterfly Frame",
-    slug:"frame"
+    number: "04",
+    name: "Light Stands",
+    slug: "light-stands",
   },
-
   {
-    number:"05",
-    name:"Grip & Clamp",
-    slug:"grip"
+    number: "05",
+    name: "Studio Accessories",
+    slug: "accessories",
   },
-
   {
-    number:"06",
-    name:"Background",
-    slug:"background"
+    number: "06",
+    name: "Photography Carts",
+    slug: "carts",
   },
-
-  {
-    number:"07",
-    name:"Camping Cart",
-    slug:"cart"
-  }
-
 ];
 
-
-
-
-
-const categoryOrder:Record<string,number> = {
-
-  lighting:1,
-
-  stand:2,
-
-  softbox:3,
-
-  frame:4,
-
-  grip:5,
-
-  background:6,
-
-  cart:7
-
+const categoryOrder: Record<string, number> = {
+  lighting: 1,
+  background: 2,
+  "lighting-accessories": 3,
+  "light-stands": 4,
+  accessories: 5,
+  carts: 6,
 };
 
+const heroData: Record<
+  string,
+  {
+    title: string;
+    desc: string;
+  }
+> = {
+  "": {
+    title: "Professional Studio Equipment",
+    desc: "Explore our complete range of photography equipment.",
+  },
+
+  lighting: {
+    title: "Professional Studio Lighting Equipment",
+    desc: "Professional photography lighting solutions designed for studios, commercial production and creative professionals.",
+  },
+
+  background: {
+    title: "Photography Background Systems",
+    desc: "Professional background solutions for studio photography.",
+  },
+
+  "lighting-accessories": {
+    title: "Lighting Accessories",
+    desc: "Essential accessories for professional lighting setups.",
+  },
+
+  "light-stands": {
+    title: "Professional Light Stands",
+    desc: "Heavy-duty studio light stands for professional applications.",
+  },
+
+  accessories: {
+    title: "Studio Accessories",
+    desc: "Complete range of professional studio accessories.",
+  },
+
+  carts: {
+    title: "Photography Carts",
+    desc: "Professional transport carts for studio equipment.",
+  },
+};
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    category?: string;
+  }>;
+}) {
+  const params = await searchParams;
 
+  const currentCategory = params.category || "";
 
+  const hero = heroData[currentCategory] ?? heroData[""];
 
+  const products = await prisma.product.findMany({
+    where: currentCategory
+      ? {
+          category: currentCategory,
+        }
+      : undefined,
+  });
 
+  products.sort((a, b) => {
+    const categoryA = categoryOrder[a.category] || 99;
+    const categoryB = categoryOrder[b.category] || 99;
 
-export default async function ProductsPage(){
+    if (categoryA !== categoryB) {
+      return categoryA - categoryB;
+    }
 
+    return a.title.localeCompare(b.title);
+  });
 
-const products = await prisma.product.findMany();
+  return (
+    <main className="productsPage">
 
+      {/* Hero */}
 
+      <section className="productsHero">
 
+        <div className="heroSmallTitle">
+          PRODUCT COLLECTION
+        </div>
 
+        <h1>
+          {hero.title}
+        </h1>
 
-products.sort((a,b)=>{
+        <p>
+          {hero.desc}
+        </p>
 
+        <div className="productCount">
+          {products.length} Products Available
+        </div>
 
-const categoryA = categoryOrder[a.category] || 99;
+      </section>
 
-const categoryB = categoryOrder[b.category] || 99;
+      {/* Layout */}
 
+      <section className="productLayout">
 
+        {/* Sidebar */}
 
-if(categoryA !== categoryB){
+        <aside className="categorySidebar">
 
-return categoryA-categoryB;
+          <h2>
+            Categories
+          </h2>
 
-}
+          <Link
+            href="/products"
+            className={`categoryLink ${
+              currentCategory === "" ? "active" : ""
+            }`}
+          >
+            All Products
+          </Link>
 
+          {categories.map((cat) => (
 
+            <Link
+              key={cat.slug}
+              href={`/products?category=${cat.slug}`}
+              className={`categoryLink ${
+                currentCategory === cat.slug ? "active" : ""
+              }`}
+            >
 
-return a.title.localeCompare(b.title);
+              <span>
+                {cat.number}
+              </span>
 
+              {cat.name}
 
+            </Link>
 
-});
+          ))}
 
+        </aside>
 
+        {/* Products */}
 
+        <section className="productListSection">
 
+          <div className="sectionHeader">
 
+            <h2>
 
-return (
+              {
+                currentCategory
+                  ? categories.find(c => c.slug === currentCategory)?.name
+                  : "All Products"
+              }
 
+            </h2>
 
-<main className="productsPage">
+            <p>
 
+              {
+                currentCategory
+                  ? `Browse all ${categories.find(c => c.slug === currentCategory)?.name}.`
+                  : "Professional equipment for studio lighting applications."
+              }
 
+            </p>
 
+          </div>
 
+          <section className="productsGrid">
 
+            {
+              products.length === 0 ? (
 
+                <p>
+                  No products found.
+                </p>
 
-<section className="productsHero">
+              ) : (
 
+                products.map((product) => (
 
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                  />
 
-<div className="heroSmallTitle">
+                ))
 
-PRODUCT COLLECTION
+              )
+            }
 
-</div>
+          </section>
 
+        </section>
 
+      </section>
 
-
-<h1>
-
-Professional Studio Lighting Equipment
-
-</h1>
-
-
-
-
-<p>
-
-Explore our professional photography lighting solutions designed for studios,
-commercial production and creative professionals.
-
-</p>
-
-
-
-
-<div className="productCount">
-
-{products.length} Products Available
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section className="categorySection">
-
-
-
-<div className="sectionTitle">
-
-
-<h2>
-
-Categories
-
-</h2>
-
-
-</div>
-
-
-
-
-
-<div className="categoryMenu">
-
-
-
-{
-
-categories.map((cat)=>(
-
-
-
-<Link
-
-
-key={cat.slug}
-
-
-href={`/category/${cat.slug}`}
-
-
-className="productCategoryItem"
-
-
-
->
-
-
-
-<span className="categoryNumber">
-
-{cat.number}
-
-</span>
-
-
-
-
-<span className="categoryName">
-
-{cat.name}
-
-</span>
-
-
-
-</Link>
-
-
-
-))
-
-
-}
-
-
-
-
-</div>
-
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section className="productListSection">
-
-
-
-<div className="sectionHeader">
-
-
-<h2>
-
-All Products
-
-</h2>
-
-
-<p>
-
-Professional equipment for studio lighting applications.
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-
-<section className="productsGrid">
-
-
-
-{
-
-products.length === 0 ? (
-
-
-<p>
-No products found.
-</p>
-
-
-
-) : (
-
-
-
-products.map((product)=>(
-
-
-<ProductCard
-
-
-key={product.id}
-
-
-product={product}
-
-
-/>
-
-
-
-))
-
-
-)
-
-
-}
-
-
-
-</section>
-
-
-
-
-
-</section>
-
-
-
-
-
-
-
-</main>
-
-
-);
-
-
+    </main>
+  );
 }

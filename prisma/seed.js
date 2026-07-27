@@ -5,6 +5,116 @@ const prisma = new PrismaClient();
 
 const products = [
 
+    {
+title:"Dual-Layer Folding Photography Utility Wagon",
+
+slug:"dual-layer-folding-wagon",
+
+category:"equipment",
+
+image:"/products/wagon/wagon-main.webp",
+
+
+overview:
+"The Dual-Layer Folding Photography Utility Wagon is a professional transport cart designed for photographers, studios and outdoor production teams. Featuring a two-layer storage system, compact folding design and heavy-duty wheels, it provides efficient equipment transportation for professional workflows.",
+
+
+features:[
+
+"Dual-layer segmented storage design",
+
+"Fast folding and compact storage",
+
+"Heavy-duty all-terrain wheels",
+
+"Stable steel frame construction",
+
+"Designed for photography equipment transport"
+
+],
+
+
+applications:[
+
+"Photography studio",
+
+"Film production",
+
+"Outdoor shooting",
+
+"Video production",
+
+"Commercial production"
+
+],
+
+
+specs:[
+
+"Model: DK 9050",
+
+"Extended size: 95×52×105cm",
+
+"Folded size: 95×52×26cm",
+
+"Wheel size: 15cm",
+
+"Gross weight: 14.5kg",
+
+"Maximum loading capacity: 200kg",
+
+"Material: Steel frame + 600D Oxford fabric"
+
+],
+
+
+// 新字段
+
+coverImage:
+"/products/wagon/wagon-main.webp",
+
+
+description:
+"The Dual-Layer Folding Photography Utility Wagon provides professional photographers with a durable and portable solution for transporting lighting equipment, camera accessories and production tools.",
+
+
+
+detailImages:[
+
+"/products/wagon/wagon-detail.webp",
+
+"/products/wagon/wagon-expanded.webp",
+
+"/products/wagon/wagon-folded.webp",
+
+"/products/wagon/wagon-wheel-detail.webp",
+
+"/products/wagon/wagon-wheel-side.webp",
+
+"/products/wagon/wagon-usage.webp"
+
+],
+
+
+gallery:[
+
+"/products/wagon/wagon-main.webp",
+
+"/products/wagon/wagon-expanded.webp",
+
+"/products/wagon/wagon-folded.webp",
+
+"/products/wagon/wagon-storage.webp",
+
+"/products/wagon/wagon-wheel-side.webp",
+
+"/products/wagon/wagon-usage.webp"
+
+]
+
+
+},
+
 {
 title:"PL-400B LED Light",
 slug:"pl-400b",
@@ -419,19 +529,19 @@ applications:product.applications,
 specs:product.specs,
 
 
-
 // 新字段
-coverImage:product.image,
 
-description:product.overview,
+coverImage:product.coverImage || product.image,
+
+description:product.description || product.overview,
 
 
-detailImages:[
+detailImages:product.detailImages || [
 product.image
 ],
 
 
-gallery:[
+gallery:product.gallery || [
 product.image
 ]
 

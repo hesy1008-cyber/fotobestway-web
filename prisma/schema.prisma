@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Product {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(cuid())
   title        String
   slug         String   @unique
+  category     String
   image        String
   overview     String
-  category     String   @default("lighting")
   features     Json
   applications Json
   specs        Json
-  createdAt    DateTime @default(now())
   coverImage   String?
   description  String?
   detailImages Json?
   gallery      Json?
+  createdAt    DateTime @default(now())
 }
