@@ -60,8 +60,8 @@ test-*.js
 prisma/dev.db
 prisma/dev.db-journal
 
-# 上传目录（用户上传的文件，不提交到 Git）
-public/uploads/
+# 上传目录（初始数据提交到Git，运行时新上传的靠备份保护）
+# public/uploads/
 
 # 临时脚本
 prisma/create-*.js
