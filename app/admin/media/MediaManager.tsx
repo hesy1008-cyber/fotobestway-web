@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   createBanner,
   deleteBanner,
   deleteGalleryItem,
+  updateBanner,
+  toggleBannerActive,
 } from "@/app/actions/media";
 
 type Banner = {
@@ -44,8 +46,15 @@ export default function MediaManager({
   const [activeTab, setActiveTab] = useState<"banner" | "gallery">(
     tabParam === "gallery" ? "gallery" : "banner"
   );
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    subtitle: "",
+    buttonText: "",
+    buttonLink: "",
+    sortOrder: 0,
+  });
 
-  // 切换选项卡时更新 URL
   function switchTab(tab: "banner" | "gallery") {
     setActiveTab(tab);
     const params = new URLSearchParams(window.location.search);
@@ -53,7 +62,6 @@ export default function MediaManager({
     router.replace(`?${params.toString()}`);
   }
 
-  // 上传轮播图
   async function handleBannerUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -67,7 +75,6 @@ export default function MediaManager({
     }
   }
 
-  // 删除轮播图
   async function handleDeleteBanner(id: string) {
     if (!confirm("确定要删除这张轮播图吗？")) return;
     try {
@@ -78,7 +85,46 @@ export default function MediaManager({
     }
   }
 
-  // 上传佳作欣赏
+  function startEdit(banner: Banner) {
+    setEditingId(banner.id);
+    setEditForm({
+      title: banner.title || "",
+      subtitle: banner.subtitle || "",
+      buttonText: banner.buttonText || "",
+      buttonLink: banner.buttonLink || "",
+      sortOrder: banner.sortOrder,
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  async function saveEdit(id: string) {
+    try {
+      await updateBanner(id, {
+        title: editForm.title,
+        subtitle: editForm.subtitle,
+        buttonText: editForm.buttonText,
+        buttonLink: editForm.buttonLink,
+        sortOrder: editForm.sortOrder,
+      });
+      setEditingId(null);
+      window.location.reload();
+    } catch (error: any) {
+      alert("保存失败：" + (error.message || "未知错误"));
+    }
+  }
+
+  async function handleToggleActive(id: string) {
+    try {
+      await toggleBannerActive(id);
+      window.location.reload();
+    } catch (error: any) {
+      alert("操作失败");
+    }
+  }
+
   async function handleGalleryUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -96,7 +142,6 @@ export default function MediaManager({
 
       const data = await res.json();
 
-      // 添加到列表开头
       const newItem: GalleryItem = {
         id: data.id || Date.now().toString(),
         image: data.image || "",
@@ -114,7 +159,6 @@ export default function MediaManager({
     }
   }
 
-  // 删除佳作欣赏
   async function handleDeleteGallery(id: string) {
     if (!confirm("确定要删除这张图片吗？")) return;
     try {
@@ -127,7 +171,6 @@ export default function MediaManager({
 
   return (
     <div>
-      {/* Tab 切换 */}
       <div className="admin-tabs">
         <button
           className={`admin-tab ${activeTab === "banner" ? "active" : ""}`}
@@ -143,7 +186,6 @@ export default function MediaManager({
         </button>
       </div>
 
-      {/* 轮播图管理 */}
       {activeTab === "banner" && (
         <div className="admin-form-section">
           <h2 className="admin-form-section-title">上传轮播图</h2>
@@ -205,34 +247,177 @@ export default function MediaManager({
             </button>
           </form>
 
-          {/* 已有轮播图列表 */}
           {banners.length > 0 && (
             <div style={{ marginTop: "30px" }}>
               <h3 style={{ fontSize: "16px", marginBottom: "16px" }}>
                 当前轮播图 ({banners.length})
               </h3>
-              <div className="admin-image-grid">
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {banners.map((banner, index) => (
-                  <div key={banner.id} className="admin-image-grid-item">
-                    <img src={banner.image} alt={banner.title || "Banner"} />
-                    <div style={{ padding: "8px", fontSize: "12px" }}>
-                      <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                        #{index + 1} {banner.isActive ? "✅" : "⏸️"}
-                      </div>
-                      {banner.title && (
-                        <div style={{ color: "#666", marginBottom: "4px" }}>
-                          {banner.title}
+                  <div
+                    key={banner.id}
+                    style={{
+                      border: "1px solid #e5e5e5",
+                      borderRadius: "8px",
+                      padding: "12px",
+                      background: "#fafafa",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                      <img
+                        src={banner.image}
+                        alt={banner.title || "Banner"}
+                        style={{
+                          width: "200px",
+                          height: "84px",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, marginBottom: "4px" }}>
+                          #{index + 1} {banner.isActive ? "✅ 启用" : "⏸️ 禁用"}
                         </div>
-                      )}
+                        {banner.title && (
+                          <div style={{ color: "#333", marginBottom: "2px" }}>
+                            <strong>标题：</strong>{banner.title}
+                          </div>
+                        )}
+                        {banner.subtitle && (
+                          <div style={{ color: "#666", marginBottom: "2px", fontSize: "13px" }}>
+                            <strong>副标题：</strong>{banner.subtitle}
+                          </div>
+                        )}
+                        {banner.buttonText && (
+                          <div style={{ color: "#666", marginBottom: "2px", fontSize: "13px" }}>
+                            <strong>按钮：</strong>{banner.buttonText} → {banner.buttonLink}
+                          </div>
+                        )}
+                        <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                          <button
+                            type="button"
+                            onClick={() => startEdit(banner)}
+                            className="admin-btn admin-btn-secondary"
+                            style={{ fontSize: "12px", padding: "4px 12px" }}
+                          >
+                            ✏️ 编辑
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(banner.id)}
+                            className="admin-btn admin-btn-secondary"
+                            style={{ fontSize: "12px", padding: "4px 12px" }}
+                          >
+                            {banner.isActive ? "⏸️ 禁用" : "✅ 启用"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBanner(banner.id)}
+                            className="admin-btn"
+                            style={{
+                              fontSize: "12px",
+                              padding: "4px 12px",
+                              background: "#e53e3e",
+                              color: "#fff",
+                            }}
+                          >
+                            🗑️ 删除
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteBanner(banner.id)}
-                      className="admin-image-grid-remove"
-                      title="删除"
-                    >
-                      ×
-                    </button>
+
+                    {editingId === banner.id && (
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          padding: "16px",
+                          background: "#fff",
+                          border: "1px solid #ddd",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <h4 style={{ marginBottom: "12px" }}>编辑轮播图</h4>
+                        <div className="admin-form-row">
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">标题</label>
+                            <input
+                              className="admin-form-input"
+                              value={editForm.title}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, title: e.target.value })
+                              }
+                              placeholder="主标题"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">副标题</label>
+                            <input
+                              className="admin-form-input"
+                              value={editForm.subtitle}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, subtitle: e.target.value })
+                              }
+                              placeholder="副标题"
+                            />
+                          </div>
+                        </div>
+                        <div className="admin-form-row">
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">按钮文字</label>
+                            <input
+                              className="admin-form-input"
+                              value={editForm.buttonText}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, buttonText: e.target.value })
+                              }
+                              placeholder="如：了解更多"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">按钮链接</label>
+                            <input
+                              className="admin-form-input"
+                              value={editForm.buttonLink}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, buttonLink: e.target.value })
+                              }
+                              placeholder="如：/products"
+                            />
+                          </div>
+                        </div>
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">排序（数字越小越靠前）</label>
+                          <input
+                            type="number"
+                            className="admin-form-input"
+                            value={editForm.sortOrder}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                sortOrder: parseInt(e.target.value) || 0,
+                              })
+                            }
+                          />
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                          <button
+                            type="button"
+                            onClick={() => saveEdit(banner.id)}
+                            className="admin-btn admin-btn-primary"
+                          >
+                            💾 保存
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelEdit}
+                            className="admin-btn admin-btn-secondary"
+                          >
+                            取消
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -241,7 +426,6 @@ export default function MediaManager({
         </div>
       )}
 
-      {/* 佳作欣赏管理 */}
       {activeTab === "gallery" && (
         <div className="admin-form-section">
           <h2 className="admin-form-section-title">上传佳作欣赏图片</h2>
@@ -283,7 +467,6 @@ export default function MediaManager({
             </button>
           </form>
 
-          {/* 已有图片列表 */}
           {galleryItems.length > 0 && (
             <div style={{ marginTop: "30px" }}>
               <h3 style={{ fontSize: "16px", marginBottom: "16px" }}>

@@ -97,6 +97,30 @@ export async function toggleBannerActive(id: string) {
   revalidatePath("/admin/media");
 }
 
+export async function updateBanner(id: string, data: {
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}) {
+  await prisma.banner.update({
+    where: { id },
+    data: {
+      title: data.title !== undefined ? (data.title || null) : undefined,
+      subtitle: data.subtitle !== undefined ? (data.subtitle || null) : undefined,
+      buttonText: data.buttonText !== undefined ? (data.buttonText || null) : undefined,
+      buttonLink: data.buttonLink !== undefined ? (data.buttonLink || null) : undefined,
+      sortOrder: data.sortOrder,
+      isActive: data.isActive,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/media");
+}
+
 // ============================
 // 佳作欣赏 GalleryItem
 // ============================
