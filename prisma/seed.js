@@ -81,7 +81,6 @@ description:
 
 detailImages:[
 
-"/products/wagon/wagon-detail.webp",
 
 "/products/wagon/wagon-expanded.webp",
 
@@ -502,8 +501,13 @@ await prisma.product.deleteMany();
 console.log("Importing products...");
 
 
-
 for(const product of products){
+
+const category = await prisma.category.findUnique({
+  where:{
+    slug:product.category
+  }
+});
 
 
 await prisma.product.create({
@@ -515,7 +519,7 @@ title:product.title,
 
 slug:product.slug,
 
-category:product.category,
+categoryId: category?.id,
 
 image:product.image,
 

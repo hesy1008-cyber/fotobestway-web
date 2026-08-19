@@ -1,112 +1,114 @@
 /* =========================
- WHY US
+   BRANDS - 合作品牌
 ========================= */
 
-
-.why{
-
-padding:100px 50px;
-
-background:#f7f7f7;
-
+.brands {
+  padding: 100px 50px;
+  background: #f7f7f7;
 }
 
-
-
-
-.why h2{
-
-text-align:center;
-
-font-size:42px;
-
-margin:0 0 60px;
-
+.brandsHeader {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 60px;
 }
 
-
-
-
-.features{
-
-max-width:1400px;
-
-margin:auto;
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:35px;
-
+.brandsSubtitle {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #e60012;
+  margin-bottom: 16px;
 }
 
-
-
-
-.features div{
-
-
-background:white;
-
-
-padding:45px;
-
-
-border:1px solid #eee;
-
-
-transition:.35s;
-
-
+.brandsTitle {
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 18px;
+  letter-spacing: -1px;
 }
 
-
-
-
-.features div:hover{
-
-
-transform:translateY(-8px);
-
-
-box-shadow:
-
-0 20px 50px rgba(0,0,0,.08);
-
-
+.brandsDesc {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #666;
+  margin: 0;
 }
 
-
-
-
-
-.features h3{
-
-font-size:26px;
-
-margin:0 0 20px;
-
+.brandsGrid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
 }
 
-
-
-
-.features p{
-
-font-size:16px;
-
-line-height:1.8;
-
-color:#666;
-
+.brandItem {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 30px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
+.brandItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  border-color: #ddd;
+}
 
+.brandLogo {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.brandItem:hover .brandLogo {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .brandsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .brands {
+    padding: 60px 20px;
+  }
+
+  .brandsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .brandItem {
+    padding: 20px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 
 /* =========================
- CONTACT
+   CONTACT
 ========================= */
 
 
@@ -200,25 +202,11 @@ background:white;
 
 
 
+
 .contact button:hover{
 
 background:#e60012;
 
 color:white;
-
-}
-
-
-
-
-@media(max-width:900px){
-
-
-.features{
-
-grid-template-columns:1fr;
-
-}
-
 
 }

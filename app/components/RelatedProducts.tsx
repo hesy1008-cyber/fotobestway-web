@@ -58,10 +58,13 @@ height={500}
 
 className="relatedImageImg"
 
+loading="lazy"
+
 />
 
 
 </div>
+
 
 
 
@@ -82,6 +85,7 @@ className="relatedImageImg"
 {product.overview}
 
 </p>
+
 
 
 
@@ -113,6 +117,7 @@ View Product
 
 
 </section>
+
 
 
 )

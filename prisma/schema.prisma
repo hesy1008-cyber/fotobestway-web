@@ -8,18 +8,139 @@ datasource db {
 }
 
 model Product {
+  id                String        @id @default(cuid())
+  title             String
+  slug              String        @unique
+  categoryId        String?
+  categoryRef       Category?     @relation(fields: [categoryId], references: [id])
+  subCategoryId     String?
+  subCategoryRef    SubCategory?  @relation(fields: [subCategoryId], references: [id])
+  image             String
+  imageAlt          String?
+  shortDescription  String?
+  overview          String
+  features          Json
+  applications      Json
+  specs             Json
+  coverImage        String?
+  description       String?
+  detailImages      Json?
+  gallery           Json?
+  video             String?
+  featureIcons      Json?
+  // SEO 字段
+  seoTitle          String?
+  metaDescription   String?
+  focusKeywords     String?
+  hiddenSeoText     String?
+  createdAt         DateTime      @default(now())
+}
+
+model Category {
+  id                String         @id @default(cuid())
+  name              String         @unique
+  slug              String         @unique
+  sortOrder         Int            @default(0)
+  bannerImage       String?
+  bannerTitle       String?
+  bannerDescription String?
+  products          Product[]
+  subCategories     SubCategory[]
+  createdAt         DateTime       @default(now())
+}
+
+model SubCategory {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String
+  sortOrder   Int        @default(0)
+  categoryId  String
+  categoryRef Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products    Product[]
+  createdAt   DateTime   @default(now())
+
+  @@unique([categoryId, slug])
+}
+
+model Banner {
+  id         String   @id @default(cuid())
+  image      String
+  title      String?
+  subtitle   String?
+  buttonText String?
+  buttonLink String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model GalleryItem {
   id           String   @id @default(cuid())
-  title        String
-  slug         String   @unique
-  category     String
   image        String
-  overview     String
-  features     Json
-  applications Json
-  specs        Json
-  coverImage   String?
-  description  String?
-  detailImages Json?
-  gallery      Json?
+  title        String?
+  photographer String?
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
+}
+
+model AboutPage {
+  id             String   @id @default(cuid())
+  heroTitle      String   @default("OUR COMPANY")
+  heroSubtitle   String   @default("Professional Photographic Equipment Solutions")
+  heroButtonText String   @default("LEARN MORE")
+  heroImage      String   @default("/about/hero.jpg")
+
+  introTitle     String   @default("Company Profile")
+  introContent   String   @default("")
+
+  factoryTitle   String   @default("Production Workshop")
+  factoryImages  Json?    // string[]
+
+  certificates   Json?    // { title: string; desc: string }[]
+
+  videoTitle     String   @default("Take a Tour")
+  videoUrl       String?
+  videoPoster    String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Inquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PdfCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  subtitle    String?
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  files       PdfFile[]
+  createdAt   DateTime  @default(now())
+}
+
+model PdfFile {
+  id          String      @id @default(cuid())
+  title       String
+  categoryId  String
+  category    PdfCategory @relation(fields: [categoryId], references: [id])
+  fileName    String
+  fileSize    Int
+  fileUrl     String
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
 }

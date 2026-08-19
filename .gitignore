@@ -41,3 +41,40 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# 临时文件和截图
+*.png
+*.jpg
+*.jpeg
+!public/**/*.png
+!public/**/*.jpg
+!public/**/*.jpeg
+build-log*.txt
+check-*.js
+check-*.ts
+test-*.js
+*.tar.gz
+*.log
+
+# 数据库（不提交到 Git，单独备份）
+prisma/dev.db
+prisma/dev.db-journal
+
+# 上传目录（用户上传的文件，不提交到 Git）
+public/uploads/
+
+# 临时脚本
+prisma/create-*.js
+prisma/fix-*.js
+prisma/migrate-*.js
+prisma/delete-*.js
+prisma/update-*.js
+scripts/import-products.ts
+
+# 服务器监控
+server-monitor*.js
+server-monitor*.log
+watchdog*.js
+watchdog*.txt
+watchdog*.log
+start-server-monitor.bat

@@ -36,7 +36,7 @@ status:400
 const product = await prisma.product.update({
 
 where:{
-id:Number(id)
+id:String(id)
 },
 
 data:{

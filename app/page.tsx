@@ -1,10 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCategories from "@/app/components/ProductCategories";
+import GalleryShowcase from "@/app/components/GalleryShowcase";
 import HeroCarousel from "@/app/components/HeroCarousel";
+import SocialIcons from "@/app/components/SocialIcons";
+import { prisma } from "@/app/lib/prisma";
 
 
-export default function Home(){
+export default async function Home(){
+
+const banners = await prisma.banner.findMany({
+  where: { isActive: true },
+  orderBy: { sortOrder: "asc" },
+});
+
+const slides = banners.map((b) => ({
+  image: b.image,
+  title: b.title || "",
+  desc: b.subtitle || "",
+  buttonText: b.buttonText || undefined,
+  buttonLink: b.buttonLink || undefined,
+}));
+
+const brandLogos = Array.from({ length: 20 }, (_, i) => {
+  const num = String(i + 1).padStart(2, "0");
+  return `/brands/brand-${num}.jpg`;
+});
 
 
 return(
@@ -17,7 +38,7 @@ return(
 {/* HERO */}
 
 
-<HeroCarousel />
+<HeroCarousel slides={slides} />
 
 
 
@@ -29,111 +50,36 @@ return(
 <ProductCategories />
 
 
-
-
-
-
-
-
-{/* WHY US */}
-
-
-
-<section className="why">
-
-
-
-<h2>
-
-Why Choose Fotobestway
-
-</h2>
-
-
-
-<div className="features">
-
-
-
-<div>
-
-<h3>
-
-Professional Quality
-
-</h3>
-
-
-<p>
-
-Reliable studio lighting equipment designed for photographers and creators.
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div>
-
-<h3>
-
-OEM / ODM Service
-
-</h3>
-
-
-<p>
-
-Customized lighting solutions for global brands and distributors.
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div>
-
-<h3>
-
-Factory Support
-
-</h3>
-
-
-<p>
-
-Stable production capacity and professional technical support.
-
-</p>
-
-
-</div>
-
-
-
-</div>
-
-
+{/* GALLERY SHOWCASE */}
+
+<GalleryShowcase />
+
+
+{/* BRANDS - 鍚堜綔鍝佺墝 */}
+
+<section className="brands">
+  <div className="brandsHeader">
+    <h2 className="brandsTitle">Trusted by Leading Brands</h2>
+    <p className="brandsDesc">
+      We are proud to partner with industry-leading companies worldwide
+    </p>
+  </div>
+
+  <div className="brandsGrid">
+    {brandLogos.map((logo, i) => (
+      <div key={i} className="brandItem">
+        <Image
+          src={logo}
+          alt={`Brand ${i + 1}`}
+          width={250}
+          height={192}
+          className="brandLogo"
+          loading="lazy"
+        />
+      </div>
+    ))}
+  </div>
 </section>
-
-
-
-
-
-
-
 
 
 {/* CONTACT */}
@@ -175,7 +121,6 @@ Request Quote
 
 
 
-
 {/* FOOTER */}
 
 
@@ -209,9 +154,13 @@ OEM / ODM solutions for global customers.
 
 </p>
 
+      <div style={{ marginTop: "20px" }}>
+        <SocialIcons size={22} vibrant={true} />
+      </div>
+
+
 
 </div>
-
 
 
 
@@ -269,6 +218,7 @@ Contact
 
 
 
+
 <div className="footerContact">
 
 
@@ -282,22 +232,23 @@ Contact
 <p>
 
 Email:
-sales@fotobestway.com
+maggie@fotobestway.com.cn
 
 </p>
 
 
 <p>
 
-Phone:
-+86 xxx xxxx xxxx
+Tel:
++86 574 6270 7558
 
 </p>
 
 
 <p>
 
-Factory support worldwide
+WeChat / WhatsApp:
++86 135 6782 6336
 
 </p>
 
@@ -306,8 +257,8 @@ Factory support worldwide
 </div>
 
 
-
 </div>
+
 
 
 
@@ -318,16 +269,14 @@ Factory support worldwide
 <div className="copyright">
 
 
-© 2026 Fotobestway. All Rights Reserved.
+漏 2026 Fotobestway. All Rights Reserved.
 
 
 </div>
 
 
 
-
 </footer>
-
 
 
 

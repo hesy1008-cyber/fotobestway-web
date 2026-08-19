@@ -1,0 +1,555 @@
+/* =========================
+   CONTACT PAGE
+   与 Support 页风格完全统一
+========================= */
+
+.contactPage {
+  width: 100%;
+  background: #fff;
+}
+
+/* =========================
+   HERO - 与 Support 页统一
+========================= */
+
+.contactHero {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 33vw, 500px);
+  display: flex;
+  align-items: center;
+  padding: clamp(48px, 6vw, 82px) max(7vw, 32px);
+  color: #fff;
+  background-size: cover;
+  background-position: center 45%;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.contactHeroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(9, 9, 9, 0.92) 0%, rgba(15, 15, 15, 0.7) 40%, rgba(15, 15, 15, 0.3) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.5), transparent 55%);
+}
+
+.contactHeroContent {
+  width: min(100%, 680px);
+  position: relative;
+  z-index: 1;
+}
+
+.contactHeroLabel {
+  width: fit-content;
+  margin: 0 0 25px;
+  padding-left: 14px;
+  border-left: 2px solid #e60012;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(11px, 1vw, 14px);
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.contactHero h1 {
+  max-width: 600px;
+  margin: 0;
+  font-size: clamp(34px, 3.8vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -2px;
+  font-weight: 700;
+}
+
+.contactHero p {
+  max-width: 560px;
+  margin: 24px 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: clamp(14px, 1.25vw, 17px);
+  line-height: 1.65;
+}
+
+.contactHeroBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 34px;
+  padding: 15px 35px;
+  background: #e60012;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.contactHeroBtn:hover {
+  background: #b0000d;
+}
+
+/* =========================
+   CONTACT MAIN - 表单 + 信息
+========================= */
+
+.contactMain {
+  width: min(100%, 1920px);
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: clamp(60px, 5vw, 90px) clamp(24px, 4vw, 60px);
+  box-sizing: border-box;
+}
+
+.contactContainer {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: clamp(30px, 3vw, 60px);
+}
+
+.contactFormCard,
+.contactInfoCard {
+  background: white;
+  border: 1px solid #e5e5e5;
+  padding: clamp(35px, 3vw, 50px);
+  transition: 0.35s;
+}
+
+.contactFormCard:hover,
+.contactInfoCard:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.contactFormCard h2,
+.contactInfoCard h2 {
+  font-size: 32px;
+  margin: 0 0 15px;
+  font-weight: 700;
+}
+
+.contactSubtitle {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 35px;
+}
+
+/* =========================
+   FORM STYLES
+========================= */
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formGroup label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 15px;
+  color: #111;
+  font-family: inherit;
+  transition: 0.25s;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #e60012;
+  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: #aaa;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.formSuccess {
+  padding: 15px 20px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.formError {
+  padding: 15px 20px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.submitBtn {
+  width: fit-content;
+  padding: 15px 45px;
+  background: #e60012;
+  color: white;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: inherit;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #b0000d;
+}
+
+.submitBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.formNote {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+/* =========================
+   CONTACT INFO
+========================= */
+
+.contactInfoList {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #eee;
+}
+
+.contactInfoItem {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.infoNumber {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e60012;
+  letter-spacing: 2px;
+  padding-top: 2px;
+}
+
+.contactInfoItem h3 {
+  font-size: 18px;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.contactInfoItem p {
+  margin: 0 0 4px;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.contactInfoItem a {
+  color: #111;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.contactInfoItem a:hover {
+  color: #e60012;
+}
+
+.infoSub {
+  font-size: 13px !important;
+  color: #999 !important;
+  margin-top: 6px !important;
+}
+
+/* =========================
+   QUICK LINKS
+========================= */
+
+.contactQuickLinks h3 {
+  font-size: 18px;
+  margin: 0 0 20px;
+  font-weight: 600;
+}
+
+.quickLinkGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.quickLinkItem {
+  flex: 1 1 calc(50% - 6px);
+  display: inline-block;
+  padding: 12px 20px;
+  border: 1px solid #e5e5e5;
+  color: #111;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  transition: 0.25s;
+  box-sizing: border-box;
+}
+
+.quickLinkItem:hover {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+/* =========================
+   WHY CHOOSE US - 三个卡片
+========================= */
+
+.contactWhyUs {
+  width: min(100%, 1920px);
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: clamp(40px, 4vw, 70px) clamp(24px, 4vw, 60px) clamp(60px, 5vw, 90px);
+  box-sizing: border-box;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.sectionHeader h2 {
+  font-size: 42px;
+  margin: 0 0 20px;
+  font-weight: 700;
+}
+
+.sectionHeader p {
+  color: #666;
+  font-size: 17px;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.whyUsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(22px, 2vw, 34px);
+}
+
+.whyUsCard {
+  background: white;
+  border: 1px solid #e5e5e5;
+  padding: clamp(35px, 3vw, 45px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: 0.35s;
+}
+
+.whyUsCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.whyUsNumber {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #999;
+  margin-bottom: 25px;
+}
+
+.whyUsCard h3 {
+  font-size: 24px;
+  margin: 0 0 15px;
+  font-weight: 700;
+}
+
+.whyUsCard p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 30px;
+  flex: 1;
+}
+
+.whyUsBtn {
+  display: inline-block;
+  padding: 12px 30px;
+  border: 1px solid #111;
+  text-decoration: none;
+  color: #111;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.whyUsCard:hover .whyUsBtn {
+  background: #111;
+  color: white;
+}
+
+/* =========================
+   BOTTOM CTA - 纯黑背景
+========================= */
+
+.contactBottomCTA {
+  position: relative;
+  background: #000;
+  color: white;
+  text-align: center;
+  padding: 120px 20px;
+  overflow: hidden;
+}
+
+.bottomCTAContent {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.bottomCTAContent h2 {
+  font-size: 46px;
+  margin: 0 0 20px;
+  font-weight: 700;
+}
+
+.bottomCTAContent p {
+  font-size: 20px;
+  color: #bbb;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.bottomCTABtn {
+  display: inline-block;
+  padding: 18px 65px;
+  background: white;
+  color: #111;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.bottomCTABtn:hover {
+  background: #e60012;
+  color: white;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1200px) {
+  .contactContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .whyUsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .whyUsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeader h2 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .contactHero {
+    min-height: 430px;
+    padding: 44px 22px;
+  }
+
+  .contactHero h1 {
+    font-size: 38px;
+  }
+
+  .contactMain {
+    padding: 60px 20px;
+  }
+
+  .contactFormCard,
+  .contactInfoCard {
+    padding: 30px 25px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .contactInfoList {
+    grid-template-columns: 1fr;
+  }
+
+  .contactWhyUs {
+    padding: 40px 20px 60px;
+  }
+
+  .whyUsCard {
+    padding: 30px 25px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 28px;
+  }
+
+  .bottomCTAContent h2 {
+    font-size: 32px;
+  }
+
+  .bottomCTAContent p {
+    font-size: 16px;
+  }
+}

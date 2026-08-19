@@ -8,6 +8,10 @@ async function main() {
 
 
   for (const [slug, item] of list) {
+    const category = await prisma.category.findUnique({
+      where: { slug: item.category },
+      select: { id: true },
+    });
 
 
     await prisma.product.upsert({
@@ -27,7 +31,7 @@ async function main() {
 
         overview: item.overview,
 
-        category: item.category,
+        categoryId: category?.id,
 
         features: item.features,
 
@@ -48,7 +52,7 @@ async function main() {
 
         overview: item.overview,
 
-        category: item.category,
+        categoryId: category?.id,
 
         features: item.features,
 
