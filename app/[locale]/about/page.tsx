@@ -1,35 +1,93 @@
 import { getAboutPage } from "@/app/actions/about";
 import FactoryCarousel from "@/app/components/FactoryCarousel";
 import CertificateLightbox from "@/app/components/CertificateLightbox";
+import { translateText } from "@/app/lib/translate";
+import { getMessages } from "@/app/i18n/messages";
 import "@/app/styles/about.css";
 
-export default async function AboutPage() {
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = getMessages(locale as any);
   const about = await getAboutPage();
 
+  // 中文时翻译数据库字段
+  let translatedAbout = about;
+  if (locale === "zh") {
+    const fieldsToTranslate = [
+      "heroTitle",
+      "heroSubtitle",
+      "heroButtonText",
+      "factoryTitle",
+      "introTitle",
+      "introContent",
+    ];
+    const tasks = fieldsToTranslate.map(async (field) => {
+      if (about[field as keyof typeof about]) {
+        return {
+          field,
+          value: await translateText(about[field as keyof typeof about] as string),
+        };
+      }
+      return null;
+    });
+    const results = await Promise.all(tasks);
+    translatedAbout = { ...about };
+    for (const result of results) {
+      if (result) {
+        (translatedAbout as any)[result.field] = result.value;
+      }
+    }
+  }
+
   // 工厂轮播图
-  const factoryImages = Array.isArray(about.factoryImages)
-    ? (about.factoryImages as string[])
+  const factoryImages = Array.isArray(translatedAbout.factoryImages)
+    ? (translatedAbout.factoryImages as string[])
     : ["/studio.jpg", "/studio2.jpg", "/studio3.jpg"];
 
   // 证书列表（图片形式）
-  const certificates = Array.isArray(about.certificates)
-    ? (about.certificates as string[])
+  const certificates = Array.isArray(translatedAbout.certificates)
+    ? (translatedAbout.certificates as string[])
     : [];
+
+  // 标签文字
+  const labels = locale === "zh" ? {
+    aboutUs: "关于我们",
+    ourFactory: "我们的工厂",
+    certifications: "认证资质",
+    qualityAssurance: "品质保证",
+    companyVideo: "公司介绍视频",
+    whoWeAre: "我们是谁",
+    certPlaceholder: "证书图片待添加...",
+    introPlaceholder: "公司简介内容待添加...",
+  } : {
+    aboutUs: "ABOUT US",
+    ourFactory: "OUR FACTORY",
+    certifications: "CERTIFICATIONS",
+    qualityAssurance: "Quality Assurance",
+    companyVideo: "Company Introduction Video",
+    whoWeAre: "WHO WE ARE",
+    certPlaceholder: "Certificate images pending...",
+    introPlaceholder: "Company intro content pending...",
+  };
 
   return (
     <main className="aboutPage">
       {/* ====== 顶部 Hero Banner ====== */}
       <section
         className="aboutHero"
-        style={{ backgroundImage: `url("${about.heroImage}")` }}
+        style={{ backgroundImage: `url("${translatedAbout.heroImage}")` }}
       >
         <div className="aboutHeroOverlay" />
         <div className="aboutHeroContent">
-          <p className="aboutHeroLabel">ABOUT US</p>
-          <h1>{about.heroTitle}</h1>
-          <p className="aboutHeroDesc">{about.heroSubtitle}</p>
+          <p className="aboutHeroLabel">{labels.aboutUs}</p>
+          <h1>{translatedAbout.heroTitle}</h1>
+          <p className="aboutHeroDesc">{translatedAbout.heroSubtitle}</p>
           <a href="#intro" className="aboutHeroBtn">
-            {about.heroButtonText} <span aria-hidden="true">→</span>
+            {translatedAbout.heroButtonText} <span aria-hidden="true">→</span>
           </a>
         </div>
       </section>
@@ -40,8 +98,8 @@ export default async function AboutPage() {
           {/* 左上：工厂图片轮播 */}
           <div className="aboutGridItem aboutFactory">
             <div className="aboutSectionTitle">
-              <span className="aboutSectionLabel">OUR FACTORY</span>
-              <h2>{about.factoryTitle}</h2>
+              <span className="aboutSectionLabel">{labels.ourFactory}</span>
+              <h2>{translatedAbout.factoryTitle}</h2>
             </div>
             <FactoryCarousel images={factoryImages} interval={4000} />
           </div>
@@ -49,14 +107,14 @@ export default async function AboutPage() {
           {/* 中间：证书展示（竖长） */}
           <div className="aboutGridItem aboutCertificates">
             <div className="aboutSectionTitle">
-              <span className="aboutSectionLabel">CERTIFICATIONS</span>
-              <h2>Quality Assurance</h2>
+              <span className="aboutSectionLabel">{labels.certifications}</span>
+              <h2>{labels.qualityAssurance}</h2>
             </div>
             {certificates.length > 0 ? (
               <CertificateLightbox images={certificates} />
             ) : (
               <div style={{ textAlign: "center", color: "#999", padding: "40px 0" }}>
-                证书图片待添加...
+                {labels.certPlaceholder}
               </div>
             )}
           </div>
@@ -64,7 +122,7 @@ export default async function AboutPage() {
           {/* 右侧：公司视频板块 */}
           <div className="aboutVideo">
             <div className="videoPlaceholder">
-              {about.videoUrl ? (
+              {translatedAbout.videoUrl ? (
                 <video
                   className="videoPlayer"
                   autoPlay
@@ -72,7 +130,7 @@ export default async function AboutPage() {
                   loop
                   playsInline
                   preload="auto"
-                  poster={about.videoPoster || undefined}
+                  poster={translatedAbout.videoPoster || undefined}
                   style={{
                     width: "100%",
                     height: "auto",
@@ -80,14 +138,14 @@ export default async function AboutPage() {
                     borderRadius: "8px",
                   }}
                 >
-                  <source src={about.videoUrl} type="video/mp4" />
+                  <source src={translatedAbout.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               ) : (
                 <>
-                  {about.videoPoster && (
+                  {translatedAbout.videoPoster && (
                     <img
-                      src={about.videoPoster}
+                      src={translatedAbout.videoPoster}
                       alt="Video poster"
                       style={{
                         width: "100%",
@@ -104,7 +162,7 @@ export default async function AboutPage() {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                  <p className="videoPlaceholderText">Company Introduction Video</p>
+                  <p className="videoPlaceholderText">{labels.companyVideo}</p>
                 </>
               )}
             </div>
@@ -113,17 +171,17 @@ export default async function AboutPage() {
           {/* 左下：公司简介 */}
           <div className="aboutGridItem aboutIntro" id="intro">
             <div className="aboutSectionTitle">
-              <span className="aboutSectionLabel">WHO WE ARE</span>
-              <h2>{about.introTitle}</h2>
+              <span className="aboutSectionLabel">{labels.whoWeAre}</span>
+              <h2>{translatedAbout.introTitle}</h2>
             </div>
             <div className="aboutIntroText">
-              {about.introContent ? (
-                about.introContent.split("\n\n").map((paragraph, index) => (
+              {translatedAbout.introContent ? (
+                translatedAbout.introContent.split("\n\n").map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
                 ))
               ) : (
                 <p style={{ color: "#999", fontStyle: "italic" }}>
-                  公司简介内容待添加...
+                  {labels.introPlaceholder}
                 </p>
               )}
             </div>
