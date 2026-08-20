@@ -49,7 +49,8 @@ export default async function CategoriesPage() {
       {/* 分类列表 */}
       <div className="admin-list">
         {categories.map((category, index) => (
-          <div key={category.id} className="admin-card admin-category-card">
+          <div key={category.id}>
+          <div className="admin-card admin-category-card">
             <div className="admin-category-left">
               <div className="admin-category-badge">
                 {String(index + 1).padStart(2, "0")}
@@ -115,6 +116,7 @@ export default async function CategoriesPage() {
               )}
             </div>
           </details>
+          </div>
         ))}
       </div>
     </div>
