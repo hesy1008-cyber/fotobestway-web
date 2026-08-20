@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "@/app/styles/about.css";
 
 export const metadata = {
   title: "News - Fotobestway",
@@ -42,19 +43,20 @@ export default async function NewsPage({
       };
 
   return (
-    <div className="support-page">
-      {/* Hero Section */}
-      <section className="support-hero">
-        <div className="support-hero-bg"></div>
-        <div className="support-hero-content">
-          <p className="support-hero-label">{labels.news}</p>
-          <h1 className="support-hero-title">{labels.heroTitle}</h1>
-          <p className="support-hero-desc">{labels.heroDesc}</p>
-          <div className="support-hero-actions">
-            <Link href={`/${locale}/products`} className="support-hero-btn primary">
-              {labels.browseProducts}
-            </Link>
-          </div>
+    <div>
+      {/* ====== 顶部 Hero Banner（和 about 页面一样的样式） ====== */}
+      <section
+        className="aboutHero"
+        style={{ backgroundImage: `url("/news-hero.jpg")` }}
+      >
+        <div className="aboutHeroOverlay" />
+        <div className="aboutHeroContent">
+          <p className="aboutHeroLabel">{labels.news}</p>
+          <h1>{labels.heroTitle}</h1>
+          <p className="aboutHeroDesc">{labels.heroDesc}</p>
+          <Link href={`/${locale}/products`} className="aboutHeroBtn">
+            {labels.browseProducts} <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
 
