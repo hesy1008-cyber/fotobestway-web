@@ -1440,8 +1440,8 @@
 
 .sidebar-item {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   padding: 14px 16px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
@@ -1456,12 +1456,6 @@
   background: #fff5f5;
   border-left: 3px solid #e63946;
   padding-left: 13px;
-}
-
-.sidebar-item-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .sidebar-badge {
@@ -1500,19 +1494,18 @@
 .sidebar-item-stats {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-left: 40px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .sidebar-stat {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 3px;
 }
 
 .sidebar-stat-num {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #111;
 }
@@ -1522,7 +1515,7 @@
 }
 
 .sidebar-stat-label {
-  font-size: 11px;
+  font-size: 10px;
   color: #999;
 }
 
@@ -1530,23 +1523,6 @@
   width: 1px;
   height: 12px;
   background: #e0e0e0;
-}
-
-.sidebar-stat-slug {
-  flex: 1;
-  min-width: 0;
-}
-
-.sidebar-stat-slug-text {
-  font-size: 11px;
-  color: #aaa;
-  font-family: monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 140px;
-  display: inline-block;
-  vertical-align: bottom;
 }
 
 /* 右侧详情面板 */

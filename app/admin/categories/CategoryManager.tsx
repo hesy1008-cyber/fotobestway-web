@@ -69,10 +69,8 @@ export default function CategoryManager({ categories }: { categories: Category[]
               className={`sidebar-item ${selectedId === cat.id ? "active" : ""}`}
               onClick={() => setSelectedId(cat.id)}
             >
-              <div className="sidebar-item-top">
-                <span className="sidebar-badge">{String(i + 1).padStart(2, "0")}</span>
-                <span className="sidebar-name">{cat.name}</span>
-              </div>
+              <span className="sidebar-badge">{String(i + 1).padStart(2, "0")}</span>
+              <span className="sidebar-name">{cat.name}</span>
               <div className="sidebar-item-stats">
                 <span className="sidebar-stat">
                   <span className="sidebar-stat-num">{cat.products.length}</span>
@@ -82,11 +80,6 @@ export default function CategoryManager({ categories }: { categories: Category[]
                 <span className="sidebar-stat">
                   <span className="sidebar-stat-num">{cat.subCategories.length}</span>
                   <span className="sidebar-stat-label">子分类</span>
-                </span>
-                <span className="sidebar-stat-divider"></span>
-                <span className="sidebar-stat sidebar-stat-slug">
-                  <span className="sidebar-stat-label">/</span>
-                  <span className="sidebar-stat-slug-text">{cat.slug}</span>
                 </span>
               </div>
             </div>
