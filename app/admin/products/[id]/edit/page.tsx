@@ -100,13 +100,13 @@ export default async function AdminEditProductPage({
                 (item): item is string => typeof item === "string"
               )
             : [],
-          specs:
-            typeof product.specs === "object" &&
-            product.specs !== null &&
-            !Array.isArray(product.specs)
-              ? (product.specs as Record<string, string>)
-              : {},
+          specs: product.specs,
           video: product.video,
+          seoTitle: product.seoTitle,
+          metaDescription: product.metaDescription,
+          focusKeywords: product.focusKeywords,
+          imageAlt: product.imageAlt,
+          hiddenSeoText: product.hiddenSeoText,
         }}
       />
     </div>
