@@ -1245,7 +1245,7 @@
 
 /* 列表模式 features 折叠/展开 */
 .featuresGrid.collapsed {
-  max-height: 150px;
+  max-height: 180px;
   overflow: hidden;
 }
 

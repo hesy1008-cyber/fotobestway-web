@@ -36,7 +36,7 @@ export default function ProductListCard({
     if (featuresRef.current) {
       const scrollHeight = featuresRef.current.scrollHeight;
       const clientHeight = featuresRef.current.clientHeight;
-      setIsOverflowing(scrollHeight > clientHeight + 5);
+      setIsOverflowing(scrollHeight > clientHeight + 15);
     }
   }, [features.length]);
 
