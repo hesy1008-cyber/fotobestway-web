@@ -128,6 +128,13 @@ export default function Header({
         </div>
 
         <Link
+          href={withLocale("/news", locale)}
+          className={pathWithoutLocale === "/news" ? "active" : ""}
+        >
+          {upper(locale === "zh" ? "新闻" : "NEWS")}
+        </Link>
+
+        <Link
           href={withLocale("/about", locale)}
           className={pathWithoutLocale === "/about" ? "active" : ""}
         >
