@@ -1,19 +1,25 @@
 import Link from "next/link";
-import Image from "next/image";
-import DeleteButton from "@/app/components/DeleteButton";
 import { prisma } from "@/app/lib/prisma";
-import { deleteProduct } from "./actions";
+import ProductManager from "./ProductManager";
 
 // 强制动态渲染，避免缓存导致新增产品不显示
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
-    include: {
-      categoryRef: true,
-    },
-    orderBy: [{ title: "asc" }],
-  });
+  const [products, categories] = await Promise.all([
+    prisma.product.findMany({
+      include: {
+        categoryRef: { select: { name: true } },
+      },
+      orderBy: [{ title: "asc" }],
+    }),
+    prisma.category.findMany({
+      include: {
+        products: { select: { id: true } },
+      },
+      orderBy: { sortOrder: "asc" },
+    }),
+  ]);
 
   return (
     <div>
@@ -30,62 +36,7 @@ export default async function AdminProductsPage() {
         </Link>
       </div>
 
-      {/* 产品列表 */}
-      <div className="admin-list">
-        {products.map((product) => (
-          <div key={product.id} className="admin-card">
-            {product.image && (
-              <div className="admin-card-image">
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-            )}
-
-            <div className="admin-card-info">
-              <h3 className="admin-card-title">{product.title}</h3>
-              <div className="admin-card-meta">
-                <span>分类：{product.categoryRef?.name || "未分类"}</span>
-                <span>产品名称：{product.slug}</span>
-                <span>
-                  图集：{" "}
-                  {Array.isArray(product.gallery) ? product.gallery.length : 0} 张
-                </span>
-                <span>
-                  详情图：{" "}
-                  {Array.isArray(product.detailImages)
-                    ? product.detailImages.length
-                    : 0}{" "}
-                  张
-                </span>
-              </div>
-            </div>
-
-            <div className="admin-card-actions">
-              <Link
-                href={`/admin/products/${product.id}/edit`}
-                className="admin-btn admin-btn-secondary admin-btn-sm"
-              >
-                编辑
-              </Link>
-              <Link
-                href={`/products/${product.slug}`}
-                className="admin-btn admin-btn-secondary admin-btn-sm"
-                target="_blank"
-              >
-                查看
-              </Link>
-              <form action={deleteProduct}>
-                <input type="hidden" name="id" value={product.id} />
-                <DeleteButton />
-              </form>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ProductManager products={products as any} categories={categories as any} />
     </div>
   );
 }
