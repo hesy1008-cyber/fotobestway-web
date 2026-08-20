@@ -1,6 +1,9 @@
-import { prisma } from "@/app/lib/prisma";
+﻿import { prisma } from "@/app/lib/prisma";
 import Link from "next/link";
 import DeleteCategoryButton from "./DeleteCategoryButton";
+
+// 强制动态渲染，避免缓存
+export const dynamic = 'force-dynamic';
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({

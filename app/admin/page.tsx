@@ -1,6 +1,9 @@
-import { prisma } from "@/app/lib/prisma";
+﻿import { prisma } from "@/app/lib/prisma";
 import Link from "next/link";
 import InquiryList from "./inquiries/InquiryList";
+
+// 强制动态渲染，避免缓存
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   const productCount = await prisma.product.count();

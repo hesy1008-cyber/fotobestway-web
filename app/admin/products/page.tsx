@@ -4,6 +4,9 @@ import DeleteButton from "@/app/components/DeleteButton";
 import { prisma } from "@/app/lib/prisma";
 import { deleteProduct } from "./actions";
 
+// 强制动态渲染，避免缓存导致新增产品不显示
+export const dynamic = "force-dynamic";
+
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     include: {

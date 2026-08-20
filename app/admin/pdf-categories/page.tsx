@@ -1,7 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { prisma } from "@/app/lib/prisma";
 import { deletePdfCategory } from "./actions";
 import DeleteCategoryButton from "./DeleteCategoryButton";
+
+// 强制动态渲染，避免缓存
+export const dynamic = 'force-dynamic';
 
 export default async function AdminPdfCategoriesPage() {
   const categories = await prisma.pdfCategory.findMany({

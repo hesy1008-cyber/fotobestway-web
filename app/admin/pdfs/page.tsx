@@ -1,7 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { prisma } from "@/app/lib/prisma";
 import DeletePdfButton from "./DeletePdfButton";
 import { deletePdf } from "./actions";
+
+// 强制动态渲染，避免缓存
+export const dynamic = 'force-dynamic';
 
 // 格式化文件大小
 function formatFileSize(bytes: number): string {
