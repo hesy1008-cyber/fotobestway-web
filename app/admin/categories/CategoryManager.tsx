@@ -39,9 +39,28 @@ export default function CategoryManager({ categories }: { categories: Category[]
     <div className="category-manager">
       {/* 左侧：一级分类导航 */}
       <aside className="category-sidebar">
-        <div className="sidebar-header">
-          <h2>分类导航</h2>
-          <span className="sidebar-total">{categories.length} 个分类</span>
+        <div
+          className="sidebar-banner"
+          style={{
+            backgroundImage: selected?.bannerImage
+              ? `url(${selected.bannerImage})`
+              : "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+          }}
+        >
+          <div className="sidebar-banner-overlay"></div>
+          <div className="sidebar-banner-content">
+            <span className="sidebar-banner-label">当前分类</span>
+            <h2 className="sidebar-banner-title">{selected?.name || "分类导航"}</h2>
+            <div className="sidebar-banner-stats">
+              <span>{selected?.products.length || 0} 产品</span>
+              <span className="sidebar-banner-dot">·</span>
+              <span>{selected?.subCategories.length || 0} 子分类</span>
+            </div>
+          </div>
+        </div>
+        <div className="sidebar-list-header">
+          <span>全部分类</span>
+          <span className="sidebar-total">{categories.length}</span>
         </div>
         <div className="sidebar-list">
           {categories.map((cat, i) => (

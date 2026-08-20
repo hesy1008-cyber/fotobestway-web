@@ -1338,7 +1338,7 @@
 
 /* 左侧导航栏 */
 .category-sidebar {
-  flex: 0 0 260px;
+  flex: 0 0 300px;
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
@@ -1347,22 +1347,90 @@
   top: 20px;
 }
 
-.sidebar-header {
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border-bottom: 3px solid #e63946;
+/* 顶部 Banner 区域 */
+.sidebar-banner {
+  position: relative;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.sidebar-header h2 {
-  margin: 0 0 4px;
-  font-size: 16px;
+.sidebar-banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(230, 57, 70, 0.4) 100%
+  );
+}
+
+.sidebar-banner-content {
+  position: relative;
+  z-index: 2;
+  padding: 24px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.sidebar-banner-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.sidebar-banner-title {
+  margin: 0 0 10px;
+  font-size: 22px;
   font-weight: 700;
   color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.sidebar-total {
+.sidebar-banner-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sidebar-banner-dot {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 分类列表标题 */
+.sidebar-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-list-header .sidebar-total {
+  background: #e63946;
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 .sidebar-list {
