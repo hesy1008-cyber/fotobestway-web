@@ -124,7 +124,7 @@ display:flex;
 
 align-items:center;
 
-gap:20px;
+gap:28px;
 
 color:white;
 
@@ -138,6 +138,8 @@ font-size:14px;
 
 font-size:25px;
 
+margin-left: 4px;
+
 }
 
 /* 头部社媒图标 - 圆形白底黑图标 */
@@ -147,46 +149,48 @@ font-size:25px;
   gap: 12px;
 }
 
-.headerSocialIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #fff;
-  color: #111;
-  text-decoration: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.headerSocialIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.headerSocialIcon:hover {
-  transform: scale(1.15);
-  opacity: 0.85;
-}
-
-/* 英文页面导航文字大写 */
-.header[data-locale="en"] .nav a,
-.header[data-locale="en"] .nav-item-with-mega > a {
-  text-transform: uppercase !important;
-}
-
-/* 响应式：平板及以下隐藏社媒图标 */
-@media (max-width: 1024px) {
-  .headerSocialIcons {
-    display: none;
+/* 响应式：大屏（1440px以上）正常显示 */
+@media (min-width: 1441px) {
+  .headerRight {
+    gap: 32px;
   }
 }
 
-/* 响应式：移动端导航调整 */
-@media (max-width: 768px) {
+/* 响应式：中屏（1200-1440px）稍微缩小间距 */
+@media (max-width: 1440px) and (min-width: 1201px) {
   .headerRight {
-    gap: 12px;
+    gap: 24px;
+  }
+  .headerSocialIcons {
+    gap: 10px;
+  }
+}
+
+/* 响应式：小屏（1025-1200px）缩小图标和间距 */
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .headerRight {
+    gap: 18px;
+  }
+  .headerSocialIcons {
+    gap: 8px;
+  }
+  .headerSocialIcon {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .headerSocialIcon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
+/* 响应式：平板及以下（1024px）隐藏社媒图标 */
+@media (max-width: 1024px) {
+  .headerSocialIcons {
+    display: none !important;
+  }
+  .headerRight {
+    gap: 20px;
   }
 }
 

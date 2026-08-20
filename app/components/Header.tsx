@@ -148,12 +148,13 @@ export default function Header({
 
       <div className="headerRight">
         {/* 社媒图标 - 圆形白底黑图标 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div className="headerSocialIcons" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <a
             href="https://www.facebook.com/profile.php?id=61561703761081"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
+            className="headerSocialIcon"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -178,6 +179,7 @@ export default function Header({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
+            className="headerSocialIcon"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -202,6 +204,7 @@ export default function Header({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="YouTube"
+            className="headerSocialIcon"
             style={{
               display: "inline-flex",
               alignItems: "center",
