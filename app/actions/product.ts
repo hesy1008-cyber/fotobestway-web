@@ -165,6 +165,8 @@ export async function updateProduct(id: string, formData: FormData) {
 
   // 优先读取多型号格式 specsJson
   const specsJsonStr = String(formData.get("specsJson") || "");
+  console.log("SPECS_JSON_VALUE:", JSON.stringify(specsJsonStr));
+  console.log("SPECS_JSON_LENGTH:", specsJsonStr.length);
   let specs: any;
   if (specsJsonStr) {
     try {
