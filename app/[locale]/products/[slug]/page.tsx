@@ -464,7 +464,10 @@ export default async function ProductDetailPage({
                   );
                 } else if (Array.isArray(specsAny)) {
                   hasValidSpecs = specsAny.some(
-                    (s: any) => s && (s.label || s.value) && (s.label?.trim() || s.value?.trim())
+                    (s: any) => {
+                      if (typeof s === "string") return s.trim().length > 0;
+                      return s && (s.label || s.value) && (s.label?.trim() || s.value?.trim());
+                    }
                   );
                 } else if (typeof specsAny === "object" && specsAny) {
                   hasValidSpecs = Object.entries(specsAny as Record<string, string>).some(
@@ -506,15 +509,31 @@ export default async function ProductDetailPage({
                               </div>
                             ))
                         ) : Array.isArray(specsAny) ? (
-                          // 旧格式：数组 [{label, value}]
+                          // 旧格式：数组 [{label, value}] 或字符串数组 ["Power: 600W"]
                           specsAny
-                            .filter((s: any) => s && (s.label?.trim() || s.value?.trim()))
-                            .map((s: any, i: number) => (
-                              <div key={i} className="spec-row">
-                                <span className="spec-label">{s.label}</span>
-                                <span className="spec-value">{s.value}</span>
-                              </div>
-                            ))
+                            .filter((s: any) => {
+                              if (typeof s === "string") return s.trim().length > 0;
+                              return s && (s.label?.trim() || s.value?.trim());
+                            })
+                            .map((s: any, i: number) => {
+                              if (typeof s === "string") {
+                                const colonIndex = s.indexOf(":");
+                                const label = colonIndex > 0 ? s.substring(0, colonIndex).trim() : s.trim();
+                                const value = colonIndex > 0 ? s.substring(colonIndex + 1).trim() : "";
+                                return (
+                                  <div key={i} className="spec-row">
+                                    <span className="spec-label">{label}</span>
+                                    <span className="spec-value">{value}</span>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div key={i} className="spec-row">
+                                  <span className="spec-label">{s.label}</span>
+                                  <span className="spec-value">{s.value}</span>
+                                </div>
+                              );
+                            })
                         ) : typeof specsAny === "object" && specsAny ? (
                           // 旧格式：对象 {key: value}
                           Object.entries(specsAny as Record<string, string>)

@@ -145,24 +145,40 @@ export async function POST(req: Request) {
     .split("\n")
     .filter(Boolean);
 
-  const specsText = String(formData.get("specs") || "");
-
-  const specs = Object.fromEntries(
-    specsText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((item) => {
-        const index = item.indexOf(":");
-
-        if (index === -1) {
-          return [item.trim(), ""];
-        }
-
-        return [item.slice(0, index).trim(), item.slice(index + 1).trim()];
-      })
-      .filter(([key]) => key)
-  );
+  // 优先读取多型号格式 specsJson
+  const specsJsonStr = String(formData.get("specsJson") || "");
+  let specs: any;
+  if (specsJsonStr) {
+    try {
+      const parsed = JSON.parse(specsJsonStr);
+      // 过滤掉空型号和空规格
+      specs = parsed
+        .filter((m: any) => m.specs && m.specs.length > 0)
+        .map((m: any) => ({
+          model: m.model || "",
+          specs: m.specs.filter((s: any) => s.label?.trim() || s.value?.trim()),
+        }));
+    } catch (e) {
+      specs = {};
+    }
+  } else {
+    // 旧格式兼容
+    const specsText = String(formData.get("specs") || "");
+    specs = Object.fromEntries(
+      specsText
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((item) => {
+          const index = item.indexOf(":");
+          if (index === -1) {
+            return [item.trim(), ""];
+          }
+          return [item.slice(0, index).trim(), item.slice(index + 1).trim()];
+        })
+        .filter(([key]) => key)
+    );
+  }
 
   const product = await prisma.product.create({
     data: {

@@ -153,6 +153,8 @@ export default function EditProductForm({
       const formData = new FormData(e.currentTarget);
       formData.append("galleryOrder", JSON.stringify(galleryOrder));
       formData.append("detailImages", JSON.stringify(detailImages));
+      // 显式追加 specsJson，确保多型号规格参数被提交
+      formData.set("specsJson", specsJson);
 
       await updateProduct(product.id, formData);
     } catch (error: any) {

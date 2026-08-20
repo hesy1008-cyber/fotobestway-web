@@ -92,6 +92,8 @@ export default function NewProductForm({
 
     try {
       const formData = new FormData(e.currentTarget);
+      // 显式追加 specsJson，确保多型号规格参数被提交
+      formData.set("specsJson", specsJson);
 
       const res = await fetch("/api/products/create", {
         method: "POST",
