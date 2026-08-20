@@ -1011,6 +1011,7 @@
   border: 1px solid #e5e5e5;
   border-radius: 4px;
   transition: all 0.3s ease;
+  min-height: 340px;
 }
 
 .productListCard:hover {
@@ -1023,6 +1024,7 @@
   position: relative;
   flex: 0 0 320px;
   align-self: stretch;
+  min-height: 280px;
   background: #fff;
   border-radius: 4px;
   overflow: hidden;
