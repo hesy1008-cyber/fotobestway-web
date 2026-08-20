@@ -140,6 +140,37 @@ font-size:25px;
 
 }
 
+/* 头部社媒图标 - 圆形白底黑图标 */
+.headerSocialIcons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerSocialIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.headerSocialIcon:hover {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
+
+/* 英文页面导航文字大写 */
+.header[data-locale="en"] .nav a,
+.header[data-locale="en"] .nav-item-with-mega > a {
+  text-transform: uppercase;
+}
+
 
 
 
