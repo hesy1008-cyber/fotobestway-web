@@ -36,6 +36,7 @@ const en = {
     allProducts: "All Products",
     keyFeatures: "KEY FEATURES",
     showMore: "Show More",
+    showLess: "Show Less",
     viewDetails: "VIEW DETAILS",
     addToInquiry: "ADD TO INQUIRY",
     inStock: "IN STOCK",

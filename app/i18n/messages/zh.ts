@@ -36,6 +36,7 @@ const zh = {
     allProducts: "所有产品",
     keyFeatures: "主要特性",
     showMore: "查看更多",
+    showLess: "收起",
     viewDetails: "产品详情",
     addToInquiry: "加入询价",
     inStock: "现货",

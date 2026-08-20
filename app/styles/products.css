@@ -1243,6 +1243,48 @@
   text-decoration: underline;
 }
 
+/* 列表模式 features 折叠/展开 */
+.featuresGrid.collapsed {
+  max-height: 110px;
+  overflow: hidden;
+  position: relative;
+}
+
+.featuresGrid.collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #fff);
+  pointer-events: none;
+}
+
+.featuresGrid.expanded {
+  max-height: none;
+  overflow: visible;
+}
+
+.featureToggleBtn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e60012;
+  background: #fff5f5;
+  border: 1px solid #ffd6d9;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.featureToggleBtn:hover {
+  background: #ffe8ea;
+  border-color: #ffb3b8;
+}
+
 /* 响应式 */
 @media (max-width: 1200px) {
   .productListCard {
