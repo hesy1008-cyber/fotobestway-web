@@ -1022,7 +1022,7 @@
 .productListCardImage {
   position: relative;
   flex: 0 0 320px;
-  height: 260px;
+  align-self: stretch;
   background: #fff;
   border-radius: 4px;
   overflow: hidden;
@@ -1030,7 +1030,8 @@
 
 .productListCardImg {
   object-fit: contain;
-  padding: 10px;
+  padding: 20px;
+  background: #fff;
 }
 
 .productListCardContent {
