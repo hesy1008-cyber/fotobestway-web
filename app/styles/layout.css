@@ -464,6 +464,27 @@ transform:scale(1.2);
   font-size: 12px;
 }
 
+/* 更小屏幕（480px以下）：进一步压缩导航栏，避免溢出 */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 10px;
+    height: 60px;
+  }
+  .logo img {
+    height: 22px;
+  }
+  .nav {
+    gap: 10px;
+  }
+  .nav a {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .headerRight {
+    gap: 8px;
+  }
+}
+
 .hero{
 
 height:500px;
