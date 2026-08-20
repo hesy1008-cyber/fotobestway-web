@@ -927,19 +927,31 @@
 
 /* ====== 分类层级概览 ====== */
 .category-hierarchy-details {
-  margin-top: 12px;
+  margin-top: 16px;
   border-top: 1px solid #eee;
-  padding-top: 12px;
+  padding-top: 16px;
 }
 
 .category-hierarchy-summary {
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   color: #e63946;
   font-weight: 600;
-  padding: 6px 0;
+  padding: 8px 16px;
+  background: #fff5f5;
+  border: 1px solid #ffd6d9;
+  border-radius: 6px;
   user-select: none;
   list-style: none;
+  transition: all 0.2s;
+}
+
+.category-hierarchy-summary:hover {
+  background: #ffe8ea;
+  border-color: #ffb3b8;
 }
 
 .category-hierarchy-summary::-webkit-details-marker {
@@ -947,10 +959,11 @@
 }
 
 .category-hierarchy-summary::before {
-  content: "▶ ";
+  content: "▶";
   display: inline-block;
   transition: transform 0.2s;
-  font-size: 10px;
+  font-size: 9px;
+  color: #e63946;
 }
 
 .category-hierarchy-details[open] .category-hierarchy-summary::before {
@@ -958,41 +971,63 @@
 }
 
 .category-hierarchy-content {
-  margin-top: 12px;
-  padding-left: 8px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .category-hierarchy-empty {
   color: #999;
   font-size: 13px;
-  padding: 8px 0;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  text-align: center;
 }
 
 .category-hierarchy-sub {
-  margin-bottom: 16px;
-  padding-left: 12px;
-  border-left: 3px solid #e63946;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px 16px;
 }
 
 .category-hierarchy-sub-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e0e0e0;
 }
 
 .category-hierarchy-sub-name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #111;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-hierarchy-sub-name::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: #e63946;
+  border-radius: 2px;
 }
 
 .category-hierarchy-sub-count {
   font-size: 12px;
-  color: #999;
-  background: #f5f5f5;
-  padding: 2px 8px;
-  border-radius: 10px;
+  color: #666;
+  background: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  font-weight: 500;
 }
 
 .category-hierarchy-products {
@@ -1001,7 +1036,7 @@
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .category-hierarchy-product {
@@ -1011,19 +1046,21 @@
 .category-hierarchy-product-link {
   display: inline-block;
   font-size: 12px;
-  color: #555;
-  background: #f8f8f8;
-  padding: 4px 10px;
+  color: #444;
+  background: #fff;
+  padding: 5px 12px;
   border-radius: 4px;
   text-decoration: none;
   transition: all 0.2s;
-  max-width: 250px;
+  max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border: 1px solid #e8e8e8;
 }
 
 .category-hierarchy-product-link:hover {
   background: #e63946;
   color: #fff;
+  border-color: #e63946;
 }
