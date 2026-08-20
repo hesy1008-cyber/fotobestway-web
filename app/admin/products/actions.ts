@@ -72,15 +72,39 @@ export async function createProduct(
 
 
 
-  const specs =
-
-  String(formData.get("specs") || "")
-
-  .split("\n")
-
-  .map(item=>item.trim())
-
-  .filter(item=>item.length>0);
+  // 优先读取多型号格式 specsJson
+  const specsJsonStr = String(formData.get("specsJson") || "");
+  let specs: any;
+  if (specsJsonStr) {
+    try {
+      const parsed = JSON.parse(specsJsonStr);
+      // 过滤掉空型号和空规格
+      specs = parsed
+        .filter((m: any) => m.specs && m.specs.length > 0)
+        .map((m: any) => ({
+          model: m.model || "",
+          specs: m.specs.filter((s: any) => s.label?.trim() || s.value?.trim()),
+        }));
+    } catch (e) {
+      specs = [];
+    }
+  } else {
+    // 旧格式兼容
+    specs = String(formData.get("specs") || "")
+      .split("\n")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .map((line) => {
+        const colonIndex = line.indexOf(":");
+        if (colonIndex > 0) {
+          return {
+            label: line.substring(0, colonIndex).trim(),
+            value: line.substring(colonIndex + 1).trim(),
+          };
+        }
+        return { label: line, value: "" };
+      });
+  }
 
 
 
@@ -244,15 +268,39 @@ String(formData.get("applications") || "")
 
 
 
-const specs =
-
-String(formData.get("specs") || "")
-
-.split("\n")
-
-.map(item=>item.trim())
-
-.filter(item=>item.length>0);
+  // 优先读取多型号格式 specsJson
+  const specsJsonStr = String(formData.get("specsJson") || "");
+  let specs: any;
+  if (specsJsonStr) {
+    try {
+      const parsed = JSON.parse(specsJsonStr);
+      // 过滤掉空型号和空规格
+      specs = parsed
+        .filter((m: any) => m.specs && m.specs.length > 0)
+        .map((m: any) => ({
+          model: m.model || "",
+          specs: m.specs.filter((s: any) => s.label?.trim() || s.value?.trim()),
+        }));
+    } catch (e) {
+      specs = [];
+    }
+  } else {
+    // 旧格式兼容
+    specs = String(formData.get("specs") || "")
+      .split("\n")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .map((line) => {
+        const colonIndex = line.indexOf(":");
+        if (colonIndex > 0) {
+          return {
+            label: line.substring(0, colonIndex).trim(),
+            value: line.substring(colonIndex + 1).trim(),
+          };
+        }
+        return { label: line, value: "" };
+      });
+  }
 
 
 

@@ -58,6 +58,71 @@ export default function EditProductForm({
   const [selectedCategory, setSelectedCategory] = useState<string>(
     product.categoryRef?.id ?? ""
   );
+
+  // 多型号规格参数
+  type SpecModel = { model: string; specsText: string };
+  const [specModels, setSpecModels] = useState<SpecModel[]>(() => {
+    // 从旧格式转换
+    const specs = product.specs;
+    // 新格式：数组，每个元素有 model 和 specs
+    if (Array.isArray(specs) && specs.length > 0 && specs[0]?.model !== undefined) {
+      return specs.map((s: any) => ({
+        model: s.model || "",
+        specsText: Array.isArray(s.specs)
+          ? s.specs.map((item: any) => `${item.label}: ${item.value}`).join("\n")
+          : typeof s.specs === "object"
+          ? Object.entries(s.specs).map(([k, v]) => `${k}: ${v}`).join("\n")
+          : "",
+      }));
+    }
+    // 旧格式：数组 [{label, value}] 或对象 {key: value}
+    let specsText = "";
+    if (Array.isArray(specs)) {
+      specsText = specs
+        .map((s: any) => (typeof s === "string" ? s : `${s.label}: ${s.value}`))
+        .join("\n");
+    } else if (typeof specs === "object" && specs) {
+      specsText = Object.entries(specs)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join("\n");
+    }
+    return specsText ? [{ model: "", specsText }] : [];
+  });
+
+  const addSpecModel = () => {
+    setSpecModels([...specModels, { model: "", specsText: "" }]);
+  };
+
+  const removeSpecModel = (index: number) => {
+    setSpecModels(specModels.filter((_, i) => i !== index));
+  };
+
+  const updateSpecModel = (index: number, field: keyof SpecModel, value: string) => {
+    const updated = [...specModels];
+    updated[index] = { ...updated[index], [field]: value };
+    setSpecModels(updated);
+  };
+
+  // 把多型号数据转换成 JSON 字符串
+  const specsJson = JSON.stringify(
+    specModels.map((m) => ({
+      model: m.model.trim(),
+      specs: m.specsText
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .map((line) => {
+          const colonIndex = line.indexOf(":");
+          if (colonIndex > 0) {
+            return {
+              label: line.substring(0, colonIndex).trim(),
+              value: line.substring(colonIndex + 1).trim(),
+            };
+          }
+          return { label: line, value: "" };
+        }),
+    }))
+  );
   const [mainPreview, setMainPreview] = useState<string | null>(
     product.image ?? null
   );
@@ -263,21 +328,88 @@ export default function EditProductForm({
           </p>
         </div>
 
-        {/* Specifications */}
+        {/* Specifications - 多型号 */}
         <div className="admin-form-group">
           <label className="admin-form-label">
-            Specifications (规格参数，格式：Label: Value)
+            Specifications (规格参数，支持多个型号)
           </label>
-          <textarea
-            name="specs"
-            defaultValue={jsonToText(product.specs)}
-            className="admin-form-textarea"
-            style={{ minHeight: "180px", fontFamily: "monospace", fontSize: "13px" }}
-            placeholder={"Power: 600W\nVoltage: 110-240V\n..."}
-          />
-          <p className="admin-form-help">
-            每行一个规格，格式为 "名称: 值"，例如：Power: 600W
-          </p>
+          <input type="hidden" name="specsJson" value={specsJson} />
+          {/* 保留旧字段兼容 */}
+          <textarea name="specs" style={{ display: "none" }} defaultValue="" />
+
+          {specModels.length === 0 && (
+            <p style={{ color: "#888", fontSize: "13px", marginBottom: "10px" }}>
+              暂无规格参数，点击下方按钮添加
+            </p>
+          )}
+
+          {specModels.map((m, index) => (
+            <div
+              key={index}
+              style={{
+                border: "1px solid #e0e0e0",
+                borderRadius: "6px",
+                padding: "15px",
+                marginBottom: "15px",
+                background: "#fafafa",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                <span style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}>
+                  型号 {index + 1}
+                </span>
+                <input
+                  type="text"
+                  placeholder="型号名称（如：FBW-600D，可选）"
+                  value={m.model}
+                  onChange={(e) => updateSpecModel(index, "model", e.target.value)}
+                  className="admin-form-input"
+                  style={{ flex: 1, maxWidth: "300px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSpecModel(index)}
+                  style={{
+                    padding: "6px 12px",
+                    background: "#e60012",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                  }}
+                >
+                  删除型号
+                </button>
+              </div>
+              <textarea
+                placeholder={"Power: 600W\nVoltage: 110-240V\nColor Temperature: 5600K\n..."}
+                value={m.specsText}
+                onChange={(e) => updateSpecModel(index, "specsText", e.target.value)}
+                className="admin-form-textarea"
+                style={{ minHeight: "120px", fontFamily: "monospace", fontSize: "13px" }}
+              />
+              <p style={{ fontSize: "12px", color: "#888", marginTop: "5px" }}>
+                每行一个规格，格式为 "名称: 值"
+              </p>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addSpecModel}
+            style={{
+              padding: "8px 16px",
+              background: "#111",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "13px",
+            }}
+          >
+            + 添加型号
+          </button>
         </div>
       </div>
 
