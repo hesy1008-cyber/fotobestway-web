@@ -201,6 +201,9 @@ export async function updateProduct(id: string, formData: FormData) {
     );
   }
 
+  console.log("SPECS_FINAL_VALUE:", JSON.stringify(specs));
+  console.log("SPECS_FINAL_TYPE:", typeof specs, Array.isArray(specs) ? "array" : "not array");
+
   try {
     console.log("Saving product with video:", video);
     await prisma.product.update({
