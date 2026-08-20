@@ -360,9 +360,10 @@
 
 .admin-card-actions {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  gap: 0;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .admin-card-actions form {
@@ -371,8 +372,29 @@
 }
 
 .admin-card-actions form .admin-btn {
-  width: 100%;
+  width: auto;
   justify-content: center;
+}
+
+/* 分类卡片按钮组 - 选项卡样式 */
+.admin-category-card .admin-card-actions {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.admin-category-card .admin-card-actions .admin-btn {
+  border-radius: 0;
+  border-right: 1px solid #e0e0e0;
+  margin: 0;
+}
+
+.admin-category-card .admin-card-actions .admin-btn:last-child {
+  border-right: none;
+}
+
+.admin-category-card .admin-card-actions form .admin-btn {
+  border-radius: 0;
 }
 
 /* 表单样式 */
@@ -911,13 +933,12 @@
   }
 
   .admin-card-actions {
-    flex-direction: row;
     width: 100%;
+    justify-content: flex-end;
   }
 
   .admin-card-actions .admin-btn {
-    flex: 1;
-    justify-content: center;
+    flex: none;
   }
 
   .admin-form {
@@ -927,54 +948,57 @@
 
 /* ====== 分类层级概览 ====== */
 .category-hierarchy-details {
-  margin-top: 16px;
-  border-top: 1px solid #eee;
-  padding-top: 16px;
+  margin-top: -1px;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background: #fafafa;
+  overflow: hidden;
 }
 
 .category-hierarchy-summary {
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 13px;
-  color: #e63946;
-  font-weight: 600;
-  padding: 8px 16px;
-  background: #fff5f5;
-  border: 1px solid #ffd6d9;
-  border-radius: 6px;
+  color: #666;
+  font-weight: 500;
+  padding: 10px 16px;
+  background: #f5f5f5;
+  border-top: 1px dashed #e0e0e0;
   user-select: none;
   list-style: none;
   transition: all 0.2s;
 }
 
 .category-hierarchy-summary:hover {
-  background: #ffe8ea;
-  border-color: #ffb3b8;
+  background: #efefef;
+  color: #e63946;
 }
 
 .category-hierarchy-summary::-webkit-details-marker {
   display: none;
 }
 
-.category-hierarchy-summary::before {
-  content: "▶";
+.category-hierarchy-summary::after {
+  content: "▼";
   display: inline-block;
   transition: transform 0.2s;
-  font-size: 9px;
-  color: #e63946;
+  font-size: 8px;
+  color: #999;
 }
 
-.category-hierarchy-details[open] .category-hierarchy-summary::before {
-  transform: rotate(90deg);
+.category-hierarchy-details[open] .category-hierarchy-summary::after {
+  transform: rotate(180deg);
 }
 
 .category-hierarchy-content {
-  margin-top: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .category-hierarchy-empty {
