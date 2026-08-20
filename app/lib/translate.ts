@@ -74,8 +74,13 @@ async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise
     const data = await res.json();
     const translated = data?.responseData?.translatedText;
 
-    // 过滤掉 API 错误信息
-    if (!translated || translated.includes("QUERY LENGTH LIMIT") || translated.includes("MAX ALLOWED QUERY")) {
+    // 过滤掉 API 错误信息和额度警告
+    if (!translated || 
+        translated.includes("QUERY LENGTH LIMIT") || 
+        translated.includes("MAX ALLOWED QUERY") ||
+        translated.includes("MYMEMORY WARNING") ||
+        translated.includes("USED ALL AVAILABLE FREE") ||
+        translated.includes("NEXT AVAILABLE IN")) {
       return text;
     }
 
