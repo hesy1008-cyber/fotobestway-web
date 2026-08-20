@@ -1,6 +1,14 @@
+import crypto from "crypto";
+import { prisma } from "./prisma";
+
 // 简单的内存缓存
 const cache = new Map<string, { text: string; timestamp: number }>();
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24小时
+
+// 计算文本的 hash，用于数据库快速查找
+function hashText(text: string): string {
+  return crypto.createHash("md5").update(text).digest("hex");
+}
 
 // 带超时的 fetch
 async function fetchWithTimeout(url: string, options: RequestInit, timeout = 3000): Promise<Response> {
@@ -55,12 +63,28 @@ function splitLongText(text: string, maxLen = 450): string[] {
 async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise<string> {
   if (!text || !text.trim()) return text;
 
+  // 一级缓存：内存
   const cacheKey = `${from}:${to}:${text}`;
   const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return cached.text;
   }
 
+  // 二级缓存：数据库（永久缓存，翻译过的内容永远不会再调用 API）
+  const sourceHash = hashText(text);
+  try {
+    const dbCached = await prisma.translationCache.findUnique({
+      where: { sourceHash_fromLang_toLang: { sourceHash, fromLang: from, toLang: to } },
+    });
+    if (dbCached) {
+      cache.set(cacheKey, { text: dbCached.translatedText, timestamp: Date.now() });
+      return dbCached.translatedText;
+    }
+  } catch (e) {
+    // 数据库查询失败，继续调用 API
+  }
+
+  // 调用翻译 API
   try {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
     const res = await fetchWithTimeout(url, {
@@ -84,7 +108,24 @@ async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise
       return text;
     }
 
+    // 缓存到内存
     cache.set(cacheKey, { text: translated, timestamp: Date.now() });
+
+    // 缓存到数据库（以后永远不会再调用 API 翻译这段文本）
+    try {
+      await prisma.translationCache.create({
+        data: {
+          sourceHash,
+          sourceText: text,
+          translatedText: translated,
+          fromLang: from,
+          toLang: to,
+        },
+      });
+    } catch (e) {
+      // 数据库写入失败（可能重复），忽略
+    }
+
     return translated;
   } catch (error) {
     return text;

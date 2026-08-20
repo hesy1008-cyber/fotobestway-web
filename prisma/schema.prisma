@@ -144,3 +144,16 @@ model PdfFile {
   isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now())
 }
+
+model TranslationCache {
+  id             String   @id @default(cuid())
+  sourceHash     String
+  sourceText     String
+  translatedText String
+  fromLang       String   @default("en")
+  toLang         String   @default("zh-CN")
+  createdAt      DateTime @default(now())
+
+  @@unique([sourceHash, fromLang, toLang])
+  @@index([sourceHash, fromLang, toLang])
+}
