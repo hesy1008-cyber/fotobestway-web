@@ -69,9 +69,26 @@ export default function CategoryManager({ categories }: { categories: Category[]
               className={`sidebar-item ${selectedId === cat.id ? "active" : ""}`}
               onClick={() => setSelectedId(cat.id)}
             >
-              <span className="sidebar-badge">{String(i + 1).padStart(2, "0")}</span>
-              <span className="sidebar-name">{cat.name}</span>
-              <span className="sidebar-sub-count">{cat.subCategories.length}</span>
+              <div className="sidebar-item-top">
+                <span className="sidebar-badge">{String(i + 1).padStart(2, "0")}</span>
+                <span className="sidebar-name">{cat.name}</span>
+              </div>
+              <div className="sidebar-item-stats">
+                <span className="sidebar-stat">
+                  <span className="sidebar-stat-num">{cat.products.length}</span>
+                  <span className="sidebar-stat-label">产品</span>
+                </span>
+                <span className="sidebar-stat-divider"></span>
+                <span className="sidebar-stat">
+                  <span className="sidebar-stat-num">{cat.subCategories.length}</span>
+                  <span className="sidebar-stat-label">子分类</span>
+                </span>
+                <span className="sidebar-stat-divider"></span>
+                <span className="sidebar-stat sidebar-stat-slug">
+                  <span className="sidebar-stat-label">/</span>
+                  <span className="sidebar-stat-slug-text">{cat.slug}</span>
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -101,22 +118,6 @@ export default function CategoryManager({ categories }: { categories: Category[]
                   编辑
                 </Link>
                 <DeleteCategoryButton id={selected.id} />
-              </div>
-            </div>
-
-            {/* 统计卡片 */}
-            <div className="detail-stats-row">
-              <div className="detail-stat-card">
-                <span className="detail-stat-label">产品总数</span>
-                <span className="detail-stat-value">{selected.products.length}</span>
-              </div>
-              <div className="detail-stat-card">
-                <span className="detail-stat-label">二级分类</span>
-                <span className="detail-stat-value">{selected.subCategories.length}</span>
-              </div>
-              <div className="detail-stat-card">
-                <span className="detail-stat-label">分类标识</span>
-                <span className="detail-stat-value detail-stat-slug">{selected.slug}</span>
               </div>
             </div>
 
