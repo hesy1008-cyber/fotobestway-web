@@ -455,18 +455,19 @@ export default async function ProductDetailPage({
               ...(() => {
                 // 检查 specs 是否有有效内容
                 let hasValidSpecs = false;
-                const isMultiModel = Array.isArray(product.specs) && product.specs.length > 0 && product.specs[0]?.model !== undefined;
+                const specsAny = product.specs as any;
+                const isMultiModel = Array.isArray(specsAny) && specsAny.length > 0 && specsAny[0]?.model !== undefined;
 
                 if (isMultiModel) {
-                  hasValidSpecs = (product.specs as any[]).some(
+                  hasValidSpecs = specsAny.some(
                     (m: any) => m.specs && m.specs.some((s: any) => s.label?.trim() || s.value?.trim())
                   );
-                } else if (Array.isArray(product.specs)) {
-                  hasValidSpecs = product.specs.some(
+                } else if (Array.isArray(specsAny)) {
+                  hasValidSpecs = specsAny.some(
                     (s: any) => s && (s.label || s.value) && (s.label?.trim() || s.value?.trim())
                   );
-                } else if (typeof product.specs === "object" && product.specs) {
-                  hasValidSpecs = Object.entries(product.specs as Record<string, string>).some(
+                } else if (typeof specsAny === "object" && specsAny) {
+                  hasValidSpecs = Object.entries(specsAny as Record<string, string>).some(
                     ([key, value]) => key?.trim() || value?.trim()
                   );
                 }
@@ -478,10 +479,10 @@ export default async function ProductDetailPage({
                       <div className="specs-table">
                         {isMultiModel ? (
                           // 多型号格式
-                          (product.specs as any[])
+                          specsAny
                             .filter((m: any) => m.specs && m.specs.some((s: any) => s.label?.trim() || s.value?.trim()))
                             .map((m: any, mi: number) => (
-                              <div key={mi} style={{ marginBottom: mi < (product.specs as any[]).length - 1 ? "24px" : "0" }}>
+                              <div key={mi} style={{ marginBottom: mi < specsAny.length - 1 ? "24px" : "0" }}>
                                 {m.model && (
                                   <h4 style={{
                                     fontSize: "16px",
@@ -504,19 +505,19 @@ export default async function ProductDetailPage({
                                   ))}
                               </div>
                             ))
-                        ) : Array.isArray(product.specs) ? (
+                        ) : Array.isArray(specsAny) ? (
                           // 旧格式：数组 [{label, value}]
-                          (product.specs as { label: string; value: string }[])
-                            .filter((s) => s && (s.label?.trim() || s.value?.trim()))
-                            .map((s, i) => (
+                          specsAny
+                            .filter((s: any) => s && (s.label?.trim() || s.value?.trim()))
+                            .map((s: any, i: number) => (
                               <div key={i} className="spec-row">
                                 <span className="spec-label">{s.label}</span>
                                 <span className="spec-value">{s.value}</span>
                               </div>
                             ))
-                        ) : typeof product.specs === "object" && product.specs ? (
+                        ) : typeof specsAny === "object" && specsAny ? (
                           // 旧格式：对象 {key: value}
-                          Object.entries(product.specs as Record<string, string>)
+                          Object.entries(specsAny as Record<string, string>)
                             .filter(([key, value]) => key?.trim() || value?.trim())
                             .map(([key, value], i) => (
                               <div key={i} className="spec-row">
