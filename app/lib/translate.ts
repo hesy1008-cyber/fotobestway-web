@@ -14,7 +14,60 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeout = 300
   }
 }
 
+// 分割长文本为多段，每段不超过 maxLen 字符
+function splitLongText(text: string, maxLen = 450): string[] {
+  if (text.length <= maxLen) return [text];
+
+  const segments: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLen) {
+      segments.push(remaining);
+      break;
+    }
+
+    // 优先在段落结束处分割（\n\n）
+    let splitPos = remaining.lastIndexOf("\n\n", maxLen);
+    // 其次在换行处分割
+    if (splitPos < 100) splitPos = remaining.lastIndexOf("\n", maxLen);
+    // 其次在句号处分割
+    if (splitPos < 100) {
+      const periodPos = Math.max(
+        remaining.lastIndexOf(". ", maxLen),
+        remaining.lastIndexOf("。", maxLen)
+      );
+      if (periodPos > 100) splitPos = periodPos + 1;
+    }
+    // 最后在空格处分割
+    if (splitPos < 100) splitPos = remaining.lastIndexOf(" ", maxLen);
+    // 实在不行就硬分割
+    if (splitPos < 100) splitPos = maxLen;
+
+    segments.push(remaining.substring(0, splitPos).trim());
+    remaining = remaining.substring(splitPos).trim();
+  }
+
+  return segments.filter((s) => s.length > 0);
+}
+
 export async function translateText(text: string, from = "en", to = "zh-CN"): Promise<string> {
+  if (!text || !text.trim()) return text;
+
+  // 长文本分段翻译
+  if (text.length > 450) {
+    const segments = splitLongText(text, 450);
+    const translatedSegments = await Promise.all(
+      segments.map((seg) => translateSingle(seg, from, to))
+    );
+    return translatedSegments.join("\n\n");
+  }
+
+  return translateSingle(text, from, to);
+}
+
+// 单段翻译（不超过500字符）
+async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise<string> {
   if (!text || !text.trim()) return text;
 
   const cacheKey = `${from}:${to}:${text}`;
