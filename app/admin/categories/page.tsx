@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/app/lib/prisma";
+import { prisma } from "@/app/lib/prisma";
 import Link from "next/link";
 import DeleteCategoryButton from "./DeleteCategoryButton";
 
@@ -9,7 +9,19 @@ export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
     include: {
       products: true,
-      subCategories: true,
+      subCategories: {
+        include: {
+          products: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: {
+          sortOrder: "asc",
+        },
+      },
     },
     orderBy: {
       sortOrder: "asc",
@@ -66,6 +78,43 @@ export default async function CategoriesPage() {
               <DeleteCategoryButton id={category.id} />
             </div>
           </div>
+
+          {/* 层级概览：展开查看二级分类和产品 */}
+          <details className="category-hierarchy-details">
+            <summary className="category-hierarchy-summary">
+              查看层级概览（{category.subCategories.length} 个二级分类）
+            </summary>
+            <div className="category-hierarchy-content">
+              {category.subCategories.length === 0 ? (
+                <p className="category-hierarchy-empty">暂无二级分类</p>
+              ) : (
+                category.subCategories.map((sub) => (
+                  <div key={sub.id} className="category-hierarchy-sub">
+                    <div className="category-hierarchy-sub-title">
+                      <span className="category-hierarchy-sub-name">{sub.name}</span>
+                      <span className="category-hierarchy-sub-count">
+                        {sub.products.length} 个产品
+                      </span>
+                    </div>
+                    {sub.products.length > 0 && (
+                      <ul className="category-hierarchy-products">
+                        {sub.products.map((product) => (
+                          <li key={product.id} className="category-hierarchy-product">
+                            <Link
+                              href={`/admin/products/${product.id}/edit`}
+                              className="category-hierarchy-product-link"
+                            >
+                              {product.title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </details>
         ))}
       </div>
     </div>
