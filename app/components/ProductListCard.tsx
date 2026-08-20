@@ -21,9 +21,12 @@ export default function ProductListCard({
     ? (product.features as string[]).filter((f) => f && f.trim() !== "")
     : [];
 
-  const mid = Math.ceil(features.length / 2);
-  const leftFeatures = features.slice(0, mid);
-  const rightFeatures = features.slice(mid);
+  // 最多显示4个features，超过的显示show more
+  const hasMore = features.length > 4;
+  const displayFeatures = features.slice(0, 4);
+  const mid = Math.ceil(displayFeatures.length / 2);
+  const leftFeatures = displayFeatures.slice(0, mid);
+  const rightFeatures = displayFeatures.slice(mid);
 
   // 分类名翻译
   const categoryName = product.categoryRef?.slug
@@ -99,6 +102,15 @@ export default function ProductListCard({
                     <span>{feature}</span>
                   </div>
                 ))}
+                {hasMore && (
+                  <Link
+                    href={`/${locale}/products/${product.slug}`}
+                    className="featureShowMore"
+                  >
+                    <span className="featureDot">•</span>
+                    <span>{t.products.showMore} →</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

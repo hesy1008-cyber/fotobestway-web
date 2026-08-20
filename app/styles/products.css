@@ -1225,6 +1225,24 @@
   line-height: 1.5;
 }
 
+.featureShowMore {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: #e60012;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.featureShowMore:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 /* 响应式 */
 @media (max-width: 1200px) {
   .productListCard {
