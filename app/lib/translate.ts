@@ -51,21 +51,6 @@ function splitLongText(text: string, maxLen = 450): string[] {
   return segments.filter((s) => s.length > 0);
 }
 
-export async function translateText(text: string, from = "en", to = "zh-CN"): Promise<string> {
-  if (!text || !text.trim()) return text;
-
-  // 长文本分段翻译
-  if (text.length > 450) {
-    const segments = splitLongText(text, 450);
-    const translatedSegments = await Promise.all(
-      segments.map((seg) => translateSingle(seg, from, to))
-    );
-    return translatedSegments.join("\n\n");
-  }
-
-  return translateSingle(text, from, to);
-}
-
 // 单段翻译（不超过500字符）
 async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise<string> {
   if (!text || !text.trim()) return text;
@@ -82,21 +67,38 @@ async function translateSingle(text: string, from = "en", to = "zh-CN"): Promise
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
-    }, 5000);
+    }, 10000);
 
     if (!res.ok) return text;
 
     const data = await res.json();
     const translated = data?.responseData?.translatedText;
 
-    if (!translated) return text;
+    // 过滤掉 API 错误信息
+    if (!translated || translated.includes("QUERY LENGTH LIMIT") || translated.includes("MAX ALLOWED QUERY")) {
+      return text;
+    }
 
     cache.set(cacheKey, { text: translated, timestamp: Date.now() });
     return translated;
   } catch (error) {
-    // 翻译失败快速返回原文，不卡住页面
     return text;
   }
+}
+
+export async function translateText(text: string, from = "en", to = "zh-CN"): Promise<string> {
+  if (!text || !text.trim()) return text;
+
+  // 长文本分段翻译
+  if (text.length > 450) {
+    const segments = splitLongText(text, 450);
+    const translatedSegments = await Promise.all(
+      segments.map((seg) => translateSingle(seg, from, to))
+    );
+    return translatedSegments.join("\n\n");
+  }
+
+  return translateSingle(text, from, to);
 }
 
 // 翻译产品对象的所有文本字段（并发）
