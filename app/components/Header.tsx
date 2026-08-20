@@ -141,7 +141,7 @@ export default function Header({
           {upper(t.nav.about)}
         </Link>
 
-        <Link href={withLocale("/support", locale)}>
+        <Link href={withLocale("/support", locale)} className="nav-support">
           {upper(t.nav.support)}
         </Link>
 

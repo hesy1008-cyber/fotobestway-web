@@ -480,6 +480,9 @@ transform:scale(1.2);
     font-size: 11px;
     letter-spacing: 0.5px;
   }
+  .nav-support {
+    display: none !important;
+  }
   .headerRight {
     gap: 8px;
   }
