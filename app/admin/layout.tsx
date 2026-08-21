@@ -34,6 +34,7 @@ export default function AdminLayout({
       children: [
         { href: "/admin/media", label: "首页内容" },
         { href: "/admin/about", label: "关于页" },
+        { href: "/admin/news", label: "新闻管理" },
       ],
     },
     {

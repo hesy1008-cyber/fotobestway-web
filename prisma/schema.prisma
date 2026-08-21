@@ -157,3 +157,22 @@ model TranslationCache {
   @@unique([sourceHash, fromLang, toLang])
   @@index([sourceHash, fromLang, toLang])
 }
+
+model News {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  summary      String?
+  content      String?
+  coverImage   String?
+  category     String   @default("Company News")
+  publishDate  DateTime @default(now())
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  // SEO 字段
+  seoTitle       String?
+  metaDescription String?
+  focusKeywords  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
