@@ -138,8 +138,15 @@ font-size:14px;
 
 font-size:25px;
 
-margin-left: 4px;
+margin-left: 0;
 
+}
+
+/* 放大镜和语言切换紧贴 */
+.headerSearchLang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* 头部社媒图标 - 圆形白底黑图标 */

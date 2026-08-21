@@ -233,11 +233,12 @@ export default function Header({
           </a>
         </div>
 
-        <span className="searchIcon">
-          ⌕
-        </span>
-
-        <LanguageSwitcher />
+        <div className="headerSearchLang">
+          <span className="searchIcon">
+            ⌕
+          </span>
+          <LanguageSwitcher />
+        </div>
       </div>
     </header>
   );
