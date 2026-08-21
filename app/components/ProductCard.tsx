@@ -93,7 +93,11 @@ export default function ProductCard({
               )}
             </div>
           ) : (
-            product.overview && <p className="productCardOverview">{product.overview}</p>
+            (product.shortDescription || product.overview) && (
+              <p className="productCardOverview">
+                {product.shortDescription || product.overview}
+              </p>
+            )
           )}
         </div>
         <Link

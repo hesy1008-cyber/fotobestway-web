@@ -67,7 +67,7 @@ export default function ProductListCard({
             <Link href={`/${locale}/products/${product.slug}`} className="productListTitle">
               {product.title}
             </Link>
-            <p className="productListDesc">{product.overview}</p>
+            <p className="productListDesc">{product.shortDescription || product.overview}</p>
           </div>
 
           <div className="productListCardActions">
