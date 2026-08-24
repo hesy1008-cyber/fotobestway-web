@@ -40,48 +40,68 @@ export default function ProductManager({
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
-  // 导出产品图片（主图+详情图）为ZIP
+  // 导出产品图片（主图+轮播图+详情图）为ZIP
   const handleExportProduct = async (product: ProductSimple) => {
     setExportingId(product.id);
     try {
       const zip = new JSZip();
-      const folderName = product.slug || product.title.replace(/\s+/g, "-").toLowerCase();
-      const productFolder = zip.folder(folderName);
+      // 压缩包名字用产品标题，替换掉文件名不允许的字符
+      const zipName = product.title.replace(/[\\/:*?"<>|]/g, "_").trim();
 
-      if (!productFolder) throw new Error("创建ZIP文件夹失败");
+      // 创建两个子文件夹
+      const mainFolder = zip.folder("主图");
+      const detailFolder = zip.folder("详情页");
 
-      // 收集所有需要导出的图片
-      const imagesToExport: { url: string; filename: string }[] = [];
+      if (!mainFolder || !detailFolder) throw new Error("创建ZIP文件夹失败");
+
+      // 收集主图和轮播图
+      const mainImages: { url: string; filename: string }[] = [];
+      let mainIndex = 1;
 
       // 主图
       if (product.image) {
         const ext = product.image.split(".").pop()?.split("?")[0] || "jpg";
-        imagesToExport.push({ url: product.image, filename: `main.${ext}` });
-      }
-
-      // 详情图
-      if (Array.isArray(product.detailImages) && product.detailImages.length > 0) {
-        product.detailImages.forEach((imgUrl, index) => {
-          const ext = imgUrl.split(".").pop()?.split("?")[0] || "jpg";
-          imagesToExport.push({ url: imgUrl, filename: `detail-${index + 1}.${ext}` });
-        });
+        mainImages.push({ url: product.image, filename: `主图${mainIndex}.${ext}` });
+        mainIndex++;
       }
 
       // 轮播图（gallery 图集）
       if (Array.isArray(product.gallery) && product.gallery.length > 0) {
-        product.gallery.forEach((imgUrl, index) => {
+        product.gallery.forEach((imgUrl) => {
           const ext = imgUrl.split(".").pop()?.split("?")[0] || "jpg";
-          imagesToExport.push({ url: imgUrl, filename: `gallery-${index + 1}.${ext}` });
+          mainImages.push({ url: imgUrl, filename: `主图${mainIndex}.${ext}` });
+          mainIndex++;
         });
       }
 
-      // 下载每张图片并添加到ZIP
-      for (const img of imagesToExport) {
+      // 收集详情图
+      const detailImages: { url: string; filename: string }[] = [];
+      if (Array.isArray(product.detailImages) && product.detailImages.length > 0) {
+        product.detailImages.forEach((imgUrl, index) => {
+          const ext = imgUrl.split(".").pop()?.split("?")[0] || "jpg";
+          detailImages.push({ url: imgUrl, filename: `详情页${index + 1}.${ext}` });
+        });
+      }
+
+      // 下载主图和轮播图，添加到"主图"文件夹
+      for (const img of mainImages) {
         try {
           const response = await fetch(img.url);
           if (!response.ok) throw new Error(`下载失败: ${img.url}`);
           const blob = await response.blob();
-          productFolder.file(img.filename, blob);
+          mainFolder.file(img.filename, blob);
+        } catch (err) {
+          console.error(`下载图片失败: ${img.url}`, err);
+        }
+      }
+
+      // 下载详情图，添加到"详情页"文件夹
+      for (const img of detailImages) {
+        try {
+          const response = await fetch(img.url);
+          if (!response.ok) throw new Error(`下载失败: ${img.url}`);
+          const blob = await response.blob();
+          detailFolder.file(img.filename, blob);
         } catch (err) {
           console.error(`下载图片失败: ${img.url}`, err);
         }
@@ -89,7 +109,7 @@ export default function ProductManager({
 
       // 生成ZIP并下载
       const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, `${folderName}.zip`);
+      saveAs(content, `${zipName}.zip`);
     } catch (error) {
       console.error("导出失败:", error);
       alert("导出失败，请重试");
