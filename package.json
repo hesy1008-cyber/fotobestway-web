@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "import-products": "tsx scripts/import-products.ts",
+    "batch-import": "tsx scripts/batch-import-products.ts",
+    "gen-template": "tsx scripts/generate-template.ts",
     "prisma": "prisma studio"
   },
   "prisma": {
@@ -27,7 +29,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sharp": "^0.35.3",
-    "swiper": "^14.0.6"
+    "swiper": "^14.0.6",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

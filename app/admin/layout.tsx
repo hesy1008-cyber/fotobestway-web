@@ -24,6 +24,7 @@ export default function AdminLayout({
       href: "/admin/products",
       children: [
         { href: "/admin/products", label: "产品列表" },
+        { href: "/admin/batch-import", label: "批量导入" },
         { href: "/admin/categories", label: "分类管理" },
         { href: "/admin/pdfs", label: "PDF文件上传" },
       ],
