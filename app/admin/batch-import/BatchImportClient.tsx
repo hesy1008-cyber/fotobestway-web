@@ -60,8 +60,13 @@ function parseSheetToProduct(sheetData: any[][], sheetName: string): ProductDraf
     return v !== undefined && v !== null ? String(v).trim() : "";
   };
 
-  // 行1: 大品名
-  const title = getCell(0, 1) || sheetName;
+  // 行1: 大品名（去掉中文备注和中文标点）
+  let title = getCell(0, 1) || sheetName;
+  title = title
+    .replace(/[\u4e00-\u9fa5]/g, "") // 去掉中文字符
+    .replace(/[，。、；：！？""''（）【】《》]/g, "") // 去掉中文标点
+    .replace(/\s+/g, " ") // 合并多余空格
+    .trim();
 
   // 行1 H列: 大类
   const categoryRaw = getCell(0, 7);
