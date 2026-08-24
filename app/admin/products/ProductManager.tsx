@@ -67,6 +67,14 @@ export default function ProductManager({
         });
       }
 
+      // 轮播图（gallery 图集）
+      if (Array.isArray(product.gallery) && product.gallery.length > 0) {
+        product.gallery.forEach((imgUrl, index) => {
+          const ext = imgUrl.split(".").pop()?.split("?")[0] || "jpg";
+          imagesToExport.push({ url: imgUrl, filename: `gallery-${index + 1}.${ext}` });
+        });
+      }
+
       // 下载每张图片并添加到ZIP
       for (const img of imagesToExport) {
         try {
