@@ -60,13 +60,18 @@ function parseSheetToProduct(sheetData: any[][], sheetName: string): ProductDraf
     return v !== undefined && v !== null ? String(v).trim() : "";
   };
 
-  // 行1: 大品名（去掉中文备注和中文标点）
-  let title = getCell(0, 1) || sheetName;
-  title = title
-    .replace(/[\u4e00-\u9fa5]/g, "") // 去掉中文字符
-    .replace(/[，。、；：！？""''（）【】《》]/g, "") // 去掉中文标点
-    .replace(/\s+/g, " ") // 合并多余空格
-    .trim();
+  // 动态找到"大品名"单元格，取它右边相邻的一个数据作为标题
+  let title = sheetName;
+  for (let row = 0; row < Math.min(sheetData.length, 10); row++) {
+    for (let col = 0; col < Math.min(sheetData[row]?.length || 0, 5); col++) {
+      if (getCell(row, col) === "大品名") {
+        title = getCell(row, col + 1);
+        break;
+      }
+    }
+    if (title !== sheetName) break;
+  }
+  title = title.trim();
 
   // 行1 H列: 大类
   const categoryRaw = getCell(0, 7);
