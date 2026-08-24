@@ -264,36 +264,64 @@ export default function ProductManager({
                 </div>
 
                 <div className="admin-card-actions">
-                  <button
-                    onClick={() => handleExportProduct(product)}
-                    disabled={exportingId === product.id}
-                    className="admin-btn admin-btn-secondary admin-btn-sm"
-                    style={{
-                      background: exportingId === product.id ? "#ccc" : "#2196f3",
-                      color: "#fff",
-                      border: "none",
-                      cursor: exportingId === product.id ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    {exportingId === product.id ? "导出中..." : "导出图片"}
-                  </button>
-                  <Link
-                    href={`/admin/products/${product.id}/edit`}
-                    className="admin-btn admin-btn-secondary admin-btn-sm"
-                  >
-                    编辑
-                  </Link>
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className="admin-btn admin-btn-secondary admin-btn-sm"
-                    target="_blank"
-                  >
-                    查看
-                  </Link>
-                  <form action={deleteProduct}>
-                    <input type="hidden" name="id" value={product.id} />
-                    <DeleteButton />
-                  </form>
+                  {/* 第一排：导出图片按钮 */}
+                  <div className="product-export-row">
+                    <button
+                      onClick={() => handleExportProduct(product)}
+                      disabled={exportingId === product.id}
+                      className="product-export-btn"
+                    >
+                      {exportingId === product.id ? (
+                        <>
+                          <span className="export-loading"></span>
+                          导出中...
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                          </svg>
+                          导出图片
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {/* 第二排：编辑、查看、删除 */}
+                  <div className="product-action-row">
+                    <Link
+                      href={`/admin/products/${product.id}/edit`}
+                      className="product-action-btn product-action-edit"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      编辑
+                    </Link>
+                    <Link
+                      href={`/products/${product.slug}`}
+                      className="product-action-btn product-action-view"
+                      target="_blank"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      查看
+                    </Link>
+                    <form action={deleteProduct} className="product-delete-form">
+                      <input type="hidden" name="id" value={product.id} />
+                      <button type="submit" className="product-action-btn product-action-delete">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        删除
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             ))

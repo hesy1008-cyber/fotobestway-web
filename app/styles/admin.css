@@ -2080,3 +2080,150 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ====== 产品卡片按钮组 - 两排布局 ====== */
+.admin-card .admin-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: stretch;
+  min-width: 180px;
+}
+
+/* 第一排：导出图片按钮 */
+.product-export-row {
+  width: 100%;
+}
+
+.product-export-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.25);
+  letter-spacing: 0.3px;
+}
+
+.product-export-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d62828 0%, #b0000d 100%);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.35);
+  transform: translateY(-1px);
+}
+
+.product-export-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.product-export-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.export-loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: export-spin 0.8s linear infinite;
+}
+
+@keyframes export-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 第二排：编辑、查看、删除按钮 */
+.product-action-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.product-action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.product-action-edit {
+  background: #fff;
+  color: #333;
+  border-color: #ddd;
+}
+
+.product-action-edit:hover {
+  background: #f5f5f5;
+  border-color: #999;
+  color: #111;
+}
+
+.product-action-view {
+  background: #fff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.product-action-view:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.product-action-delete {
+  background: #fff;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.product-action-delete:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.product-delete-form {
+  margin: 0;
+  flex: 1;
+  display: flex;
+}
+
+.product-delete-form .product-action-btn {
+  width: 100%;
+}
+
+/* 响应式：小屏幕按钮调整 */
+@media (max-width: 768px) {
+  .admin-card .admin-card-actions {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .product-action-btn {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
