@@ -52,7 +52,11 @@ function slugify(text: string): string {
 }
 
 // 从文案表格解析产品
-function parseSheetToProduct(sheetData: any[][], sheetName: string): ProductDraft | null {
+function parseSheetToProduct(
+  sheetData: any[][],
+  sheetName: string,
+  categories: Category[] = []
+): ProductDraft | null {
   if (!sheetData || sheetData.length === 0) return null;
 
   const getCell = (row: number, col: number) => {
@@ -73,9 +77,35 @@ function parseSheetToProduct(sheetData: any[][], sheetName: string): ProductDraf
   }
   title = title.trim();
 
-  // 行1 H列: 大类
-  const categoryRaw = getCell(0, 7);
-  const category = categoryRaw.replace(/大类[：:]\s*/i, "").trim();
+  // 动态找到包含"大类"的单元格，提取分类名，并模糊匹配数据库分类
+  let category = "";
+  for (let row = 0; row < Math.min(sheetData.length, 10); row++) {
+    for (let col = 0; col < Math.min(sheetData[row]?.length || 0, 12); col++) {
+      const cell = getCell(row, col);
+      if (cell.includes("大类")) {
+        // 可能是 "大类： Light Stand" 或 "大类: Light Stand"
+        const extracted = cell.replace(/大类[：:]\s*/i, "").trim();
+        if (extracted) {
+          category = extracted;
+        } else {
+          // "大类" 本身在这个格子，值在右边相邻格子
+          category = getCell(row, col + 1);
+        }
+        break;
+      }
+    }
+    if (category) break;
+  }
+
+  // 模糊匹配数据库分类（解决 "Light Stand" vs "Light Stands" 等问题）
+  if (category && categories.length > 0) {
+    const normalize = (s: string) =>
+      s.toLowerCase().replace(/\s+/g, "").replace(/s$/, "");
+    const matched = categories.find((c) => normalize(c.name) === normalize(category));
+    if (matched) {
+      category = matched.name;
+    }
+  }
 
   // 动态找到第一个 ITEM# 行，读取型号
   let itemRowIndex = -1;
@@ -205,7 +235,7 @@ export default function BatchImportClient({ categories }: { categories: Category
     for (const sheetName of workbook.SheetNames) {
       const worksheet = workbook.Sheets[sheetName];
       const data = XLSXmod.utils.sheet_to_json(worksheet, { header: 1, defval: "" }) as any[][];
-      const product = parseSheetToProduct(data, sheetName);
+      const product = parseSheetToProduct(data, sheetName, categories);
       if (product) parsed.push(product);
     }
 
@@ -561,7 +591,6 @@ function ProductCard({
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ color: "#999", fontSize: "13px" }}>#{index + 1}</span>
           <strong style={{ fontSize: "15px" }}>{product.title || "(无标题)"}</strong>
-          <span style={{ fontSize: "12px", color: "#888" }}>{product.category}</span>
           {product.importStatus === "success" && (
             <span style={{ fontSize: "11px", color: "#16a34a", background: "#dcfce7", padding: "2px 8px", borderRadius: "10px" }}>
               ✓ 已导入
