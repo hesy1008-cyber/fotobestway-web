@@ -741,22 +741,164 @@ function ProductCard({
               </div>
               <div>
                 <label style={labelStyle}>
-                  规格参数 Specs（多型号 JSON）
+                  规格参数 Specs
                   <span style={{ color: "#999", fontWeight: "normal", marginLeft: "8px" }}>
                     当前 {product.specs.length} 个型号
                   </span>
+                  <button
+                    onClick={() => {
+                      const newSpecs = [...product.specs, { model: "", specs: [{ label: "", value: "" }] }];
+                      onUpdate({ specs: newSpecs });
+                    }}
+                    style={{
+                      marginLeft: "12px",
+                      padding: "2px 10px",
+                      fontSize: "11px",
+                      background: "#dc2626",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    + 添加型号
+                  </button>
                 </label>
-                <textarea
-                  style={{ ...inputStyle, minHeight: "120px", resize: "vertical", fontFamily: "monospace", fontSize: "11px" }}
-                  value={JSON.stringify(product.specs, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      onUpdate({ specs: JSON.parse(e.target.value) });
-                    } catch {
-                      // 无效 JSON 暂时不更新
-                    }
-                  }}
-                />
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
+                  {product.specs.map((specModel, mi) => (
+                    <div key={mi} style={{ border: "1px solid #e5e5e5", borderRadius: "6px", padding: "10px", background: "#fafafa" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: "bold", color: "#555", minWidth: "50px" }}>型号 {mi + 1}</span>
+                        <input
+                          style={{ ...inputStyle, flex: 1, padding: "4px 8px", fontSize: "12px" }}
+                          value={specModel.model}
+                          placeholder="型号名称（如 FT-2200CK-3）"
+                          onChange={(e) => {
+                            const newSpecs = product.specs.map((m, i) =>
+                              i === mi ? { ...m, model: e.target.value } : m
+                            );
+                            onUpdate({ specs: newSpecs });
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            const newSpecs = product.specs.filter((_, i) => i !== mi);
+                            onUpdate({ specs: newSpecs });
+                          }}
+                          style={{
+                            padding: "4px 10px",
+                            fontSize: "11px",
+                            background: "#fee2e2",
+                            color: "#dc2626",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          删除型号
+                        </button>
+                      </div>
+
+                      {/* 参数表头 */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "8px", marginBottom: "4px" }}>
+                        <span style={{ fontSize: "11px", color: "#999", paddingLeft: "4px" }}>参数名</span>
+                        <span style={{ fontSize: "11px", color: "#999", paddingLeft: "4px" }}>参数值</span>
+                        <span></span>
+                      </div>
+
+                      {specModel.specs.map((spec, si) => (
+                        <div key={si} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "8px", marginBottom: "4px" }}>
+                          <input
+                            style={{ ...inputStyle, padding: "4px 8px", fontSize: "12px" }}
+                            value={spec.label}
+                            placeholder="如 Max Height(cm)"
+                            onChange={(e) => {
+                              const newSpecs = product.specs.map((m, i) =>
+                                i === mi
+                                  ? {
+                                      ...m,
+                                      specs: m.specs.map((s, j) =>
+                                        j === si ? { ...s, label: e.target.value } : s
+                                      ),
+                                    }
+                                  : m
+                              );
+                              onUpdate({ specs: newSpecs });
+                            }}
+                          />
+                          <input
+                            style={{ ...inputStyle, padding: "4px 8px", fontSize: "12px" }}
+                            value={spec.value}
+                            placeholder="如 211"
+                            onChange={(e) => {
+                              const newSpecs = product.specs.map((m, i) =>
+                                i === mi
+                                  ? {
+                                      ...m,
+                                      specs: m.specs.map((s, j) =>
+                                        j === si ? { ...s, value: e.target.value } : s
+                                      ),
+                                    }
+                                  : m
+                              );
+                              onUpdate({ specs: newSpecs });
+                            }}
+                          />
+                          <button
+                            onClick={() => {
+                              const newSpecs = product.specs.map((m, i) =>
+                                i === mi
+                                  ? { ...m, specs: m.specs.filter((_, j) => j !== si) }
+                                  : m
+                              );
+                              onUpdate({ specs: newSpecs });
+                            }}
+                            style={{
+                              padding: "4px",
+                              fontSize: "14px",
+                              background: "#fee2e2",
+                              color: "#dc2626",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                              lineHeight: "1",
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() => {
+                          const newSpecs = product.specs.map((m, i) =>
+                            i === mi ? { ...m, specs: [...m.specs, { label: "", value: "" }] } : m
+                          );
+                          onUpdate({ specs: newSpecs });
+                        }}
+                        style={{
+                          marginTop: "4px",
+                          padding: "4px 12px",
+                          fontSize: "11px",
+                          background: "#e5e5e5",
+                          color: "#333",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        + 添加参数
+                      </button>
+                    </div>
+                  ))}
+
+                  {product.specs.length === 0 && (
+                    <div style={{ textAlign: "center", padding: "20px", color: "#999", fontSize: "12px" }}>
+                      暂无规格参数，点击上方「+ 添加型号」开始
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
