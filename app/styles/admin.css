@@ -209,52 +209,57 @@
 .admin-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
   text-decoration: none;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .admin-btn-primary {
-  background: #e60012;
+  background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.25);
 }
 
 .admin-btn-primary:hover {
-  background: #b0000d;
+  background: linear-gradient(135deg, #d62828 0%, #b0000d 100%);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.35);
+  transform: translateY(-1px);
 }
 
 .admin-btn-secondary {
   background: #fff;
-  color: #111;
-  border: 1px solid #111;
+  color: #333;
+  border: 1px solid #ddd;
 }
 
 .admin-btn-secondary:hover {
-  background: #111;
-  color: #fff;
+  background: #f5f5f5;
+  border-color: #999;
+  color: #111;
 }
 
 .admin-btn-danger {
   background: #fff;
   color: #dc2626;
-  border: 1px solid #dc2626;
+  border: 1px solid #fecaca;
 }
 
 .admin-btn-danger:hover {
-  background: #dc2626;
-  color: #fff;
+  background: #fef2f2;
+  border-color: #dc2626;
 }
 
 .admin-btn-sm {
-  padding: 6px 14px;
+  padding: 8px 14px;
   font-size: 12px;
 }
 
@@ -1575,23 +1580,30 @@
 .detail-btn {
   display: inline-flex;
   align-items: center;
-  padding: 10px 22px;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 6px;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .detail-btn-primary {
-  background: #e63946;
+  background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.25);
 }
 
 .detail-btn-primary:hover {
-  background: #d62828;
+  background: linear-gradient(135deg, #d62828 0%, #b0000d 100%);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.35);
+  transform: translateY(-1px);
 }
 
 .detail-btn-secondary {
@@ -1602,7 +1614,19 @@
 
 .detail-btn-secondary:hover {
   background: #f5f5f5;
-  border-color: #ccc;
+  border-color: #999;
+  color: #111;
+}
+
+.detail-btn-danger {
+  background: #fff;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.detail-btn-danger:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
 }
 
 /* 统计卡片行 */

@@ -15,7 +15,7 @@ export default function DeleteCategoryButton({ id }: { id: string }) {
   return (
     <form action={deleteCategory} onSubmit={handleSubmit}>
       <input type="hidden" name="id" value={id} />
-      <button type="submit" className="admin-btn admin-btn-danger admin-btn-sm">
+      <button type="submit" className="detail-btn detail-btn-danger">
         删除
       </button>
     </form>
