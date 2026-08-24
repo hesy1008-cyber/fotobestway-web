@@ -56,73 +56,84 @@ function parseSheetToProduct(
   sheetData: any[][],
   sheetName: string,
   categories: Category[] = []
-): ProductDraft | null {
-  if (!sheetData || sheetData.length === 0) return null;
+): ProductDraft[] {
+  if (!sheetData || sheetData.length === 0) return [];
 
   const getCell = (row: number, col: number) => {
     const v = sheetData[row]?.[col];
     return v !== undefined && v !== null ? String(v).trim() : "";
   };
 
-  // 动态找到"大品名"单元格，取它右边相邻的一个数据作为标题
-  let title = sheetName;
-  for (let row = 0; row < Math.min(sheetData.length, 10); row++) {
+  // ========== 第一步：扫描全表，收集共用信息 ==========
+
+  // 收集所有大品名行：{ row, title }
+  const titleRows: { row: number; title: string }[] = [];
+  for (let row = 0; row < sheetData.length; row++) {
     for (let col = 0; col < Math.min(sheetData[row]?.length || 0, 5); col++) {
       if (getCell(row, col) === "大品名") {
-        title = getCell(row, col + 1);
+        const title = getCell(row, col + 1);
+        if (title) titleRows.push({ row, title: title.trim() });
         break;
       }
     }
-    if (title !== sheetName) break;
   }
-  title = title.trim();
 
-  // 动态找到包含"大类"的单元格，提取分类名，并模糊匹配数据库分类
+  // 收集所有 ITEM# 行的位置
+  const itemRows: number[] = [];
+  for (let row = 0; row < sheetData.length; row++) {
+    if (getCell(row, 0).toUpperCase() === "ITEM#") {
+      itemRows.push(row);
+    }
+  }
+
+  // 找 description 和 advantage（所有产品共用）
+  let overview = "";
+  let features: string[] = [];
+  for (let row = 0; row < sheetData.length; row++) {
+    const cell0 = getCell(row, 0);
+    if (cell0.toLowerCase().includes("the description of product")) {
+      overview = getCell(row + 1, 0);
+    }
+    if (cell0.toLowerCase().includes("the advantage of product")) {
+      for (let r = row + 1; r < sheetData.length; r++) {
+        const val = getCell(r, 0);
+        if (!val) break;
+        if (val.toLowerCase().includes("the feature")) break;
+        const cleaned = val.replace(/^\d+\.\s*/, "").trim();
+        if (cleaned) features.push(cleaned);
+      }
+    }
+  }
+
+  // 找大类（所有产品共用）
   let category = "";
-  for (let row = 0; row < Math.min(sheetData.length, 10); row++) {
+  for (let row = 0; row < Math.min(sheetData.length, 15); row++) {
     for (let col = 0; col < Math.min(sheetData[row]?.length || 0, 12); col++) {
       const cell = getCell(row, col);
       if (cell.includes("大类")) {
-        // 可能是 "大类： Light Stand" 或 "大类: Light Stand"
         const extracted = cell.replace(/大类[：:]\s*/i, "").trim();
-        if (extracted) {
-          category = extracted;
-        } else {
-          // "大类" 本身在这个格子，值在右边相邻格子
-          category = getCell(row, col + 1);
-        }
+        category = extracted || getCell(row, col + 1);
         break;
       }
     }
     if (category) break;
   }
 
-  // 模糊匹配数据库分类（解决 "Light Stand" vs "Light Stands" 等问题）
+  // 模糊匹配数据库分类
   if (category && categories.length > 0) {
     const normalize = (s: string) =>
       s.toLowerCase().replace(/\s+/g, "").replace(/s$/, "");
     const matched = categories.find((c) => normalize(c.name) === normalize(category));
-    if (matched) {
-      category = matched.name;
-    }
+    if (matched) category = matched.name;
   }
 
-  // 动态找到第一个 ITEM# 行，读取型号
-  let itemRowIndex = -1;
-  for (let row = 0; row < sheetData.length; row++) {
-    if (getCell(row, 0).toUpperCase() === "ITEM#") {
-      itemRowIndex = row;
-      break;
-    }
-  }
-
-  const models: string[] = [];
-  if (itemRowIndex >= 0) {
+  // ========== 第二步：读取某个 ITEM# 行的型号和规格参数 ==========
+  function readSpecsFromItemRow(itemRow: number): SpecModel[] {
+    // 读取型号
+    const models: string[] = [];
     for (let col = 1; col < 10; col++) {
-      const val = getCell(itemRowIndex, col);
+      const val = getCell(itemRow, col);
       if (!val) continue;
-      // 过滤掉纯中文、明显不是型号的（如"新面料"、"常规格子面料"等）
-      // 型号通常包含字母和数字，或全大写
       const hasLetter = /[a-zA-Z]/.test(val);
       const hasDigit = /\d/.test(val);
       const isAllChinese = /^[\u4e00-\u9fa5]+$/.test(val);
@@ -130,19 +141,16 @@ function parseSheetToProduct(
       if (!hasLetter && !hasDigit) continue;
       models.push(val);
     }
-  }
 
-  // 从 ITEM# 下一行开始读规格参数，直到遇到空行（只读取第一个规格区块）
-  const specs: SpecModel[] = models.map((m) => ({ model: m, specs: [] }));
-  if (itemRowIndex >= 0) {
+    const specs: SpecModel[] = models.map((m) => ({ model: m, specs: [] }));
     const seenLabels = models.map(() => new Set<string>());
-    for (let row = itemRowIndex + 1; row < sheetData.length; row++) {
+
+    for (let row = itemRow + 1; row < sheetData.length; row++) {
       const label = getCell(row, 0);
-      // 遇到空行停止（第一个规格区块结束）
       if (!label) break;
-      // 跳过非规格行
       if (
         label.toUpperCase() === "ITEM#" ||
+        label === "大品名" ||
         label.includes("原厂型号") ||
         label.includes("产品链接") ||
         label.includes("参考链接") ||
@@ -155,66 +163,90 @@ function parseSheetToProduct(
       for (let mi = 0; mi < models.length; mi++) {
         const value = getCell(row, 1 + mi);
         if (!value) continue;
-        // 去重：相同 label 只保留第一个
         if (seenLabels[mi].has(label)) continue;
         seenLabels[mi].add(label);
         specs[mi].specs.push({ label, value });
       }
     }
+
+    return specs.filter((s) => s.specs.length > 0);
   }
 
-  // 找 description 区块
-  let overview = "";
-  let features: string[] = [];
+  // ========== 第三步：为每个大品名生成一款产品 ==========
+
+  // 找到 description 区块的起始行（作为 ITEM# 搜索的上界）
+  let descRow = sheetData.length;
   for (let row = 0; row < sheetData.length; row++) {
-    const cell0 = getCell(row, 0);
-    if (cell0.toLowerCase().includes("the description of product")) {
-      overview = getCell(row + 1, 0);
-    }
-    if (cell0.toLowerCase().includes("the advantage of product")) {
-      // 后续行直到空行或下一个标题
-      for (let r = row + 1; r < sheetData.length; r++) {
-        const val = getCell(r, 0);
-        if (!val) break;
-        if (val.toLowerCase().includes("the feature")) break;
-        // 去掉开头的编号 "1. " "2." 等
-        const cleaned = val.replace(/^\d+\.\s*/, "").trim();
-        if (cleaned) features.push(cleaned);
-      }
+    if (getCell(row, 0).toLowerCase().includes("the description of product")) {
+      descRow = row;
+      break;
     }
   }
 
-  // 自动生成 shortDescription（overview 前120字）
-  const plainOverview = overview.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  const shortDescription = plainOverview.length > 120 ? plainOverview.slice(0, 117) + "..." : plainOverview;
+  function buildProduct(title: string, itemRow: number | null): ProductDraft {
+    const specs = itemRow !== null ? readSpecsFromItemRow(itemRow) : [];
+    const plainOverview = overview.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+    const shortDescription = plainOverview.length > 120 ? plainOverview.slice(0, 117) + "..." : plainOverview;
 
-  // 自动生成 SEO
-  const seoTitle = title + " | FOTOBESTWAY Professional Photography Equipment";
-  const metaDescription = shortDescription;
-  const focusKeywords = title.toLowerCase().split(/\s+/).slice(0, 5).join(", ");
+    return {
+      id: uid(),
+      title,
+      slug: slugify(title),
+      category,
+      subCategory: "",
+      image: "",
+      gallery: [],
+      detailImages: [],
+      shortDescription,
+      overview,
+      features,
+      applications: [],
+      specs,
+      video: "",
+      seoTitle: title + " | FOTOBESTWAY Professional Photography Equipment",
+      metaDescription: shortDescription,
+      focusKeywords: title.toLowerCase().split(/\s+/).slice(0, 5).join(", "),
+      hiddenSeoText: "",
+      imageAlt: title + " product photo",
+      expanded: true,
+    };
+  }
 
-  return {
-    id: uid(),
-    title,
-    slug: slugify(title),
-    category,
-    subCategory: "",
-    image: "",
-    gallery: [],
-    detailImages: [],
-    shortDescription,
-    overview,
-    features,
-    applications: [],
-    specs: specs.filter((s) => s.specs.length > 0),
-    video: "",
-    seoTitle,
-    metaDescription,
-    focusKeywords,
-    hiddenSeoText: "",
-    imageAlt: title + " product photo",
-    expanded: true,
-  };
+  const products: ProductDraft[] = [];
+
+  if (titleRows.length > 0) {
+    // 有大品名：每个大品名一款产品
+    for (let i = 0; i < titleRows.length; i++) {
+      const { row: titleRow, title } = titleRows[i];
+      const nextTitleRow = i + 1 < titleRows.length ? titleRows[i + 1].row : descRow;
+
+      // 找这个大品名后面最近的 ITEM# 行（在下一个大品名或 description 之前）
+      let itemRow: number | null = null;
+      for (const ir of itemRows) {
+        if (ir > titleRow && ir < nextTitleRow) {
+          itemRow = ir;
+          break;
+        }
+      }
+      // 如果后面没有，找前面最近的 ITEM# 行
+      if (itemRow === null) {
+        for (let j = itemRows.length - 1; j >= 0; j--) {
+          if (itemRows[j] < titleRow) {
+            itemRow = itemRows[j];
+            break;
+          }
+        }
+      }
+
+      products.push(buildProduct(title, itemRow));
+    }
+  } else {
+    // 没有大品名：用 sheetName 作为标题，用第一个 ITEM# 区块
+    const itemRow = itemRows.length > 0 ? itemRows[0] : null;
+    products.push(buildProduct(sheetName, itemRow));
+  }
+
+  return products;
 }
 
 export default function BatchImportClient({ categories }: { categories: Category[] }) {
@@ -235,8 +267,8 @@ export default function BatchImportClient({ categories }: { categories: Category
     for (const sheetName of workbook.SheetNames) {
       const worksheet = workbook.Sheets[sheetName];
       const data = XLSXmod.utils.sheet_to_json(worksheet, { header: 1, defval: "" }) as any[][];
-      const product = parseSheetToProduct(data, sheetName, categories);
-      if (product) parsed.push(product);
+      const sheetProducts = parseSheetToProduct(data, sheetName, categories);
+      parsed.push(...sheetProducts);
     }
 
     setProducts((prev) => [...prev, ...parsed]);
