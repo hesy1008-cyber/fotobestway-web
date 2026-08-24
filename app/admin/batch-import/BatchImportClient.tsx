@@ -67,21 +67,57 @@ function parseSheetToProduct(sheetData: any[][], sheetName: string): ProductDraf
   const categoryRaw = getCell(0, 7);
   const category = categoryRaw.replace(/大类[：:]\s*/i, "").trim();
 
-  // 行2: ITEM# 型号（B列起可能有多个型号）
-  const models: string[] = [];
-  for (let col = 1; col < 10; col++) {
-    const val = getCell(1, col);
-    if (val && val !== "ITEM#") models.push(val);
+  // 动态找到第一个 ITEM# 行，读取型号
+  let itemRowIndex = -1;
+  for (let row = 0; row < sheetData.length; row++) {
+    if (getCell(row, 0).toUpperCase() === "ITEM#") {
+      itemRowIndex = row;
+      break;
+    }
   }
 
-  // 行3-14: 规格参数
+  const models: string[] = [];
+  if (itemRowIndex >= 0) {
+    for (let col = 1; col < 10; col++) {
+      const val = getCell(itemRowIndex, col);
+      if (!val) continue;
+      // 过滤掉纯中文、明显不是型号的（如"新面料"、"常规格子面料"等）
+      // 型号通常包含字母和数字，或全大写
+      const hasLetter = /[a-zA-Z]/.test(val);
+      const hasDigit = /\d/.test(val);
+      const isAllChinese = /^[\u4e00-\u9fa5]+$/.test(val);
+      if (isAllChinese) continue;
+      if (!hasLetter && !hasDigit) continue;
+      models.push(val);
+    }
+  }
+
+  // 从 ITEM# 下一行开始读规格参数，直到遇到空行（只读取第一个规格区块）
   const specs: SpecModel[] = models.map((m) => ({ model: m, specs: [] }));
-  for (let row = 2; row < 15; row++) {
-    const label = getCell(row, 0);
-    if (!label || label.includes("原厂型号") || label.includes("产品链接") || label.includes("参考链接")) continue;
-    for (let mi = 0; mi < models.length; mi++) {
-      const value = getCell(row, 1 + mi);
-      if (value) {
+  if (itemRowIndex >= 0) {
+    const seenLabels = models.map(() => new Set<string>());
+    for (let row = itemRowIndex + 1; row < sheetData.length; row++) {
+      const label = getCell(row, 0);
+      // 遇到空行停止（第一个规格区块结束）
+      if (!label) break;
+      // 跳过非规格行
+      if (
+        label.toUpperCase() === "ITEM#" ||
+        label.includes("原厂型号") ||
+        label.includes("产品链接") ||
+        label.includes("参考链接") ||
+        label.toLowerCase().includes("the description") ||
+        label.toLowerCase().includes("the advantage") ||
+        label.toLowerCase().includes("the feature")
+      ) {
+        break;
+      }
+      for (let mi = 0; mi < models.length; mi++) {
+        const value = getCell(row, 1 + mi);
+        if (!value) continue;
+        // 去重：相同 label 只保留第一个
+        if (seenLabels[mi].has(label)) continue;
+        seenLabels[mi].add(label);
         specs[mi].specs.push({ label, value });
       }
     }
@@ -683,10 +719,6 @@ function ProductCard({
                   }}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>视频 URL</label>
-                <input style={inputStyle} value={product.video} onChange={(e) => onUpdate({ video: e.target.value })} />
-              </div>
             </div>
           )}
 
@@ -876,6 +908,11 @@ function ProductCard({
               <div>
                 <label style={labelStyle}>主图 Alt 文本</label>
                 <input style={inputStyle} value={product.imageAlt} onChange={(e) => onUpdate({ imageAlt: e.target.value })} />
+              </div>
+
+              <div>
+                <label style={labelStyle}>视频 URL</label>
+                <input style={inputStyle} value={product.video} onChange={(e) => onUpdate({ video: e.target.value })} placeholder="https://..." />
               </div>
             </div>
           )}
