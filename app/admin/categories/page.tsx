@@ -19,6 +19,29 @@ export default async function CategoriesPage() {
     orderBy: { sortOrder: "asc" },
   });
 
+  // 获取所有直接挂在一级分类下且没有二级分类的产品
+  const unassignedProducts = await prisma.product.findMany({
+    where: { subCategoryId: null },
+    select: { id: true, title: true, categoryId: true },
+  });
+
+  // 按 categoryId 分组
+  const unassignedByCategory: Record<string, { id: string; title: string }[]> = {};
+  for (const p of unassignedProducts) {
+    if (p.categoryId) {
+      if (!unassignedByCategory[p.categoryId]) {
+        unassignedByCategory[p.categoryId] = [];
+      }
+      unassignedByCategory[p.categoryId].push({ id: p.id, title: p.title });
+    }
+  }
+
+  // 把未分配产品合并到每个分类里
+  const categoriesWithUnassigned = categories.map((cat) => ({
+    ...cat,
+    unassignedProducts: unassignedByCategory[cat.id] || [],
+  }));
+
   return (
     <div>
       {/* 页面标题 */}
@@ -34,7 +57,7 @@ export default async function CategoriesPage() {
         </Link>
       </div>
 
-      <CategoryManager categories={categories as any} />
+      <CategoryManager categories={categoriesWithUnassigned as any} />
     </div>
   );
 }

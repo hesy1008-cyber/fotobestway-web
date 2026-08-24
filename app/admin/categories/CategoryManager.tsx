@@ -18,6 +18,7 @@ type Category = {
   bannerImage?: string | null;
   products: { id: string }[];
   subCategories: SubCategory[];
+  unassignedProducts: ProductSimple[];
 };
 
 export default function CategoryManager({ categories }: { categories: Category[] }) {
@@ -113,6 +114,29 @@ export default function CategoryManager({ categories }: { categories: Category[]
                 <DeleteCategoryButton id={selected.id} />
               </div>
             </div>
+
+            {/* 直接挂在一级分类下的产品（没有二级分类） */}
+            {selected.unassignedProducts.length > 0 && (
+              <div className="sub-category-panel">
+                <div className="panel-header">
+                  <h3>直接分类产品（未分配二级分类）</h3>
+                  <span className="panel-hint">{selected.unassignedProducts.length} 个产品</span>
+                </div>
+                <div className="accordion-content" style={{ padding: "16px" }}>
+                  <div className="accordion-product-tags">
+                    {selected.unassignedProducts.map((p) => (
+                      <Link
+                        key={p.id}
+                        href={`/admin/products/${p.id}/edit`}
+                        className="product-tag-item"
+                      >
+                        {p.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 二级分类列表（可展开看产品） */}
             <div className="sub-category-panel">

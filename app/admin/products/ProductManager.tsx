@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import DeleteButton from "@/app/components/DeleteButton";
 import { deleteProduct } from "../products/actions";
 
@@ -34,8 +36,59 @@ export default function ProductManager({
 }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [exportingId, setExportingId] = useState<string | null>(null);
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
+
+  // 导出产品图片（主图+详情图）为ZIP
+  const handleExportProduct = async (product: ProductSimple) => {
+    setExportingId(product.id);
+    try {
+      const zip = new JSZip();
+      const folderName = product.slug || product.title.replace(/\s+/g, "-").toLowerCase();
+      const productFolder = zip.folder(folderName);
+
+      if (!productFolder) throw new Error("创建ZIP文件夹失败");
+
+      // 收集所有需要导出的图片
+      const imagesToExport: { url: string; filename: string }[] = [];
+
+      // 主图
+      if (product.image) {
+        const ext = product.image.split(".").pop()?.split("?")[0] || "jpg";
+        imagesToExport.push({ url: product.image, filename: `main.${ext}` });
+      }
+
+      // 详情图
+      if (Array.isArray(product.detailImages) && product.detailImages.length > 0) {
+        product.detailImages.forEach((imgUrl, index) => {
+          const ext = imgUrl.split(".").pop()?.split("?")[0] || "jpg";
+          imagesToExport.push({ url: imgUrl, filename: `detail-${index + 1}.${ext}` });
+        });
+      }
+
+      // 下载每张图片并添加到ZIP
+      for (const img of imagesToExport) {
+        try {
+          const response = await fetch(img.url);
+          if (!response.ok) throw new Error(`下载失败: ${img.url}`);
+          const blob = await response.blob();
+          productFolder.file(img.filename, blob);
+        } catch (err) {
+          console.error(`下载图片失败: ${img.url}`, err);
+        }
+      }
+
+      // 生成ZIP并下载
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, `${folderName}.zip`);
+    } catch (error) {
+      console.error("导出失败:", error);
+      alert("导出失败，请重试");
+    } finally {
+      setExportingId(null);
+    }
+  };
 
   // 筛选产品
   const filteredProducts = useMemo(() => {
@@ -183,6 +236,19 @@ export default function ProductManager({
                 </div>
 
                 <div className="admin-card-actions">
+                  <button
+                    onClick={() => handleExportProduct(product)}
+                    disabled={exportingId === product.id}
+                    className="admin-btn admin-btn-secondary admin-btn-sm"
+                    style={{
+                      background: exportingId === product.id ? "#ccc" : "#2196f3",
+                      color: "#fff",
+                      border: "none",
+                      cursor: exportingId === product.id ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {exportingId === product.id ? "导出中..." : "导出图片"}
+                  </button>
                   <Link
                     href={`/admin/products/${product.id}/edit`}
                     className="admin-btn admin-btn-secondary admin-btn-sm"
