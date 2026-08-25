@@ -17,6 +17,11 @@ import "./styles/inquiry.css";
 export const metadata: Metadata = {
   title: "Fotobestway",
   description: "Professional Photography Equipment",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export const viewport = {
