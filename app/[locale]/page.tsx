@@ -8,6 +8,9 @@ import { prisma } from "@/app/lib/prisma";
 import { getMessages } from "@/app/i18n/messages";
 import { type Locale } from "@/app/i18n/config";
 
+// 强制动态渲染，后台修改后刷新即可生效
+export const dynamic = "force-dynamic";
+
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }){
   const { locale } = await params;
@@ -35,11 +38,14 @@ const brandLogos = Array.from({ length: 20 }, (_, i) => {
 return(
 
 
+
 <main>
 
 
 
+
 {/* HERO */}
+
 
 
 <HeroCarousel slides={slides} />
@@ -59,7 +65,7 @@ return(
 <GalleryShowcase />
 
 
-{/* BRANDS - 鍚堜綔鍝佺墝 */}
+{/* BRANDS - 合作品牌 */}
 
 <section className="brands">
   <div className="brandsHeader">
@@ -271,7 +277,6 @@ maggie@fotobestway.com.cn
 
 
 
-
 <div className="copyright">
 
 
@@ -279,7 +284,6 @@ maggie@fotobestway.com.cn
 
 
 </div>
-
 
 
 </footer>
