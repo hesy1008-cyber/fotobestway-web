@@ -88,32 +88,59 @@ const newCategories = [
 // 格式：{ 产品标题关键词: { categorySlug, subCategorySlug } }
 // subCategorySlug 为 null 表示只放到一级类目下，不分配二级类目
 const productMapping = [
-  // PL-400B LED Light → Photo & Video Light → LED COB Light
-  { match: 'PL-400B', category: 'photo-video-light', subCategory: 'led-cob-light' },
-  // PL-600B LED Light → Photo & Video Light → LED COB Light
-  { match: 'PL-600B', category: 'photo-video-light', subCategory: 'led-cob-light' },
-  // Fresnel Light → Photo & Video Light → LED COB Light
-  { match: 'Fresnel', category: 'photo-video-light', subCategory: 'led-cob-light' },
-  // Bi-Color ML Series COB Light → Photo & Video Light → LED COB Light
-  { match: 'COB Light', category: 'photo-video-light', subCategory: 'led-cob-light' },
-  // Paper Background → Backdrops → Seamless Paper Backdrops
-  { match: 'Paper Background', category: 'backdrops', subCategory: 'seamless-paper-backdrops' },
-  // Octagon Softbox → Light Modifiers → Softbox
-  { match: 'Octagon Softbox', category: 'light-modifiers', subCategory: 'softbox' },
-  // Rectangle Softbox → Light Modifiers → Softbox
-  { match: 'Rectangle Softbox', category: 'light-modifiers', subCategory: 'softbox' },
-  // Heavy Duty Light Stand → Stand & Boom → Light Stands
+  // === Stand & Boom (灯架&横臂) ===
+  // Max Boom Arm → Booms (横臂架)
+  { match: 'Boom Arm', category: 'stand-boom', subCategory: 'booms' },
+  // Corner-Style Light Stand → Light Stands (灯架)
+  { match: 'Light Stand', category: 'stand-boom', subCategory: 'light-stands' },
+  // Monopod with Round Base → Light Stands (灯架)
+  { match: 'Monopod', category: 'stand-boom', subCategory: 'light-stands' },
+  // Click Stand Kit → Light Stands (灯架)
+  { match: 'Click Stand', category: 'stand-boom', subCategory: 'light-stands' },
+  // Heavy Duty Light Stand → Light Stands (灯架)
   { match: 'Heavy Duty Light Stand', category: 'stand-boom', subCategory: 'light-stands' },
-  // Air Cushion Stand → Stand & Boom → Light Stands
+  // Air Cushion Stand → Light Stands (灯架)
   { match: 'Air Cushion Stand', category: 'stand-boom', subCategory: 'light-stands' },
-  // 一个小灯架 → Stand & Boom → Light Stands
+  // 一个小灯架 → Light Stands (灯架)
   { match: '一个小灯架', category: 'stand-boom', subCategory: 'light-stands' },
-  // Grip Clamp → Mounts & Carts → Clamps
-  { match: 'Grip Clamp', category: 'mounts-carts', subCategory: 'clamps' },
-  // Dual-Layer Folding Photography Utility Wagon → Mounts & Carts → Carts
+
+  // === Mounts & Carts (顶粒&推车) ===
+  // Dual-Layer Folding Photography Utility Wagon → Carts (影视推车)
   { match: 'Wagon', category: 'mounts-carts', subCategory: 'carts' },
-  // Butterfly Frame Large → Backdrops → 只放一级类目（匹配不上具体二级类目）
-  { match: 'Butterfly Frame', category: 'backdrops', subCategory: null },
+  // Grip Clamp → Clamps (夹具)
+  { match: 'Grip Clamp', category: 'mounts-carts', subCategory: 'clamps' },
+
+  // === Light Modifiers (光效附件) ===
+  // Color Gel Set → Gobos & Gels (造型片和色纸)
+  { match: 'Color Gel', category: 'light-modifiers', subCategory: 'gobos-gels' },
+  // FlatPak Rapid Softbox → Softbox (柔光箱)
+  { match: 'Softbox', category: 'light-modifiers', subCategory: 'softbox' },
+  // Collapsible Flag Panel → Flags & Scrims (旗板&屏)
+  { match: 'Flag Panel', category: 'light-modifiers', subCategory: 'flags-scrims' },
+  // Foldable Frame Floppy Flag Gobo Panel → Flags & Scrims (旗板&屏)
+  { match: 'Floppy Flag', category: 'light-modifiers', subCategory: 'flags-scrims' },
+  // Octagon Softbox → Softbox (柔光箱)
+  { match: 'Octagon Softbox', category: 'light-modifiers', subCategory: 'softbox' },
+  // Rectangle Softbox → Softbox (柔光箱)
+  { match: 'Rectangle Softbox', category: 'light-modifiers', subCategory: 'softbox' },
+
+  // === Backdrops (摄影背景) ===
+  // Paper Roll Storage Wall Rack → Backdrop Accessories (背景附件)
+  { match: 'Paper Roll Storage', category: 'backdrops', subCategory: 'backdrop-accessories' },
+  // HD Butterfly Frame → Backdrop Accessories (背景附件)
+  { match: 'Butterfly Frame', category: 'backdrops', subCategory: 'backdrop-accessories' },
+  // Paper Background → Seamless Paper Backdrops (背景纸)
+  { match: 'Paper Background', category: 'backdrops', subCategory: 'seamless-paper-backdrops' },
+
+  // === Photo & Video Light (摄影灯) ===
+  // PL-400B LED Light → LED COB Light (COB灯)
+  { match: 'PL-400B', category: 'photo-video-light', subCategory: 'led-cob-light' },
+  // PL-600B LED Light → LED COB Light (COB灯)
+  { match: 'PL-600B', category: 'photo-video-light', subCategory: 'led-cob-light' },
+  // Fresnel Light → LED COB Light (COB灯)
+  { match: 'Fresnel', category: 'photo-video-light', subCategory: 'led-cob-light' },
+  // Bi-Color ML Series COB Light → LED COB Light (COB灯)
+  { match: 'COB Light', category: 'photo-video-light', subCategory: 'led-cob-light' },
 ];
 
 async function main() {
