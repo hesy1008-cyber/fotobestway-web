@@ -180,10 +180,12 @@ export async function POST(req: Request) {
     );
   }
 
+  const finalSlug = await ensureUniqueSlug(slug);
+
   const product = await prisma.product.create({
     data: {
       title,
-      slug,
+      slug: finalSlug,
       categoryId,
       subCategoryId,
       image: imagePath,
@@ -204,4 +206,38 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(product);
+}
+
+// 如果 slug 已存在，自动在后面加序号（如 -2, -3），避免唯一约束冲突
+// 这样名字接近的产品（如 "FlatPak Rapid Softbox" 和 "FlatPak Rapid Softbox (Mini)"）
+// 即使生成相同 slug 也能正常创建，不会报"创建失败"
+async function ensureUniqueSlug(slug: string): Promise<string> {
+  if (!slug) {
+    // 如果没有 slug，生成一个基于时间的兜底值
+    slug = "product-" + Date.now();
+  }
+
+  const existing = await prisma.product.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+
+  // 不存在则直接使用
+  if (!existing) {
+    return slug;
+  }
+
+  // slug 已存在，从 -2 开始尝试递增后缀
+  let counter = 2;
+  while (true) {
+    const newSlug = `${slug}-${counter}`;
+    const clash = await prisma.product.findUnique({
+      where: { slug: newSlug },
+      select: { id: true },
+    });
+    if (!clash) {
+      return newSlug;
+    }
+    counter++;
+  }
 }
