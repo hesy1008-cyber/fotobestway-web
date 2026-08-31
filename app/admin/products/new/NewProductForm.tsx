@@ -103,11 +103,18 @@ export default function NewProductForm({
       if (res.ok) {
         window.location.href = "/admin/products";
       } else {
-        alert("创建失败");
+        let errorMsg = "创建失败（未知错误）";
+        try {
+          const data = await res.json();
+          errorMsg = data?.error || "创建失败（服务端未返回错误信息）";
+        } catch (e) {
+          errorMsg = "创建失败（HTTP " + res.status + "）";
+        }
+        alert("创建失败：" + errorMsg);
       }
     } catch (error) {
       console.error("Create product failed:", error);
-      alert("创建失败");
+      alert("创建失败：" + (error instanceof Error ? error.message : "未知错误"));
     } finally {
       setLoading(false);
     }
