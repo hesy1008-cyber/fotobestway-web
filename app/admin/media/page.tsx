@@ -13,6 +13,11 @@ export default async function AdminMediaPage() {
     orderBy: { sortOrder: "asc" },
   });
 
+  const categories = await prisma.category.findMany({
+    orderBy: { sortOrder: "asc" },
+    include: { _count: { select: { products: true, subCategories: true } } },
+  });
+
   return (
     <div>
       {/* 页面标题 */}
@@ -20,7 +25,7 @@ export default async function AdminMediaPage() {
         <div>
           <h1 className="admin-page-title">首页内容</h1>
           <p className="admin-page-subtitle">
-            管理首页轮播图和佳作欣赏图片
+            管理首页轮播图、佳作欣赏图片和类目横幅
           </p>
         </div>
         <Link href="/admin" className="admin-btn admin-btn-secondary">
@@ -46,6 +51,17 @@ export default async function AdminMediaPage() {
           photographer: g.photographer,
           sortOrder: g.sortOrder,
           isActive: g.isActive,
+        }))}
+        initialCategories={categories.map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          sortOrder: c.sortOrder,
+          bannerImage: c.bannerImage,
+          bannerTitle: c.bannerTitle,
+          bannerDescription: c.bannerDescription,
+          productCount: c._count.products,
+          subCategoryCount: c._count.subCategories,
         }))}
       />
     </div>

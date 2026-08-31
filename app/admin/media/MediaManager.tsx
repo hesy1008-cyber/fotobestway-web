@@ -8,6 +8,7 @@ import {
   deleteGalleryItem,
   updateBanner,
   toggleBannerActive,
+  updateCategoryBanner,
 } from "@/app/actions/media";
 
 type Banner = {
@@ -30,12 +31,26 @@ type GalleryItem = {
   isActive: boolean;
 };
 
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  sortOrder: number;
+  bannerImage: string | null;
+  bannerTitle: string | null;
+  bannerDescription: string | null;
+  productCount: number;
+  subCategoryCount: number;
+};
+
 export default function MediaManager({
   initialBanners,
   initialGallery,
+  initialCategories,
 }: {
   initialBanners: Banner[];
   initialGallery: GalleryItem[];
+  initialCategories: Category[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,8 +58,9 @@ export default function MediaManager({
 
   const [banners, setBanners] = useState<Banner[]>(initialBanners);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(initialGallery);
-  const [activeTab, setActiveTab] = useState<"banner" | "gallery">(
-    tabParam === "gallery" ? "gallery" : "banner"
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [activeTab, setActiveTab] = useState<"banner" | "gallery" | "categories">(
+    tabParam === "gallery" ? "gallery" : tabParam === "categories" ? "categories" : "banner"
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
@@ -54,8 +70,14 @@ export default function MediaManager({
     buttonLink: "",
     sortOrder: 0,
   });
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [categoryEditForm, setCategoryEditForm] = useState({
+    bannerTitle: "",
+    bannerDescription: "",
+    sortOrder: 0,
+  });
 
-  function switchTab(tab: "banner" | "gallery") {
+  function switchTab(tab: "banner" | "gallery" | "categories") {
     setActiveTab(tab);
     const params = new URLSearchParams(window.location.search);
     params.set("tab", tab);
@@ -169,6 +191,33 @@ export default function MediaManager({
     }
   }
 
+  // 类目编辑相关函数
+  function startEditCategory(category: Category) {
+    setEditingCategoryId(category.id);
+    setCategoryEditForm({
+      bannerTitle: category.bannerTitle || "",
+      bannerDescription: category.bannerDescription || "",
+      sortOrder: category.sortOrder,
+    });
+  }
+
+  function cancelEditCategory() {
+    setEditingCategoryId(null);
+  }
+
+  async function handleCategorySubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    try {
+      await updateCategoryBanner(formData);
+      setEditingCategoryId(null);
+      window.location.reload();
+    } catch (error: any) {
+      alert("保存失败：" + (error.message || "未知错误"));
+    }
+  }
+
   return (
     <div>
       <div className="admin-tabs">
@@ -183,6 +232,12 @@ export default function MediaManager({
           onClick={() => switchTab("gallery")}
         >
           🖼️ 佳作欣赏 ({galleryItems.length})
+        </button>
+        <button
+          className={`admin-tab ${activeTab === "categories" ? "active" : ""}`}
+          onClick={() => switchTab("categories")}
+        >
+          📂 类目横幅 ({categories.length})
         </button>
       </div>
 
@@ -500,6 +555,191 @@ export default function MediaManager({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "categories" && (
+        <div className="admin-form-section">
+          <h2 className="admin-form-section-title">类目横幅管理</h2>
+          <p className="admin-form-help">
+            为每个产品分类设置横幅大图、标题和描述，建议尺寸：1920 × 400 px
+          </p>
+
+          {categories.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {categories.map((category, index) => (
+                <div
+                  key={category.id}
+                  style={{
+                    border: "1px solid #e5e5e5",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    background: "#fafafa",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                    <div style={{ width: "200px", flexShrink: 0 }}>
+                      {category.bannerImage ? (
+                        <img
+                          src={category.bannerImage}
+                          alt={category.name}
+                          style={{
+                            width: "200px",
+                            height: "84px",
+                            objectFit: "cover",
+                            borderRadius: "4px",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "200px",
+                            height: "84px",
+                            background: "#eee",
+                            borderRadius: "4px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#999",
+                            fontSize: "12px",
+                          }}
+                        >
+                          暂无横幅图
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: "4px", fontSize: "16px" }}>
+                        #{index + 1} {category.name}
+                        <span style={{ color: "#999", fontSize: "13px", marginLeft: "8px" }}>
+                          /{category.slug}
+                        </span>
+                      </div>
+                      <div style={{ color: "#666", marginBottom: "4px", fontSize: "13px" }}>
+                        📦 {category.productCount} 个产品 | 📂 {category.subCategoryCount} 个二级分类
+                      </div>
+                      {category.bannerTitle && (
+                        <div style={{ color: "#333", marginBottom: "2px", fontSize: "13px" }}>
+                          <strong>横幅标题：</strong>{category.bannerTitle}
+                        </div>
+                      )}
+                      {category.bannerDescription && (
+                        <div style={{ color: "#666", marginBottom: "2px", fontSize: "13px" }}>
+                          <strong>横幅描述：</strong>{category.bannerDescription}
+                        </div>
+                      )}
+                      <div style={{ marginTop: "8px" }}>
+                        <button
+                          type="button"
+                          onClick={() => startEditCategory(category)}
+                          className="admin-btn admin-btn-primary"
+                          style={{ fontSize: "13px", padding: "6px 16px" }}
+                        >
+                          ✏️ 编辑类目横幅
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {editingCategoryId === category.id && (
+                    <form
+                      onSubmit={handleCategorySubmit}
+                      style={{
+                        marginTop: "16px",
+                        padding: "16px",
+                        background: "#fff",
+                        border: "1px solid #ddd",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <h4 style={{ marginBottom: "12px" }}>编辑类目横幅 - {category.name}</h4>
+
+                      <input type="hidden" name="id" value={category.id} />
+
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">横幅大图（不上传则保留原图）</label>
+                        <input
+                          name="bannerImage"
+                          type="file"
+                          accept="image/*"
+                          className="admin-form-input admin-form-file"
+                        />
+                      </div>
+
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">横幅标题（可选）</label>
+                        <input
+                          name="bannerTitle"
+                          className="admin-form-input"
+                          value={categoryEditForm.bannerTitle}
+                          onChange={(e) =>
+                            setCategoryEditForm({ ...categoryEditForm, bannerTitle: e.target.value })
+                          }
+                          placeholder="如：专业摄影灯架系列"
+                        />
+                      </div>
+
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">横幅描述（可选）</label>
+                        <textarea
+                          name="bannerDescription"
+                          className="admin-form-input"
+                          rows={2}
+                          value={categoryEditForm.bannerDescription}
+                          onChange={(e) =>
+                            setCategoryEditForm({ ...categoryEditForm, bannerDescription: e.target.value })
+                          }
+                          placeholder="如：稳固耐用的专业灯架，满足各种布光需求"
+                        />
+                      </div>
+
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">排序（数字越小越靠前）</label>
+                        <input
+                          name="sortOrder"
+                          type="number"
+                          className="admin-form-input"
+                          value={categoryEditForm.sortOrder}
+                          onChange={(e) =>
+                            setCategoryEditForm({
+                              ...categoryEditForm,
+                              sortOrder: parseInt(e.target.value) || 0,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                        <button type="submit" className="admin-btn admin-btn-primary">
+                          💾 保存
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditCategory}
+                          className="admin-btn admin-btn-secondary"
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #e5e5e5",
+                borderRadius: "6px",
+                padding: "40px",
+                textAlign: "center",
+                color: "#999",
+              }}
+            >
+              暂无类目，请先在分类管理中创建类目
             </div>
           )}
         </div>

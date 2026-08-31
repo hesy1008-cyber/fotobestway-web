@@ -194,3 +194,40 @@ export async function toggleGalleryActive(id: string) {
   revalidatePath("/");
   revalidatePath("/admin/media");
 }
+
+// ============================
+// 类目 Banner 管理
+// ============================
+
+export async function updateCategoryBanner(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const file = formData.get("bannerImage") as File | null;
+  const bannerTitle = String(formData.get("bannerTitle") || "");
+  const bannerDescription = String(formData.get("bannerDescription") || "");
+  const sortOrder = parseInt(String(formData.get("sortOrder") || "0"));
+
+  if (!id) {
+    throw new Error("类目 ID 缺失");
+  }
+
+  const updateData: any = {
+    bannerTitle: bannerTitle || null,
+    bannerDescription: bannerDescription || null,
+    sortOrder,
+  };
+
+  // 如果上传了新图片，保存并更新
+  if (file && file.size > 0) {
+    const image = await saveFile(file, "categories");
+    updateData.bannerImage = image;
+  }
+
+  await prisma.category.update({
+    where: { id },
+    data: updateData,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/products");
+  revalidatePath("/admin/media");
+}
