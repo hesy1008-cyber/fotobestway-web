@@ -3,25 +3,41 @@ import type { NextRequest } from "next/server";
 
 import { defaultLocale, locales } from "./app/i18n/config";
 
-// 后台 Basic Auth 配置
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "fotobestway2026";
+// 后台账号配置（与 /api/admin/login 保持一致）
+const ADMIN_USER = process.env.ADMIN_USER || "admin";
+const SECRET = process.env.ADMIN_SESSION_SECRET || "fotobestway-admin-session-secret";
 
-// 验证 Basic Auth
-function checkBasicAuth(request: NextRequest): boolean {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return false;
-  }
-  try {
-    const base64 = authHeader.slice("Basic ".length);
-    const decoded = Buffer.from(base64, "base64").toString("utf-8");
-    const [user, ...passParts] = decoded.split(":");
-    const pass = passParts.join(":");
-    return user === ADMIN_USER && pass === ADMIN_PASS;
-  } catch {
-    return false;
-  }
+// HMAC-SHA256 签名（edge runtime 使用 Web Crypto）
+async function sign(payload: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(payload)));
+  let binary = "";
+  for (let i = 0; i < sig.length; i++) binary += String.fromCharCode(sig[i]);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// 校验会话 cookie
+async function checkSession(request: NextRequest): Promise<boolean> {
+  const cookie = request.cookies.get("admin_session")?.value;
+  if (!cookie) return false;
+
+  const parts = cookie.split(".");
+  if (parts.length !== 3) return false;
+
+  const [user, expiry, signature] = parts;
+  const exp = Number(expiry);
+  if (!exp || Date.now() > exp) return false;
+  if (user !== ADMIN_USER) return false;
+
+  const expected = await sign(`${user}.${expiry}`);
+  return signature === expected;
 }
 
 // 获取用户偏好的语言
@@ -56,18 +72,31 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 后台路径 Basic Auth 保护
+  // 后台路径会话保护
   if (pathname.startsWith("/admin")) {
-    if (!checkBasicAuth(request)) {
-      return new NextResponse("Authentication required", {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": 'Basic realm="Admin Area"',
-        },
-      });
+    const loggedIn = await checkSession(request);
+
+    // 登录页本身
+    if (pathname === "/admin/login") {
+      if (loggedIn) {
+        // 已登录访问登录页 → 跳回后台
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin";
+        url.search = "";
+        return NextResponse.redirect(url);
+      }
+      return;
+    }
+
+    // 其他后台路径：未登录 → 跳转登录页
+    if (!loggedIn) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/login";
+      url.search = "";
+      return NextResponse.redirect(url);
     }
   }
 
@@ -100,7 +129,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // 跳过所有带点的路径（静态资源）和 _next，但保留 /admin 用于 Basic Auth
+    // 跳过所有带点的路径（静态资源）和 _next，但保留 /admin 用于会话保护
     "/((?!_next|api|images|.*\\..*).*)",
   ],
 };

@@ -12,6 +12,15 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
+  // 退出登录
+  async function handleLogout() {
+    if (!window.confirm("确定要退出登录吗？")) return;
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch (e) {}
+    window.location.href = "/admin/login";
+  }
+
   const navGroups = [
     {
       label: "控制台",
@@ -113,6 +122,9 @@ export default function AdminLayout({
           <Link href="/" className="admin-view-site" target="_blank">
             查看网站 →
           </Link>
+          <button className="admin-logout-btn" onClick={handleLogout}>
+            退出登录
+          </button>
         </div>
       </header>
 
