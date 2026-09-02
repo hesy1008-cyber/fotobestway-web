@@ -23,21 +23,20 @@ async function sign(payload: string): Promise<string> {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-// 校验会话 cookie
-async function checkSession(request: NextRequest): Promise<boolean> {
+// 校验会话 cookie，返回角色（admin/limited），无效返回空字符串
+async function checkSession(request: NextRequest): Promise<string> {
   const cookie = request.cookies.get("admin_session")?.value;
-  if (!cookie) return false;
+  if (!cookie) return "";
 
   const parts = cookie.split(".");
-  if (parts.length !== 3) return false;
+  if (parts.length !== 4) return "";
 
-  const [user, expiry, signature] = parts;
+  const [user, role, expiry, signature] = parts;
   const exp = Number(expiry);
-  if (!exp || Date.now() > exp) return false;
-  if (user !== ADMIN_USER) return false;
+  if (!exp || Date.now() > exp) return "";
 
-  const expected = await sign(`${user}.${expiry}`);
-  return signature === expected;
+  const expected = await sign(`${user}.${role}.${expiry}`);
+  return signature === expected ? role : "";
 }
 
 // 获取用户偏好的语言
@@ -77,14 +76,14 @@ export async function middleware(request: NextRequest) {
 
   // 后台路径会话保护
   if (pathname.startsWith("/admin")) {
-    const loggedIn = await checkSession(request);
+    const role = await checkSession(request);
 
     // 登录页本身
     if (pathname === "/admin/login") {
-      if (loggedIn) {
-        // 已登录访问登录页 → 跳回后台
+      if (role) {
+        // 已登录访问登录页 → 跳回对应首页
         const url = request.nextUrl.clone();
-        url.pathname = "/admin";
+        url.pathname = role === "limited" ? "/admin/products" : "/admin";
         url.search = "";
         return NextResponse.redirect(url);
       }
@@ -92,11 +91,25 @@ export async function middleware(request: NextRequest) {
     }
 
     // 其他后台路径：未登录 → 跳转登录页
-    if (!loggedIn) {
+    if (!role) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
       url.search = "";
       return NextResponse.redirect(url);
+    }
+
+    // limited 角色（内部人员）只允许访问产品列表和询盘
+    if (role === "limited") {
+      const allowed =
+        pathname === "/admin/products" ||
+        pathname === "/admin/products/" ||
+        pathname.startsWith("/admin/inquiries");
+      if (!allowed) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/products";
+        url.search = "";
+        return NextResponse.redirect(url);
+      }
     }
   }
 

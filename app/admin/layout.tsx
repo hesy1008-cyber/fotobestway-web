@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/admin.css";
 
 export default function AdminLayout({
@@ -11,6 +11,21 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [role, setRole] = useState<string>("admin");
+
+  // 读取角色 cookie，用于按角色渲染菜单
+  useEffect(() => {
+    const m = document.cookie.match(/(?:^|; )admin_role=([^;]*)/);
+    setRole(m ? m[1] : "admin");
+  }, []);
+
+  const isLimited = role === "limited";
+
+  // limited 角色（内部人员）只允许访问产品列表和询盘
+  const canAccess = (href: string) => {
+    if (!isLimited) return true;
+    return href === "/admin/products" || href.startsWith("/admin/inquiries");
+  };
 
   // 登录页不套后台布局，全屏展示（避免露出后台浅色背景形成白边）
   if (pathname === "/admin/login") {
@@ -78,7 +93,7 @@ export default function AdminLayout({
             FOTO<span>BESTWAY</span> ADMIN
           </Link>
           <nav className="admin-nav">
-            {navGroups.map((group) => {
+            {navGroups.filter((group) => canAccess(group.href)).map((group) => {
               const active = isGroupActive(group);
               const hasChildren = group.children.length > 0;
 
@@ -105,7 +120,7 @@ export default function AdminLayout({
                     {group.label} ▾
                   </Link>
                   <div className="admin-dropdown-menu">
-                    {group.children.map((child) => (
+                    {group.children.filter((child) => canAccess(child.href)).map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}

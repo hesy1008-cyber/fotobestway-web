@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { prisma } from "@/app/lib/prisma";
 import ProductManager from "./ProductManager";
 
@@ -6,6 +7,10 @@ import ProductManager from "./ProductManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
+  // 读取角色：limited（内部人员）只保留导出，隐藏新增/编辑/删除
+  const role = (await cookies()).get("admin_role")?.value || "admin";
+  const isLimited = role === "limited";
+
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
       select: {
@@ -38,12 +43,14 @@ export default async function AdminProductsPage() {
             管理产品目录（共 {products.length} 个产品）
           </p>
         </div>
-        <Link href="/admin/products/new" className="admin-btn admin-btn-primary">
-          + 新增产品
-        </Link>
+        {!isLimited && (
+          <Link href="/admin/products/new" className="admin-btn admin-btn-primary">
+            + 新增产品
+          </Link>
+        )}
       </div>
 
-      <ProductManager products={products as any} categories={categories as any} />
+      <ProductManager products={products as any} categories={categories as any} isLimited={isLimited} />
     </div>
   );
 }

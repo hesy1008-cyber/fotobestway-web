@@ -30,9 +30,11 @@ type ProductSimple = {
 export default function ProductManager({
   products,
   categories,
+  isLimited = false,
 }: {
   products: ProductSimple[];
   categories: CategorySimple[];
+  isLimited?: boolean;
 }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -290,6 +292,7 @@ export default function ProductManager({
                   </div>
                   {/* 第二排：编辑、查看、删除 */}
                   <div className="product-action-row">
+                    {!isLimited && (
                     <Link
                       href={`/admin/products/${product.id}/edit`}
                       className="product-action-btn product-action-edit"
@@ -300,6 +303,7 @@ export default function ProductManager({
                       </svg>
                       编辑
                     </Link>
+                    )}
                     <Link
                       href={`/products/${product.slug}`}
                       className="product-action-btn product-action-view"
@@ -311,16 +315,18 @@ export default function ProductManager({
                       </svg>
                       查看
                     </Link>
-                    <form action={deleteProduct} className="product-delete-form">
-                      <input type="hidden" name="id" value={product.id} />
-                      <button type="submit" className="product-action-btn product-action-delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        删除
-                      </button>
-                    </form>
+                    {!isLimited && (
+                      <form action={deleteProduct} className="product-delete-form">
+                        <input type="hidden" name="id" value={product.id} />
+                        <button type="submit" className="product-action-btn product-action-delete">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                          删除
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
               </div>
