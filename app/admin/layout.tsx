@@ -12,6 +12,11 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
+  // 登录页不套后台布局，全屏展示（避免露出后台浅色背景形成白边）
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   // 退出登录
   async function handleLogout() {
     if (!window.confirm("确定要退出登录吗？")) return;

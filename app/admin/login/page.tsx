@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
         <p style={styles.subheading}>登录以管理您的网站内容</p>
 
         {/* 表单 */}
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} style={styles.form} autoComplete="off">
           <div style={styles.field}>
             <label style={styles.label}>用户名</label>
             <div style={styles.inputWrap}>
@@ -89,7 +89,10 @@ export default function AdminLoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="请输入用户名"
                 style={styles.input}
-                autoComplete="username"
+                autoComplete="off"
+                name="fbw-username"
+                readOnly
+                onFocus={(e) => e.target.removeAttribute("readonly")}
               />
             </div>
           </div>
@@ -107,7 +110,10 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
                 style={styles.input}
-                autoComplete="current-password"
+                autoComplete="new-password"
+                name="fbw-password"
+                readOnly
+                onFocus={(e) => e.target.removeAttribute("readonly")}
               />
             </div>
           </div>
@@ -172,12 +178,10 @@ const styles: Record<string, React.CSSProperties> = {
     position: "relative",
     width: 400,
     maxWidth: "90vw",
-    background: "rgba(22,22,22,0.92)",
-    border: "1px solid rgba(255,255,255,0.08)",
+    background: "linear-gradient(180deg, #1c1c1c 0%, #141414 100%)",
     borderRadius: 14,
     padding: "40px 42px 28px",
-    boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,0,18,0.05)",
-    backdropFilter: "blur(12px)",
+    boxShadow: "0 30px 80px rgba(0,0,0,0.65)",
   },
   logoRow: {
     display: "flex",
@@ -253,8 +257,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     boxSizing: "border-box",
     padding: "12px 14px 12px 42px",
-    background: "#141414",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: "#0e0e0e",
+    border: "1px solid #2a2a2a",
     borderRadius: 8,
     color: "#fff",
     fontSize: 14,
