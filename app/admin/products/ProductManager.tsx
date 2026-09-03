@@ -149,7 +149,7 @@ export default function ProductManager({
           style={{
             backgroundImage: selectedCategory?.bannerImage
               ? `url("${selectedCategory.bannerImage}")`
-              : "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+              : `url("/uploads/categories/all-products.jpg")`,
           }}
         >
           <div className="product-sidebar-banner-overlay"></div>
