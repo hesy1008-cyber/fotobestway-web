@@ -148,7 +148,7 @@ export default function ProductManager({
           className="product-sidebar-banner"
           style={{
             backgroundImage: selectedCategory?.bannerImage
-              ? `url(${selectedCategory.bannerImage})`
+              ? `url("${selectedCategory.bannerImage}")`
               : "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
           }}
         >
