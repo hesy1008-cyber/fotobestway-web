@@ -20,7 +20,6 @@ export default function NewProductForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [mainPreview, setMainPreview] = useState<string | null>(null);
   const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [detailPreview, setDetailPreview] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -94,6 +93,14 @@ export default function NewProductForm({
       const formData = new FormData(e.currentTarget);
       // 显式追加 specsJson，确保多型号规格参数被提交
       formData.set("specsJson", specsJson);
+
+      // 合并后的产品图片：第一张自动作为主图
+      const galleryFiles = formData
+        .getAll("gallery")
+        .filter((f) => f instanceof File && f.size > 0);
+      if (galleryFiles.length > 0) {
+        formData.set("image", galleryFiles[0]);
+      }
 
       const res = await fetch("/api/products/create", {
         method: "POST",
@@ -364,43 +371,11 @@ export default function NewProductForm({
         </div>
       </div>
 
-      {/* ====== 主图 ====== */}
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">🖼️ Main Image (主图)</h2>
-        <p className="admin-form-help">
-          产品主图，默认第一张显示。建议尺寸：<strong>1500 × 1500 px</strong>，纯白背景
-        </p>
-
-        <div className="admin-form-group">
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setMainPreview(URL.createObjectURL(file));
-              }
-            }}
-            className="admin-form-input admin-form-file"
-          />
-        </div>
-
-        {mainPreview && (
-          <div className="admin-main-image-preview">
-            <img src={mainPreview} alt="Main preview" />
-            <div className="admin-main-image-label">
-              <span>Preview</span>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* ====== 轮播图 ====== */}
       <div className="admin-form-section">
-        <h2 className="admin-form-section-title">📸 Gallery Images (轮播图)</h2>
+        <h2 className="admin-form-section-title">🖼️ Product Images (产品图片)</h2>
         <p className="admin-form-help">
-          产品轮播图，显示在主图后面，可以点击切换。
+          上传产品图片（可多选），<strong>第一张自动作为主图</strong>，其余作为轮播图。
           建议尺寸：<strong>1500 × 1500 px</strong>
         </p>
 
@@ -418,11 +393,14 @@ export default function NewProductForm({
         {galleryPreview.length > 0 && (
           <div className="admin-new-images">
             <p className="admin-new-images-title">
-              Preview ({galleryPreview.length})
+              Preview ({galleryPreview.length}) - 第一张将作为主图
             </p>
-            {galleryPreview.map((img) => (
+            {galleryPreview.map((img, index) => (
               <div key={img} className="admin-new-images-item">
                 <img src={img} alt="Gallery preview" />
+                {index === 0 && (
+                  <span className="admin-new-images-badge">主图</span>
+                )}
               </div>
             ))}
           </div>
