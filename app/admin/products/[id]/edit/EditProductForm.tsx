@@ -123,9 +123,6 @@ export default function EditProductForm({
         }),
     }))
   );
-  const [mainPreview, setMainPreview] = useState<string | null>(
-    product.image ?? null
-  );
 
   const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [detailPreview, setDetailPreview] = useState<string[]>([]);
@@ -433,43 +430,12 @@ export default function EditProductForm({
         </div>
       </div>
 
-      {/* ====== 主图 ====== */}
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">🖼️ Main Image (主图)</h2>
-        <p className="admin-form-help">
-          产品主图，默认第一张显示。建议尺寸：<strong>1500 × 1500 px</strong>，纯白背景
-        </p>
-
-        <div className="admin-form-group">
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setMainPreview(URL.createObjectURL(file));
-              }
-            }}
-            className="admin-form-input admin-form-file"
-          />
-        </div>
-
-        {mainPreview && (
-          <div className="admin-main-image-preview">
-            <img src={mainPreview} alt="Main preview" />
-            <div className="admin-main-image-label">
-              <span>Preview</span>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* ====== 轮播图 ====== */}
       <div className="admin-form-section">
-        <h2 className="admin-form-section-title">📸 Gallery Images (轮播图)</h2>
+        <h2 className="admin-form-section-title">🖼️ Product Images (产品图片)</h2>
         <p className="admin-form-help">
-          产品轮播图，显示在主图后面，可以点击切换。可拖拽排序，点击右上角 × 删除。
+          产品图片，<strong>第一张自动作为主图</strong>，其余作为轮播图。
+          可拖拽调整顺序，第一张即主图。点击右上角 × 删除。
           建议尺寸：<strong>1500 × 1500 px</strong>
         </p>
 
@@ -506,9 +472,12 @@ export default function EditProductForm({
             <p className="admin-new-images-title">
               New ({galleryPreview.length}) - 保存后生效
             </p>
-            {galleryPreview.map((img) => (
+            {galleryPreview.map((img, index) => (
               <div key={img} className="admin-new-images-item">
                 <img src={img} alt="Gallery preview" />
+                {index === 0 && (
+                  <span className="admin-new-images-badge">主图</span>
+                )}
               </div>
             ))}
           </div>

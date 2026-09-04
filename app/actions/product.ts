@@ -127,6 +127,11 @@ export async function updateProduct(id: string, formData: FormData) {
     gallery = [...gallery, ...newGallery];
   }
 
+  // 合并后的产品图片：第一张自动作为主图
+  if (gallery.length > 0) {
+    image = gallery[0];
+  }
+
   // 详情切片
   let detailImages: string[] = Array.isArray(oldProduct?.detailImages)
     ? (oldProduct.detailImages as string[])
