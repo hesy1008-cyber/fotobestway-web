@@ -12,6 +12,7 @@ import AddToInquiryButton from "@/app/components/AddToInquiryButton";
 import DetailImage from "@/app/components/DetailImage";
 import SocialIcons from "@/app/components/SocialIcons";
 import { translateProduct } from "@/app/lib/translate";
+import { getMessages } from "@/app/i18n/messages";
 
 import "@/app/styles/detail.css";
 
@@ -101,6 +102,7 @@ export default async function ProductDetailPage({
   }>;
 }) {
   const { slug, locale } = await params;
+  const t = getMessages(locale as any);
 
   const originalProduct = await prisma.product.findUnique({
     where: {
@@ -309,14 +311,15 @@ export default async function ProductDetailPage({
 
       {/* 面包屑导航 */}
       <div className="breadcrumb">
-        <Link href="/">Home</Link>
+        <Link href="/">{t.nav.home}</Link>
         <span className="breadcrumb-sep">/</span>
-        <Link href="/products">Products</Link>
+        <Link href="/products">{t.nav.products}</Link>
         <span className="breadcrumb-sep">/</span>
         {product.categoryRef && (
           <>
             <Link href={`/products?category=${product.categoryRef.slug}`}>
-              {product.categoryRef.name}
+              {(t.categories as Record<string, string>)[product.categoryRef.slug] ||
+                product.categoryRef.name}
             </Link>
             <span className="breadcrumb-sep">/</span>
           </>
@@ -326,7 +329,9 @@ export default async function ProductDetailPage({
             <Link
               href={`/products?category=${product.categoryRef?.slug}&subCategory=${product.subCategoryRef.slug}`}
             >
-              {product.subCategoryRef.name}
+              {(t.subCategories as Record<string, Record<string, string>>)?.[
+                product.categoryRef?.slug || ""
+              ]?.[product.subCategoryRef.slug] || product.subCategoryRef.name}
             </Link>
             <span className="breadcrumb-sep">/</span>
           </>
