@@ -1,4 +1,4 @@
-.productsPage {
+﻿.productsPage {
   width: 100%;
   background: #fff;
 }
@@ -1084,6 +1084,7 @@
   color: #666;
   font-size: 14px;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .productListCardActions {
@@ -1219,6 +1220,7 @@
   font-size: 13px;
   color: #555;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 .featureDot {
