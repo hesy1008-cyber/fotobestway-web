@@ -1,4 +1,4 @@
-/* =========================
+﻿/* =========================
  HEADER
 ========================= */
 
@@ -1016,12 +1016,13 @@ font-size:18px;
 }
 
 .mega-menu {
-  position: absolute;
-  top: 100%;
-  left: 50%;
+  /* 相对视口居中展开，宽度自适应窗口，缩小窗口也不会溢出屏幕 */
+  position: fixed;
+  top: 82px;
+  left: 50vw;
   transform: translateX(-50%);
-  width: 90vw;
-  max-width: 1400px;
+  width: min(90vw, 1400px);
+  max-width: none;
   background: #fff;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   border-top: 3px solid #e60012;
