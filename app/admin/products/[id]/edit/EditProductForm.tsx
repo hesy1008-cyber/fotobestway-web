@@ -235,17 +235,32 @@ export default function EditProductForm({
     setDetailImages(detailImages.filter((i) => i !== img));
   }
 
-  // 选择新图片：追加到现有列表（blob 占位，可与现有图片一起拖拽排序）
-  async function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files) return;
-    const fileList = Array.from(files).filter((f) => f.size > 0);
+  // 核心：追加新文件到混合列表（缩略图 blob 占位，可与现有图片一起拖拽排序）
+  async function addNewGalleryFiles(fileList: File[]) {
+    if (fileList.length === 0) return;
     const thumbs = await filesToThumbnails(fileList);
     fileList.forEach((file, i) => newFileMapRef.current.set(thumbs[i], file));
     const merged = [...gallery, ...thumbs];
     setGallery(merged);
     setGalleryOrder(merged);
-    e.target.value = "";
+  }
+
+  // 选择文件上传
+  function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    e.target.value = ""; // 允许重复选择同一批文件
+    void addNewGalleryFiles(fileList);
+  }
+
+  // 拖拽文件到页面直接上传
+  function handleGalleryDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    void addNewGalleryFiles(fileList);
   }
 
   // 拖拽排序：同步更新展示与提交顺序
@@ -493,7 +508,11 @@ export default function EditProductForm({
           </div>
         )}
 
-        <div className="admin-form-group">
+        <div
+          className="admin-form-group"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleGalleryDrop}
+        >
           <label className="admin-form-label">Add New Images</label>
           <input
             name="gallery"
@@ -504,7 +523,8 @@ export default function EditProductForm({
             className="admin-form-input admin-form-file"
           />
           <p className="admin-form-help">
-            新上传的图片会追加到上方列表，可直接拖拽到任意位置（包括第一位作为主图）
+            新上传的图片会追加到上方列表，可直接拖拽到任意位置（包括第一位作为主图）。
+            也可以直接把图片文件拖到本区域上传
           </p>
         </div>
       </div>

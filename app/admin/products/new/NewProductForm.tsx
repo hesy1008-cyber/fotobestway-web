@@ -141,11 +141,9 @@ export default function NewProductForm({
     setter(urls);
   }
 
-  // 选择产品图片：生成压缩缩略图预览（避免大图解码卡顿），保存原始文件列表
-  async function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files) return;
-    const fileList = Array.from(files).filter((f) => f.size > 0);
+  // 核心：把文件列表加入预览（缩略图 + 原始文件映射），供拖拽排序
+  async function addGalleryFiles(fileList: File[]) {
+    if (fileList.length === 0) return;
     // 释放上一批预览占用的内存
     galleryPreview.forEach((url) => URL.revokeObjectURL(url));
     const thumbs = await filesToThumbnails(fileList);
@@ -154,6 +152,24 @@ export default function NewProductForm({
     setGalleryFileMap(fileMap);
     setGalleryFiles(fileList);
     setGalleryPreview(thumbs);
+  }
+
+  // 选择文件：生成压缩缩略图预览（避免大图解码卡顿），保存原始文件列表
+  function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    e.target.value = ""; // 允许重复选择同一批文件
+    void addGalleryFiles(fileList);
+  }
+
+  // 拖拽文件到页面直接上传
+  function handleGalleryDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    void addGalleryFiles(fileList);
   }
 
   // 拖拽排序后：同步重排文件列表（保证提交顺序与预览一致）
@@ -417,7 +433,11 @@ export default function NewProductForm({
           建议尺寸：<strong>1500 × 1500 px</strong>
         </p>
 
-        <div className="admin-form-group">
+        <div
+          className="admin-form-group"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleGalleryDrop}
+        >
           <input
             name="gallery"
             type="file"
@@ -426,9 +446,11 @@ export default function NewProductForm({
             onChange={handleGallerySelect}
             className="admin-form-input admin-form-file"
           />
-        </div>
+          <p className="admin-form-help" style={{ marginTop: "8px" }}>
+            也可以直接把图片文件拖到本区域上传
+          </p>
 
-        {galleryPreview.length > 0 && (
+          {galleryPreview.length > 0 && (
           <div>
             <p className="admin-new-images-title" style={{ marginTop: "12px" }}>
               Preview ({galleryPreview.length}) - 拖拽调整顺序，<strong>第一张为主图</strong>
@@ -440,6 +462,7 @@ export default function NewProductForm({
             />
           </div>
         )}
+        </div>
       </div>
 
       {/* ====== 详情图 ====== */}
