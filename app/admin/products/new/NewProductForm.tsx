@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SortableGallery from "@/app/components/SortableGallery";
+import { filesToThumbnails } from "@/app/lib/thumbnail";
 
 export default function NewProductForm({
   categories,
@@ -129,26 +130,30 @@ export default function NewProductForm({
     }
   }
 
-  function previewImage(
+  async function previewImage(
     e: React.ChangeEvent<HTMLInputElement>,
     setter: React.Dispatch<React.SetStateAction<string[]>>
   ) {
     const files = e.target.files;
     if (!files) return;
-    const urls = Array.from(files).map((file) => URL.createObjectURL(file));
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    const urls = await filesToThumbnails(fileList);
     setter(urls);
   }
-  // 选择产品图片：保存文件列表 + 预览地址（支持拖拽排序）
-  function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
+
+  // 选择产品图片：生成压缩缩略图预览（避免大图解码卡顿），保存原始文件列表
+  async function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files) return;
     const fileList = Array.from(files).filter((f) => f.size > 0);
-    const urls = fileList.map((file) => URL.createObjectURL(file));
+    // 释放上一批预览占用的内存
+    galleryPreview.forEach((url) => URL.revokeObjectURL(url));
+    const thumbs = await filesToThumbnails(fileList);
     const fileMap = new Map<string, File>();
-    fileList.forEach((file, i) => fileMap.set(urls[i], file));
+    fileList.forEach((file, i) => fileMap.set(thumbs[i], file));
     setGalleryFileMap(fileMap);
     setGalleryFiles(fileList);
-    setGalleryPreview(urls);
+    setGalleryPreview(thumbs);
   }
 
   // 拖拽排序后：同步重排文件列表（保证提交顺序与预览一致）
@@ -159,8 +164,9 @@ export default function NewProductForm({
     );
   }
 
-  // 删除图片：同步从文件列表中移除
+  // 删除图片：同步从文件列表中移除，并释放缩略图内存
   function handleGalleryRemove(img: string) {
+    URL.revokeObjectURL(img);
     const next = galleryPreview.filter((i) => i !== img);
     setGalleryPreview(next);
     setGalleryFiles(

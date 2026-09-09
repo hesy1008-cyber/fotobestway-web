@@ -16,9 +16,9 @@ import {
   CSS
 } from "@dnd-kit/utilities";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-function SortItem({
+const SortItem = memo(function SortItem({
   img,
   onRemove,
 }: {
@@ -47,7 +47,7 @@ function SortItem({
       className="sortable-gallery-item"
     >
       <div {...attributes} {...listeners} className="sortable-gallery-drag">
-        <img src={img} alt="Gallery item" />
+        <img src={img} alt="Gallery item" loading="lazy" decoding="async" />
       </div>
       <button
         type="button"
@@ -59,7 +59,7 @@ function SortItem({
       </button>
     </div>
   );
-}
+  });
 
 export default function SortableGallery({
   images,

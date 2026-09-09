@@ -2,6 +2,7 @@
 
 import { updateProduct } from "@/app/actions/product";
 import { useRef, useState } from "react";
+import { filesToThumbnails } from "@/app/lib/thumbnail";
 import SortableGallery from "@/app/components/SortableGallery";
 
 type Product = {
@@ -175,13 +176,14 @@ export default function EditProductForm({
     }
   }
 
-  function previewImage(
+  async function previewImage(
     e: React.ChangeEvent<HTMLInputElement>,
     setter: React.Dispatch<React.SetStateAction<string[]>>
   ) {
     const files = e.target.files;
     if (!files) return;
-    const urls = Array.from(files).map((file) => URL.createObjectURL(file));
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    const urls = await filesToThumbnails(fileList);
     setter(urls);
   }
 
@@ -234,13 +236,13 @@ export default function EditProductForm({
   }
 
   // 选择新图片：追加到现有列表（blob 占位，可与现有图片一起拖拽排序）
-  function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files) return;
     const fileList = Array.from(files).filter((f) => f.size > 0);
-    const urls = fileList.map((file) => URL.createObjectURL(file));
-    fileList.forEach((file, i) => newFileMapRef.current.set(urls[i], file));
-    const merged = [...gallery, ...urls];
+    const thumbs = await filesToThumbnails(fileList);
+    fileList.forEach((file, i) => newFileMapRef.current.set(thumbs[i], file));
+    const merged = [...gallery, ...thumbs];
     setGallery(merged);
     setGalleryOrder(merged);
     e.target.value = "";
@@ -252,8 +254,9 @@ export default function EditProductForm({
     setGalleryOrder(imgs);
   }
 
-  // 删除图片：从混合列表移除（新上传的 blob 同时清除文件映射）
+  // 删除图片：从混合列表移除（新上传的 blob 同时清除文件映射并释放内存）
   function handleGalleryRemove(img: string) {
+    URL.revokeObjectURL(img);
     const next = gallery.filter((i) => i !== img);
     setGallery(next);
     setGalleryOrder(next);
