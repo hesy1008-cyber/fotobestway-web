@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { updateProduct } from "@/app/actions/product";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import SortableGallery from "@/app/components/SortableGallery";
 
 type Product = {
@@ -124,7 +124,6 @@ export default function EditProductForm({
     }))
   );
 
-  const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [detailPreview, setDetailPreview] = useState<string[]>([]);
 
   const [videoUrl, setVideoUrl] = useState<string>(product.video ?? "");
@@ -136,6 +135,9 @@ export default function EditProductForm({
   const [galleryOrder, setGalleryOrder] = useState<string[]>(
     Array.isArray(product.gallery) ? product.gallery : []
   );
+
+  // 新上传图片的 blob URL -> File 映射（保存时按拖拽顺序提交）
+  const newFileMapRef = useRef<Map<string, File>>(new Map());
 
   // 详情图（支持前端删除，保存时一起更新）
   const [detailImages, setDetailImages] = useState<string[]>(
@@ -149,6 +151,14 @@ export default function EditProductForm({
     try {
       const formData = new FormData(e.currentTarget);
       formData.append("galleryOrder", JSON.stringify(galleryOrder));
+      // 按拖拽后的顺序提交新上传的图片（blob URL 占位，后端按顺序替换为真实 URL）
+      formData.delete("gallery");
+      galleryOrder
+        .filter((url) => url.startsWith("blob:"))
+        .forEach((url) => {
+          const file = newFileMapRef.current.get(url);
+          if (file) formData.append("gallery", file);
+        });
       formData.append("detailImages", JSON.stringify(detailImages));
       // 显式追加 specsJson，确保多型号规格参数被提交
       formData.set("specsJson", specsJson);
@@ -221,6 +231,33 @@ export default function EditProductForm({
   // 删除详情图
   function removeDetailImage(img: string) {
     setDetailImages(detailImages.filter((i) => i !== img));
+  }
+
+  // 选择新图片：追加到现有列表（blob 占位，可与现有图片一起拖拽排序）
+  function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    const urls = fileList.map((file) => URL.createObjectURL(file));
+    fileList.forEach((file, i) => newFileMapRef.current.set(urls[i], file));
+    const merged = [...gallery, ...urls];
+    setGallery(merged);
+    setGalleryOrder(merged);
+    e.target.value = "";
+  }
+
+  // 拖拽排序：同步更新展示与提交顺序
+  function handleGalleryReorder(imgs: string[]) {
+    setGallery(imgs);
+    setGalleryOrder(imgs);
+  }
+
+  // 删除图片：从混合列表移除（新上传的 blob 同时清除文件映射）
+  function handleGalleryRemove(img: string) {
+    const next = gallery.filter((i) => i !== img);
+    setGallery(next);
+    setGalleryOrder(next);
+    newFileMapRef.current.delete(img);
   }
 
   return (
@@ -447,10 +484,8 @@ export default function EditProductForm({
             </div>
             <SortableGallery
               images={gallery}
-              onChange={(imgs) => {
-                setGallery(imgs);
-                setGalleryOrder(imgs);
-              }}
+              onChange={handleGalleryReorder}
+              onRemove={handleGalleryRemove}
             />
           </div>
         )}
@@ -462,26 +497,13 @@ export default function EditProductForm({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => previewImage(e, setGalleryPreview)}
+            onChange={handleGalleryAdd}
             className="admin-form-input admin-form-file"
           />
+          <p className="admin-form-help">
+            新上传的图片会追加到上方列表，可直接拖拽到任意位置（包括第一位作为主图）
+          </p>
         </div>
-
-        {galleryPreview.length > 0 && (
-          <div className="admin-new-images">
-            <p className="admin-new-images-title">
-              New ({galleryPreview.length}) - 保存后生效
-            </p>
-            {galleryPreview.map((img, index) => (
-              <div key={img} className="admin-new-images-item">
-                <img src={img} alt="Gallery preview" />
-                {index === 0 && (
-                  <span className="admin-new-images-badge">主图</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ====== 详情图 ====== */}

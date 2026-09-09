@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { prisma } from "@/app/lib/prisma";
 import { redirect } from "next/navigation";
@@ -124,7 +124,11 @@ export async function updateProduct(id: string, formData: FormData) {
 
   if (galleryFiles.length > 0) {
     const newGallery = await saveMultipleFiles(galleryFiles);
-    gallery = [...gallery, ...newGallery];
+    // galleryOrder 中 blob: 占位按顺序替换为真实 URL（支持新旧图片混合拖拽排序）
+    let blobIdx = 0;
+    gallery = gallery
+      .map((url) => (url.startsWith("blob:") ? newGallery[blobIdx++] : url))
+      .filter((url) => url && !url.startsWith("blob:"));
   }
 
   // 合并后的产品图片：第一张自动作为主图

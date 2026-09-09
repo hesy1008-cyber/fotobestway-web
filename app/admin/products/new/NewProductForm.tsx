@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
+import SortableGallery from "@/app/components/SortableGallery";
 
 export default function NewProductForm({
   categories,
@@ -20,6 +21,8 @@ export default function NewProductForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryFileMap, setGalleryFileMap] = useState<Map<string, File>>(new Map());
   const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [detailPreview, setDetailPreview] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -94,11 +97,10 @@ export default function NewProductForm({
       // 显式追加 specsJson，确保多型号规格参数被提交
       formData.set("specsJson", specsJson);
 
-      // 合并后的产品图片：第一张自动作为主图
-      const galleryFiles = formData
-        .getAll("gallery")
-        .filter((f) => f instanceof File && f.size > 0);
+      // 合并后的产品图片：按拖拽排序后的顺序提交，第一张自动作为主图
       if (galleryFiles.length > 0) {
+        formData.delete("gallery");
+        galleryFiles.forEach((f) => formData.append("gallery", f));
         formData.set("image", galleryFiles[0]);
       }
 
@@ -136,6 +138,36 @@ export default function NewProductForm({
     const urls = Array.from(files).map((file) => URL.createObjectURL(file));
     setter(urls);
   }
+  // 选择产品图片：保存文件列表 + 预览地址（支持拖拽排序）
+  function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    const urls = fileList.map((file) => URL.createObjectURL(file));
+    const fileMap = new Map<string, File>();
+    fileList.forEach((file, i) => fileMap.set(urls[i], file));
+    setGalleryFileMap(fileMap);
+    setGalleryFiles(fileList);
+    setGalleryPreview(urls);
+  }
+
+  // 拖拽排序后：同步重排文件列表（保证提交顺序与预览一致）
+  function handleGalleryReorder(imgs: string[]) {
+    setGalleryPreview(imgs);
+    setGalleryFiles(
+      imgs.map((url) => galleryFileMap.get(url)).filter((f): f is File => !!f)
+    );
+  }
+
+  // 删除图片：同步从文件列表中移除
+  function handleGalleryRemove(img: string) {
+    const next = galleryPreview.filter((i) => i !== img);
+    setGalleryPreview(next);
+    setGalleryFiles(
+      next.map((url) => galleryFileMap.get(url)).filter((f): f is File => !!f)
+    );
+  }
+
 
   // 视频上传
   async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -385,24 +417,21 @@ export default function NewProductForm({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => previewImage(e, setGalleryPreview)}
+            onChange={handleGallerySelect}
             className="admin-form-input admin-form-file"
           />
         </div>
 
         {galleryPreview.length > 0 && (
-          <div className="admin-new-images">
-            <p className="admin-new-images-title">
-              Preview ({galleryPreview.length}) - 第一张将作为主图
+          <div>
+            <p className="admin-new-images-title" style={{ marginTop: "12px" }}>
+              Preview ({galleryPreview.length}) - 拖拽调整顺序，<strong>第一张为主图</strong>
             </p>
-            {galleryPreview.map((img, index) => (
-              <div key={img} className="admin-new-images-item">
-                <img src={img} alt="Gallery preview" />
-                {index === 0 && (
-                  <span className="admin-new-images-badge">主图</span>
-                )}
-              </div>
-            ))}
+            <SortableGallery
+              images={galleryPreview}
+              onChange={handleGalleryReorder}
+              onRemove={handleGalleryRemove}
+            />
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   DndContext,
@@ -16,7 +16,7 @@ import {
   CSS
 } from "@dnd-kit/utilities";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function SortItem({
   img,
@@ -71,6 +71,11 @@ export default function SortableGallery({
   onRemove?: (img: string) => void;
 }) {
   const [items, setItems] = useState(images);
+
+  // 父组件传入的图片变化时（如新增上传、回显），同步内部排序状态
+  useEffect(() => {
+    setItems(images);
+  }, [images]);
 
   function handleRemove(img: string) {
     const newItems = items.filter((i) => i !== img);
