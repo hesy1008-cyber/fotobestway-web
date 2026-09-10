@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useCallback } from "react";
 
@@ -105,6 +105,30 @@ function parseSheetToProduct(
     }
   }
 
+  // 找 application（应用场景，所有产品共用）
+  let applications: string[] = [];
+  for (let row = 0; row < sheetData.length; row++) {
+    const cell0 = getCell(row, 0);
+    if (cell0.toLowerCase().includes("the application of product")) {
+      // 兼容：标题同行就带内容（如 "The Application of product: xxx"）
+      const inline = cell0.replace(/the application of product[：:\s]*/i, "").trim();
+      if (inline) applications.push(inline);
+      for (let r = row + 1; r < sheetData.length; r++) {
+        const val = getCell(r, 0);
+        if (!val) break;
+        if (
+          val.toLowerCase().includes("the feature") ||
+          val.toLowerCase().includes("the advantage") ||
+          val.toLowerCase().includes("the description")
+        ) {
+          break;
+        }
+        const cleaned = val.replace(/^\d+\.\s*/, "").trim();
+        if (cleaned) applications.push(cleaned);
+      }
+    }
+  }
+
   // 找大类（所有产品共用）
   let category = "";
   for (let row = 0; row < Math.min(sheetData.length, 15); row++) {
@@ -200,7 +224,7 @@ function parseSheetToProduct(
       shortDescription,
       overview,
       features,
-      applications: [],
+      applications,
       specs,
       video: "",
       seoTitle: title + " | FOTOBESTWAY Professional Photography Equipment",
@@ -355,7 +379,7 @@ export default function BatchImportClient({ categories }: { categories: Category
               slug: p.slug,
               category: p.category,
               subCategory: p.subCategory,
-              image: p.image || undefined,
+              image: p.image || p.gallery[0] || undefined,
               gallery: p.gallery,
               detailImages: p.detailImages,
               shortDescription: p.shortDescription,
@@ -635,9 +659,9 @@ function ProductCard({
           )}
         </div>
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          {product.image && (
+          {(product.image || product.gallery[0]) && (
             <img
-              src={product.image}
+              src={product.image || product.gallery[0]}
               alt=""
               style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px" }}
             />
@@ -938,69 +962,8 @@ function ProductCard({
           {/* 图片上传 */}
           {tab === "images" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* 主图 */}
               <div>
-                <label style={labelStyle}>产品主图 Main Image</label>
-                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flexWrap: "wrap" }}>
-                  {product.image ? (
-                    <div style={{ position: "relative" }}>
-                      <img
-                        src={product.image}
-                        alt=""
-                        style={{ width: "120px", height: "120px", objectFit: "cover", borderRadius: "6px", border: "1px solid #eee" }}
-                      />
-                      <button
-                        onClick={() => onRemoveImage("image")}
-                        style={{
-                          position: "absolute",
-                          top: "-8px",
-                          right: "-8px",
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "50%",
-                          background: "#dc2626",
-                          color: "#fff",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <label
-                      style={{
-                        width: "120px",
-                        height: "120px",
-                        border: "2px dashed #ccc",
-                        borderRadius: "6px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        fontSize: "12px",
-                        color: "#999",
-                      }}
-                    >
-                      + 上传主图
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          if (e.target.files) onImageUpload("image", e.target.files);
-                          e.target.value = "";
-                        }}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              {/* Gallery */}
-              <div>
-                <label style={labelStyle}>画廊图 Gallery（可多张）</label>
+                <label style={labelStyle}>产品图片 Gallery（可多张，第一张自动作为主图）</label>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start" }}>
                   {product.gallery.map((url, i) => (
                     <div key={i} style={{ position: "relative" }}>

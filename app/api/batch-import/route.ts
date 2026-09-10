@@ -1,4 +1,4 @@
-import { prisma } from "@/app/lib/prisma";
+﻿import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
 
 /**
@@ -117,20 +117,25 @@ export async function POST(req: Request) {
             subCategoryMap.get(`${categoryId}:${String(p.subCategory).toLowerCase()}`) || null;
         }
 
+        const gallery = parseStringArray(p.gallery);
+        const detailImages = parseStringArray(p.detailImages);
+        // 轮播图第一张自动作为主图（与新增/编辑产品规则一致）
+        const image = String(p.image || gallery[0] || "/uploads/products/default.webp");
+
         const data = {
           title,
           slug,
           categoryId,
           subCategoryId,
-          image: String(p.image || "/uploads/products/default.webp"),
+          image,
           imageAlt: p.imageAlt ? String(p.imageAlt) : null,
           shortDescription: p.shortDescription ? String(p.shortDescription) : null,
           overview: String(p.overview || ""),
           features: parseList(p.features),
           applications: parseList(p.applications),
           specs: parseSpecs(p.specs),
-          gallery: parseStringArray(p.gallery),
-          detailImages: parseStringArray(p.detailImages),
+          gallery,
+          detailImages,
           video: p.video ? String(p.video) : null,
           seoTitle: p.seoTitle ? String(p.seoTitle) : null,
           metaDescription: p.metaDescription ? String(p.metaDescription) : null,
@@ -138,17 +143,18 @@ export async function POST(req: Request) {
           hiddenSeoText: p.hiddenSeoText ? String(p.hiddenSeoText) : null,
         };
 
-        const existing = await prisma.product.findUnique({ where: { slug } });
-
-        if (existing) {
-          await prisma.product.update({ where: { slug }, data });
-          results.push({ index: i, title, slug, status: "updated" });
-          updateCount++;
-        } else {
-          await prisma.product.create({ data });
-          results.push({ index: i, title, slug, status: "created" });
-          successCount++;
+        // 允许标题相同：slug 冲突时自动追加后缀保证唯一，绝不覆盖已有产品
+        let finalSlug = slug;
+        let suffix = 2;
+        while (await prisma.product.findUnique({ where: { slug: finalSlug } })) {
+          finalSlug = `${slug}-${suffix}`;
+          suffix++;
         }
+        data.slug = finalSlug;
+
+        await prisma.product.create({ data });
+        results.push({ index: i, title, slug: finalSlug, status: "created" });
+        successCount++;
       } catch (err: any) {
         results.push({
           index: i,
