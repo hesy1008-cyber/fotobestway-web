@@ -21,6 +21,16 @@ function slugify(text: string): string {
     .trim();
 }
 
+// 清洗用户手动填写的 slug：只保留小写字母/数字/连字符，空格或非法字符一律转成 -
+function cleanSlug(text: string): string {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .trim();
+}
+
 function parseSpecs(specs: any): any {
   if (!specs) return [];
   if (Array.isArray(specs)) return specs;
@@ -99,9 +109,10 @@ export async function POST(req: Request) {
           throw new Error("title is required");
         }
 
-        // 中文标题 slugify 后可能为空，兜底生成唯一 slug，避免详情页 404
+        // slug 清洗：手动填写的 slug 转小写、空格/非法字符转成 -，避免网址含空格导致详情页 404
+        // 中文标题 slugify 后可能为空，兜底生成唯一 slug
         const slug =
-          String(p.slug || "").trim() ||
+          cleanSlug(p.slug) ||
           slugify(title) ||
           `product-${Date.now()}-${i + 1}-${Math.random().toString(36).slice(2, 6)}`;
 

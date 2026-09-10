@@ -377,7 +377,14 @@ export default function BatchImportClient({ categories }: { categories: Category
           body: JSON.stringify([
             {
               title: p.title,
-              slug: p.slug,
+              slug:
+                p.slug
+                  ?.toLowerCase()
+                  .replace(/[^a-z0-9-]+/g, "-")
+                  .replace(/-+/g, "-")
+                  .replace(/^-|-$/g, "") ||
+                slugify(p.title) ||
+                `product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
               category: p.category,
               subCategory: p.subCategory,
               image: p.image || p.gallery[0] || undefined,
@@ -725,8 +732,21 @@ function ProductCard({
                 />
               </div>
               <div>
-                <label style={labelStyle}>Slug（留空自动生成）</label>
-                <input style={inputStyle} value={product.slug} onChange={(e) => onUpdate({ slug: e.target.value })} />
+                 <label style={labelStyle}>Slug（留空自动生成，仅小写字母/数字/连字符）</label>
+                 <input
+                   style={inputStyle}
+                   value={product.slug}
+                   placeholder="例如: fvtb-2300-fvtb-2500"
+                   onChange={(e) =>
+                     onUpdate({
+                       slug: e.target.value
+                         .toLowerCase()
+                         .replace(/[^a-z0-9-]+/g, "-")
+                         .replace(/-+/g, "-")
+                         .replace(/^-|-$/g, ""),
+                     })
+                   }
+                 />
               </div>
               <div>
                 <label style={labelStyle}>一级分类 Category *</label>
