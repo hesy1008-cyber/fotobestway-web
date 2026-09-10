@@ -215,7 +215,8 @@ function parseSheetToProduct(
     return {
       id: uid(),
       title,
-      slug: slugify(title),
+      // 中文标题会 slugify 成空串，兜底生成唯一 slug，避免详情页 404
+      slug: slugify(title) || `product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       category,
       subCategory: "",
       image: "",

@@ -99,7 +99,11 @@ export async function POST(req: Request) {
           throw new Error("title is required");
         }
 
-        const slug = String(p.slug || "").trim() || slugify(title);
+        // 中文标题 slugify 后可能为空，兜底生成唯一 slug，避免详情页 404
+        const slug =
+          String(p.slug || "").trim() ||
+          slugify(title) ||
+          `product-${Date.now()}-${i + 1}-${Math.random().toString(36).slice(2, 6)}`;
 
         // 分类
         let categoryId: string | null = null;
