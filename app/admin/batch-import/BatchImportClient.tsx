@@ -963,8 +963,16 @@ function ProductCard({
           {/* 图片上传 */}
           {tab === "images" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div>
-                <label style={labelStyle}>产品图片 Gallery（可多张，第一张自动作为主图）</label>
+               <div
+                 onDragOver={(e) => e.preventDefault()}
+                 onDrop={(e) => {
+                   e.preventDefault();
+                   if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                     onImageUpload("gallery", e.dataTransfer.files);
+                   }
+                 }}
+               >
+                 <label style={labelStyle}>产品图片 Gallery（可多张，第一张自动作为主图，支持拖拽上传）</label>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start" }}>
                   {product.gallery.map((url, i) => (
                     <div key={i} style={{ position: "relative" }}>
@@ -1023,8 +1031,16 @@ function ProductCard({
               </div>
 
               {/* 详情图 */}
-              <div>
-                <label style={labelStyle}>详情图 Detail Images（可多张）</label>
+               <div
+                 onDragOver={(e) => e.preventDefault()}
+                 onDrop={(e) => {
+                   e.preventDefault();
+                   if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                     onImageUpload("detailImages", e.dataTransfer.files);
+                   }
+                 }}
+               >
+                 <label style={labelStyle}>详情图 Detail Images（可多张，支持拖拽上传）</label>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start" }}>
                   {product.detailImages.map((url, i) => (
                     <div key={i} style={{ position: "relative" }}>
