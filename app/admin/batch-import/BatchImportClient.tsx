@@ -380,9 +380,8 @@ export default function BatchImportClient({ categories }: { categories: Category
               slug:
                 p.slug
                   ?.toLowerCase()
-                  .replace(/[^a-z0-9-]+/g, "-")
-                  .replace(/-+/g, "-")
-                  .replace(/^-|-$/g, "") ||
+                  .replace(/\s+/g, "_")
+                  .replace(/[^a-z0-9_-]+/g, "") ||
                 slugify(p.title) ||
                 `product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
               category: p.category,
@@ -741,9 +740,8 @@ function ProductCard({
                      onUpdate({
                        slug: e.target.value
                          .toLowerCase()
-                         .replace(/[^a-z0-9-]+/g, "-")
-                         .replace(/-+/g, "-")
-                         .replace(/^-|-$/g, ""),
+                         .replace(/\s+/g, "_")
+                         .replace(/[^a-z0-9_-]+/g, ""),
                      })
                    }
                  />

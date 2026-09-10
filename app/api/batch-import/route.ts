@@ -21,13 +21,14 @@ function slugify(text: string): string {
     .trim();
 }
 
-// 清洗用户手动填写的 slug：只保留小写字母/数字/连字符，空格或非法字符一律转成 -
+// 清洗用户手动填写的 slug：只保留小写字母/数字/连字符/下划线
+// 空格转成下划线（如 "FVTB-2300 FVTB-2500" -> "fvtb-2300_fvtb-2500"，两个型号可区分）
+// 其余非法字符直接删除
 function cleanSlug(text: string): string {
   return String(text || "")
     .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_-]+/g, "")
     .trim();
 }
 
