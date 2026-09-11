@@ -1,4 +1,4 @@
-/* =========================
+﻿/* =========================
    ADMIN 后台样式 - 红黑工业风
 ========================= */
 
@@ -2282,4 +2282,19 @@
   padding: 2px 8px;
   border-radius: 4px;
   z-index: 2;
+}
+
+
+/* 分类管理：拖拽移动产品 */
+.product-tag-item[draggable="true"] {
+  cursor: grab;
+}
+.product-tag-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+.accordion-content.drag-over,
+.accordion-header.drag-over {
+  outline: 2px dashed #e60012;
+  outline-offset: -2px;
+  background-color: rgba(230, 0, 18, 0.06);
 }

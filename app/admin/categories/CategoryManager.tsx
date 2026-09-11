@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import DeleteCategoryButton from "./DeleteCategoryButton";
 
 type ProductSimple = { id: string; title: string };
@@ -24,8 +25,37 @@ type Category = {
 export default function CategoryManager({ categories }: { categories: Category[] }) {
   const [selectedId, setSelectedId] = useState(categories[0]?.id || "");
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
+  const [dragOverSub, setDragOverSub] = useState<string | null>(null);
+  const router = useRouter();
 
   const selected = categories.find((c) => c.id === selectedId);
+
+  // 拖动产品到目标分类，成功后刷新服务端数据
+  const moveProduct = async (productId: string, subCategoryId: string | null, categoryId?: string) => {
+    try {
+      const res = await fetch("/api/products/move-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, subCategoryId, categoryId }),
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => null);
+        alert("移动失败：" + (data?.error || res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      alert("移动失败，请重试");
+    }
+  };
+
+  const onDropProduct = (e: React.DragEvent, subCategoryId: string | null, categoryId?: string) => {
+    e.preventDefault();
+    setDragOverSub(null);
+    const productId = e.dataTransfer.getData("text/plain");
+    if (productId) moveProduct(productId, subCategoryId, categoryId);
+  };
 
   const toggleSub = (id: string) => {
     setExpandedSubs((prev) => {
@@ -122,13 +152,27 @@ export default function CategoryManager({ categories }: { categories: Category[]
                   <h3>直接分类产品（未分配二级分类）</h3>
                   <span className="panel-hint">{selected.unassignedProducts.length} 个产品</span>
                 </div>
-                <div className="accordion-content" style={{ padding: "16px" }}>
+                <div
+                  className={`accordion-content ${dragOverSub === "__unassigned__" ? "drag-over" : ""}`}
+                  style={{ padding: "16px" }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverSub("__unassigned__");
+                  }}
+                  onDragLeave={() => setDragOverSub((cur) => (cur === "__unassigned__" ? null : cur))}
+                  onDrop={(e) => onDropProduct(e, null, selected.id)}
+                >
                   <div className="accordion-product-tags">
                     {selected.unassignedProducts.map((p) => (
                       <Link
                         key={p.id}
                         href={`/admin/products/${p.id}/edit`}
                         className="product-tag-item"
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("text/plain", p.id);
+                          e.dataTransfer.effectAllowed = "move";
+                        }}
                       >
                         {p.title}
                       </Link>
@@ -151,8 +195,14 @@ export default function CategoryManager({ categories }: { categories: Category[]
                   selected.subCategories.map((sub) => (
                     <div key={sub.id} className="accordion-item">
                       <div
-                        className="accordion-header"
+                        className={`accordion-header ${dragOverSub === sub.id ? "drag-over" : ""}`}
                         onClick={() => toggleSub(sub.id)}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setDragOverSub(sub.id);
+                        }}
+                        onDragLeave={() => setDragOverSub((cur) => (cur === sub.id ? null : cur))}
+                        onDrop={(e) => onDropProduct(e, sub.id)}
                       >
                         <span className="accordion-arrow">
                           {expandedSubs.has(sub.id) ? "▼" : "▶"}
@@ -161,9 +211,17 @@ export default function CategoryManager({ categories }: { categories: Category[]
                         <span className="accordion-count">{sub.products.length} 个产品</span>
                       </div>
                       {expandedSubs.has(sub.id) && (
-                        <div className="accordion-content">
+                        <div
+                          className={`accordion-content ${dragOverSub === sub.id ? "drag-over" : ""}`}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragOverSub(sub.id);
+                          }}
+                          onDragLeave={() => setDragOverSub((cur) => (cur === sub.id ? null : cur))}
+                          onDrop={(e) => onDropProduct(e, sub.id)}
+                        >
                           {sub.products.length === 0 ? (
-                            <p className="accordion-empty">该分类下暂无产品</p>
+                            <p className="accordion-empty">该分类下暂无产品（可拖入产品到此）</p>
                           ) : (
                             <div className="accordion-product-tags">
                               {sub.products.map((p) => (
@@ -171,6 +229,11 @@ export default function CategoryManager({ categories }: { categories: Category[]
                                   key={p.id}
                                   href={`/admin/products/${p.id}/edit`}
                                   className="product-tag-item"
+                                  draggable
+                                  onDragStart={(e) => {
+                                    e.dataTransfer.setData("text/plain", p.id);
+                                    e.dataTransfer.effectAllowed = "move";
+                                  }}
                                 >
                                   {p.title}
                                 </Link>
