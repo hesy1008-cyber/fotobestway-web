@@ -1,4 +1,4 @@
-import { prisma } from "@/app/lib/prisma";
+﻿import { prisma } from "@/app/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -315,8 +315,8 @@ export default async function ProductDetailPage({
         <span className="breadcrumb-sep">/</span>
         <Link href="/products">{t.nav.products}</Link>
         <span className="breadcrumb-sep">/</span>
-        {product.categoryRef && (
-          <>
+          {product.categoryRef && (
+            <>
             <Link href={`/products?category=${product.categoryRef.slug}`}>
               {(t.categories as Record<string, string>)[product.categoryRef.slug] ||
                 product.categoryRef.name}
@@ -325,7 +325,7 @@ export default async function ProductDetailPage({
           </>
         )}
         {product.subCategoryRef && (
-          <>
+            <>
             <Link
               href={`/products?category=${product.categoryRef?.slug}&subCategory=${product.subCategoryRef.slug}`}
             >
@@ -407,26 +407,8 @@ export default async function ProductDetailPage({
               <div className="meta-item">
                 <span className="meta-label">SKU:</span>
                 <span className="meta-value">FBW-{product.slug.toUpperCase()}</span>
-              </div>
-              {product.categoryRef && (
-                <>
-                  <span className="meta-divider">|</span>
-                  <div className="meta-item">
-                    <span className="meta-label">Category:</span>
-                    <span className="meta-value">{product.categoryRef.name}</span>
-                  </div>
-                </>
-              )}
-              {product.subCategoryRef && (
-                <>
-                  <span className="meta-divider">|</span>
-                  <div className="meta-item">
-                    <span className="meta-label">Type:</span>
-                    <span className="meta-value">{product.subCategoryRef.name}</span>
-                  </div>
-                </>
-              )}
             </div>
+          </div>
           </div>
 
           {/* 手风琴折叠面板 */}

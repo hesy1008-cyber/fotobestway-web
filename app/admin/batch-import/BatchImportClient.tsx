@@ -359,6 +359,19 @@ export default function BatchImportClient({ categories }: { categories: Category
     }
   };
 
+  const moveImage = (id: string, field: "gallery" | "detailImages", from: number, to: number) => {
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (p.id !== id) return p;
+        const arr = [...(p[field] as string[])];
+        if (from < 0 || from >= arr.length || to < 0 || to >= arr.length) return p;
+        const [moved] = arr.splice(from, 1);
+        arr.splice(to, 0, moved);
+        return { ...p, [field]: arr };
+      })
+    );
+  };
+
   // 批量导入
   const handleImport = async () => {
     if (products.length === 0) return;
@@ -575,6 +588,7 @@ export default function BatchImportClient({ categories }: { categories: Category
           onRemove={() => removeProduct(p.id)}
           onImageUpload={(field, files) => handleImageUpload(p.id, field, files)}
           onRemoveImage={(field, index) => removeImage(p.id, field, index)}
+          onMoveImage={(field, from, to) => moveImage(p.id, field, from, to)}
         />
       ))}
 
@@ -596,6 +610,7 @@ function ProductCard({
   onRemove,
   onImageUpload,
   onRemoveImage,
+  onMoveImage,
 }: {
   product: ProductDraft;
   index: number;
@@ -604,6 +619,7 @@ function ProductCard({
   onRemove: () => void;
   onImageUpload: (field: "image" | "gallery" | "detailImages", files: FileList) => void;
   onRemoveImage: (field: "image" | "gallery" | "detailImages", index?: number) => void;
+  onMoveImage: (field: "gallery" | "detailImages", from: number, to: number) => void;
 }) {
   const [tab, setTab] = useState<"basic" | "content" | "images" | "seo">("basic");
 
@@ -993,7 +1009,18 @@ function ProductCard({
                  <label style={labelStyle}>产品图片 Gallery（可多张，第一张自动作为主图，支持拖拽上传）</label>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start" }}>
                   {product.gallery.map((url, i) => (
-                    <div key={i} style={{ position: "relative" }}>
+                    <div
+                      key={i}
+                      style={{ position: "relative" }}
+                      draggable
+                    onDragStart={(e) => e.dataTransfer.setData("text/plain", String(i))}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const from = Number(e.dataTransfer.getData("text/plain"));
+                      if (!isNaN(from)) onMoveImage("gallery", from, i);
+                    }}
+                  >
                       <img
                         src={url}
                         alt=""
@@ -1061,7 +1088,18 @@ function ProductCard({
                  <label style={labelStyle}>详情图 Detail Images（可多张，支持拖拽上传）</label>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start" }}>
                   {product.detailImages.map((url, i) => (
-                    <div key={i} style={{ position: "relative" }}>
+                    <div
+                      key={i}
+                      style={{ position: "relative" }}
+                      draggable
+                    onDragStart={(e) => e.dataTransfer.setData("text/plain", String(i))}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const from = Number(e.dataTransfer.getData("text/plain"));
+                      if (!isNaN(from)) onMoveImage("detailImages", from, i);
+                    }}
+                  >
                       <img
                         src={url}
                         alt=""
