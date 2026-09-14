@@ -212,11 +212,25 @@ function parseSheetToProduct(
     const plainOverview = overview.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
     const shortDescription = plainOverview.length > 120 ? plainOverview.slice(0, 117) + "..." : plainOverview;
 
+    // SLUG 自动用表格里的型号（ITEM# 右边的数据），多个型号以下划线连接保留可辨识度
+    const models = specs.map((s) => s.model).filter(Boolean);
+    const autoSlug =
+      models.length > 0
+        ? models
+            .join("_")
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9_-]+/g, "")
+            .replace(/-+/g, "-")
+            .replace(/_{2,}/g, "_")
+            .replace(/^-|-$|^_|_$/g, "")
+        : slugify(title);
+
     return {
       id: uid(),
       title,
-      // 中文标题会 slugify 成空串，兜底生成唯一 slug，避免详情页 404
-      slug: slugify(title) || `product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      // 优先用型号生成 slug；型号或标题为空时兜底唯一 slug，避免详情页 404
+      slug: autoSlug || `product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       category,
       subCategory: "",
       image: "",
