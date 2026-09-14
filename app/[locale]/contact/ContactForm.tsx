@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { createInquiry } from "@/app/actions/inquiry";
@@ -21,6 +21,7 @@ export default function ContactForm({ initialSubject = "", initialProduct = "", 
     phone: "",
     subject: initialSubject || "product-inquiry",
     message: initialMessage || (initialProduct ? `I'm interested in: ${initialProduct}\n\nPlease send me more information about this product.` : ""),
+    website: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,6 +48,7 @@ export default function ContactForm({ initialSubject = "", initialProduct = "", 
           phone: "",
           subject: "",
           message: "",
+          website: "",
         });
       } else {
         setSubmitStatus("error");
@@ -60,6 +62,23 @@ export default function ContactForm({ initialSubject = "", initialProduct = "", 
 
   return (
     <form className="contactForm" onSubmit={handleSubmit}>
+      {/* 蜜罐字段：防机器人提交，真人不可见 */}
+      <input
+        type="text"
+        name="website"
+        value={formData.website}
+        onChange={handleChange}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+        }}
+      />
       {submitStatus === "success" && (
         <div className="formSuccess">
           {t.contact.successMessage}

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { prisma } from "@/app/lib/prisma";
 import InquiryList from "./InquiryList";
 
@@ -55,6 +55,8 @@ export default async function AdminInquiriesPage() {
           subject: i.subject,
           message: i.message,
           isRead: i.isRead,
+          isSpam: i.isSpam,
+          spamReason: i.spamReason,
           createdAt: i.createdAt.toISOString(),
         }))}
       />

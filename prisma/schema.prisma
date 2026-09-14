@@ -108,15 +108,29 @@ model AboutPage {
 }
 
 model Inquiry {
+  id         String   @id @default(cuid())
+  name       String
+  email      String
+  company    String?
+  phone      String?
+  subject    String?
+  message    String
+  isRead     Boolean  @default(false)
+  isSpam     Boolean  @default(false)
+  spamReason String?
+  ip         String?
+  createdAt  DateTime @default(now())
+}
+
+model SpamBlock {
   id        String   @id @default(cuid())
-  name      String
-  email     String
-  company   String?
-  phone     String?
-  subject   String?
-  message   String
-  isRead    Boolean  @default(false)
+  email     String?
+  ip        String?
+  reason    String?
   createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([ip])
 }
 
 model PdfCategory {

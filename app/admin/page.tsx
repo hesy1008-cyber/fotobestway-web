@@ -121,6 +121,8 @@ export default async function AdminDashboard() {
               subject: i.subject,
               message: i.message,
               isRead: i.isRead,
+              isSpam: i.isSpam,
+              spamReason: i.spamReason,
               createdAt: i.createdAt.toISOString(),
             }))}
           />

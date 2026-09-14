@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import { toggleInquiryRead, deleteInquiry } from "@/app/actions/inquiry";
+import { toggleInquiryRead, deleteInquiry, markInquirySpam } from "@/app/actions/inquiry";
 
 interface Inquiry {
   id: string;
@@ -12,6 +12,8 @@ interface Inquiry {
   subject: string | null;
   message: string;
   isRead: boolean;
+  isSpam: boolean;
+  spamReason: string | null;
   createdAt: string;
 }
 
@@ -54,6 +56,14 @@ export default function InquiryList({ inquiries }: { inquiries: Inquiry[] }) {
     e.stopPropagation();
     setPending(id);
     await toggleInquiryRead(id, false);
+    setPending(null);
+  }
+
+  async function handleMarkSpam(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    if (!confirm("标记为垃圾后，该邮箱和 IP 将被拉黑，之后提交的询盘会自动拦截。确定标记？")) return;
+    setPending(id);
+    await markInquirySpam(id);
     setPending(null);
   }
 
@@ -146,6 +156,21 @@ export default function InquiryList({ inquiries }: { inquiries: Inquiry[] }) {
                       }}
                     >
                       {subjectLabels[inq.subject] || inq.subject}
+                    </span>
+                  )}
+                  {inq.isSpam && (
+                    <span
+                      title={inq.spamReason || "可疑询盘"}
+                      style={{
+                        fontSize: "12px",
+                        background: "#fff7e6",
+                        color: "#d46b08",
+                        border: "1px solid #ffd591",
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      ⚠ 可疑{inq.spamReason ? `（${inq.spamReason}）` : ""}
                     </span>
                   )}
                 </div>
@@ -251,6 +276,23 @@ export default function InquiryList({ inquiries }: { inquiries: Inquiry[] }) {
                 >
                   标为未读
                 </button>
+                {!inq.isSpam && (
+                  <button
+                    onClick={(e) => handleMarkSpam(e, inq.id)}
+                    disabled={pending === inq.id}
+                    style={{
+                      background: "#fff",
+                      color: "#d46b08",
+                      border: "1px solid #d46b08",
+                      padding: "8px 18px",
+                      borderRadius: "6px",
+                      fontSize: "13px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    🚫 标记为垃圾
+                  </button>
+                )}
                 <button
                   onClick={(e) => handleDelete(e, inq.id)}
                   disabled={pending === inq.id}
