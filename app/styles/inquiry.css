@@ -554,3 +554,133 @@
     padding: 20px;
   }
 }
+
+/* ===== 左下角联系我们悬浮按钮 - 与询盘车对称（红黑工业风）===== */
+.contact-fab-wrap {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  z-index: 9997;
+}
+
+.contact-float-btn {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #e60012 0%, #c4000f 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(230, 0, 18, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-float-btn::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(230, 0, 18, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.contact-float-btn:hover {
+  background: linear-gradient(135deg, #c4000f 0%, #a0000c 100%);
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(230, 0, 18, 0.6);
+}
+
+.contact-float-btn:active {
+  transform: scale(0.95);
+}
+
+.contact-fab-card {
+  position: absolute;
+  bottom: 76px;
+  left: 0;
+  width: 268px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: fabIn 0.25s ease;
+}
+
+@keyframes fabIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.contact-fab-head {
+  padding: 14px 16px;
+  background: #111;
+  color: #fff;
+}
+
+.contact-fab-head strong {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.contact-fab-head span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #aaa;
+}
+
+.contact-fab-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.2s ease;
+}
+
+.contact-fab-item:last-child {
+  border-bottom: 0;
+}
+
+.contact-fab-item:hover {
+  background: #fafafa;
+}
+
+.contact-fab-item svg {
+  color: #e60012;
+  flex-shrink: 0;
+}
+
+.contact-fab-item strong {
+  font-size: 13px;
+  display: block;
+}
+
+.contact-fab-item small {
+  font-size: 11px;
+  color: #888;
+  display: block;
+  margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+  .contact-fab-wrap {
+    bottom: 24px;
+    left: 24px;
+  }
+
+  .contact-float-btn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .contact-fab-card {
+    width: 244px;
+  }
+}

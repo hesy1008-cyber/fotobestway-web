@@ -288,18 +288,6 @@ export default async function ProductsPage({
             )}
           </section>
 
-          <section className="helpBanner">
-            <svg className="helpIcon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 18V12C3 7.03 7.03 3 12 3C16.97 3 21 7.03 21 12V18" strokeLinecap="round" />
-              <path d="M21 19C21 20.66 19.66 22 18 22H17V16H18C19.66 16 21 17.34 21 19Z" fill="#fff" stroke="none" />
-              <path d="M3 19C3 20.66 4.34 22 6 22H7V16H6C4.34 16 3 17.34 3 19Z" fill="#fff" stroke="none" />
-            </svg>
-            <div>
-              <strong>NEED HELP CHOOSING?</strong>
-              <span>Our lighting experts are here to help you find the perfect solution.</span>
-            </div>
-            <Link href={`/${locale}/contact`}>CONTACT US <span aria-hidden="true">→</span></Link>
-          </section>
         </section>
       </section>
     </main>

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import Header from "./Header";
 import { InquiryCartProvider } from "@/app/contexts/InquiryCartContext";
 import InquiryDrawer from "./InquiryDrawer";
+import ContactFab from "./ContactFab";
 
 export default function ClientLayout({
   children,
@@ -35,6 +36,7 @@ export default function ClientLayout({
       {!isAdmin && <Header categories={categories} />}
       {children}
       {!isAdmin && <InquiryDrawer />}
+      {!isAdmin && <ContactFab locale={locale} />}
     </InquiryCartProvider>
   );
 }
