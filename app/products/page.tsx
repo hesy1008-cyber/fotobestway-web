@@ -206,38 +206,44 @@ export default async function ProductsPage({
               {t.products.allProducts}
             </Link>
             {categories.map((category, index) => (
-              <div key={category.slug}>
-                <Link
-                  href={`/en/products?category=${category.slug}`}
-                  className={`categoryLink ${
-                    currentCategory === category.slug ? "active" : ""
-                  }`}
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  {getCategoryName(category.slug, category.name)}
-                </Link>
-
-                {/* 二级分类 - 当选中该一级分类时显示 */}
-                {currentCategory === category.slug &&
-                  category.subCategories.length > 0 && (
-                    <div className="subCategoryMenu">
-                      {category.subCategories.map((subCat, subIndex) => (
-                        <Link
-                          key={subCat.slug}
-                          href={`/en/products?category=${category.slug}&subCategory=${subCat.slug}`}
-                          className={`subCategoryLink ${
-                            currentSubCategory === subCat.slug ? "active" : ""
-                          }`}
-                        >
-                          <span>{String(subIndex + 1).padStart(2, "0")}</span>
-                          {getSubCategoryName(category.slug, subCat.slug, subCat.name)}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-              </div>
+              <Link
+                key={category.slug}
+                href={`/en/products?category=${category.slug}`}
+                className={`categoryLink ${
+                  currentCategory === category.slug ? "active" : ""
+                }`}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {getCategoryName(category.slug, category.name)}
+              </Link>
             ))}
           </div>
+          {/* 二级分类面板 - 选中一级时在右侧网格显示 */}
+          {(() => {
+            const activeCategory = categories.find(
+              (c) => c.slug === currentCategory
+            );
+            return activeCategory && activeCategory.subCategories.length > 0 ? (
+              <div className="subCategoryMenu">
+                {activeCategory.subCategories.map((subCat, subIndex) => (
+                  <Link
+                    key={subCat.slug}
+                    href={`/en/products?category=${activeCategory.slug}&subCategory=${subCat.slug}`}
+                    className={`subCategoryLink ${
+                      currentSubCategory === subCat.slug ? "active" : ""
+                    }`}
+                  >
+                    <span>{String(subIndex + 1).padStart(2, "0")}</span>
+                    {getSubCategoryName(
+                      activeCategory.slug,
+                      subCat.slug,
+                      subCat.name
+                    )}
+                  </Link>
+                ))}
+              </div>
+            ) : null;
+          })()}
         </aside>
 
         <section className="productListSection">

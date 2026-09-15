@@ -839,40 +839,39 @@
 
   .categorySidebar {
     position: static;
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    gap: 0 14px;
     width: 100%;
     max-width: none;
-    padding: 17px 0 22px;
+    padding: 17px 18px 22px;
+  }
+
+  .productSearch {
+    grid-column: 1 / -1;
+    margin: 0 0 16px;
   }
 
   .categoryMenu {
     display: flex;
-    flex-flow: row nowrap;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 4px 18px 10px;
-    scrollbar-width: none;
-  }
-
-  .productSearch {
-    margin: 0 18px 18px;
-  }
-
-  .categoryMenu::-webkit-scrollbar {
-    display: none;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    border-right: 1px solid #f0f0f0;
   }
 
   .categoryLink {
-    flex: 0 0 auto;
+    flex: none;
     min-height: 38px;
     gap: 0;
-    padding: 0 16px;
-    border: 1px solid #e2e2e2;
-    border-left: 1px solid #e2e2e2;
-    border-radius: 19px;
-    background: #fff;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
     color: #555;
     font-size: 13px;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   .categoryLink span {
@@ -880,14 +879,13 @@
   }
 
   .categoryLink:hover {
-    padding-left: 16px;
-    border-color: #ef2028;
+    padding-left: 12px;
+    background: #fdecec;
     color: #ef2028;
   }
 
   .categoryLink.active {
-    padding-left: 16px;
-    border-color: #ef2028;
+    padding-left: 12px;
     background: #ef2028;
     color: #fff;
   }
@@ -897,22 +895,26 @@
   }
 
   .subCategoryMenu {
-    flex-flow: row wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    padding: 10px 0 0;
+    align-content: flex-start;
+    padding: 0;
     margin: 0;
   }
 
   .subCategoryLink {
-    min-height: 30px;
+    min-height: 34px;
     gap: 0;
-    padding: 0 12px;
+    padding: 0 8px;
     border: 1px solid #eee;
-    border-left: 1px solid #eee;
-    border-radius: 15px;
+    border-radius: 8px;
     background: #fff;
-    color: #888;
+    color: #666;
     font-size: 12px;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
   }
 
   .subCategoryLink span {
@@ -920,13 +922,13 @@
   }
 
   .subCategoryLink:hover {
-    padding-left: 12px;
+    padding-left: 8px;
     border-color: #ef2028;
-    color: #333;
+    color: #ef2028;
   }
 
   .subCategoryLink.active {
-    padding-left: 12px;
+    padding-left: 8px;
     border-color: #ef2028;
     background: #ef2028;
     color: #fff;
@@ -1011,11 +1013,7 @@
   .categorySidebar {
     width: 100%;
     max-width: none;
-    padding: 17px 0 22px;
-  }
-
-  .categoryMenu {
-    padding: 4px 18px 10px;
+    padding: 17px 18px 22px;
   }
 
   .productSearch {
