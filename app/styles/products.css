@@ -318,13 +318,15 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单 */
+/* 二级分类菜单：白底卡片与一级类目区分 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding-left: 28px;
-  margin-top: 4px;
-  margin-bottom: 8px;
+  padding: 10px 14px;
+  margin: 6px 0 12px;
+  background: #ffffff;
+  border: 1px solid #ececec;
+  border-radius: 8px;
 }
 
 .subCategoryLink {
@@ -778,8 +780,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     align-content: flex-start;
-    padding: 0;
+    padding: 10px;
     margin: 0;
+    background: #f4f4f4;
+    border-radius: 10px;
   }
 
   .subCategoryLink {
