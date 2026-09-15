@@ -102,6 +102,7 @@ export default async function ProductsPage({
   const searchProducts = products.map((product) => ({
     title: product.title,
     slug: product.slug,
+    specs: product.specs,
     categoryRef: product.categoryRef
       ? {
           name: product.categoryRef.name,

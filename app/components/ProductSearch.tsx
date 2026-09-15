@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
+type SpecModel = { model?: string | null };
 type SearchProduct = {
   title: string;
   slug: string;
   categoryRef: { name: string; slug: string } | null;
+  specs?: unknown;
 };
 
 export default function ProductSearch({
@@ -21,11 +23,22 @@ export default function ProductSearch({
     if (!normalized) return [];
 
     return products
-      .filter((product) =>
-        [product.title, product.categoryRef?.name, product.categoryRef?.slug]
+      .filter((product) => {
+        // 同时匹配 SKU（specifications 里的型号）
+        const specsModels = Array.isArray(product.specs)
+          ? (product.specs as SpecModel[])
+              .map((s) => (s && typeof s.model === "string" ? s.model : ""))
+              .filter(Boolean)
+          : [];
+        return [
+          product.title,
+          product.categoryRef?.name,
+          product.categoryRef?.slug,
+          ...specsModels,
+        ]
           .filter(Boolean)
-          .some((value) => value!.toLowerCase().includes(normalized)),
-      )
+          .some((value) => value!.toLowerCase().includes(normalized));
+      })
       .slice(0, 6);
   }, [products, query]);
 
