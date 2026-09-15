@@ -850,7 +850,8 @@
   }
 
   .benefitItem:first-child::before,
-  .benefitItem:nth-child(3)::before {
+  .benefitItem:nth-child(3)::before,
+  .benefitItem:last-child::after {
     display: none;
   }
 
@@ -1352,7 +1353,8 @@
   }
 
   .benefitItem:first-child::before,
-  .benefitItem:nth-child(3)::before {
+  .benefitItem:nth-child(3)::before,
+  .benefitItem:last-child::after {
     display: none;
   }
 
