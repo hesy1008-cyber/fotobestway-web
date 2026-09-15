@@ -1,4 +1,4 @@
-﻿.productsPage {
+.productsPage {
   width: 100%;
   background: #fff;
 }
@@ -327,7 +327,7 @@
   background: transparent;
   border: 0;
   border-radius: 0;
-  box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 18px 18px -14px rgba(0, 0, 0, 0.28);
 }
 
 .subCategoryLink {
