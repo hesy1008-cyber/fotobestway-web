@@ -865,18 +865,49 @@
     font-size: 38px;
   }
 
+  /* 手机端四个卖点板块改为 2x2 紧凑排列，减少占位 */
   .productBenefits {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-bottom: 0;
   }
 
   .benefitItem,
   .benefitItem:nth-child(2) {
     border-right: 0;
-    border-bottom: 1px solid #e6e6e6;
+    border-bottom: 0;
   }
 
   .benefitItem:last-child {
     border-bottom: 0;
+  }
+
+  .benefitItem:first-child::before,
+  .benefitItem:nth-child(3)::before {
+    display: none;
+  }
+
+  .benefitItem {
+    flex-direction: column;
+    gap: 7px;
+    padding: 20px 8px;
+    text-align: center;
+  }
+
+  .benefitIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .benefitItem strong {
+    margin-bottom: 2px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .benefitItem span:not(.benefitIcon) {
+    font-size: 9px;
+    letter-spacing: 0;
+    white-space: normal;
   }
 
   .productLayout {
