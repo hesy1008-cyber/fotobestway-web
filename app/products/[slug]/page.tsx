@@ -14,6 +14,17 @@ import DetailImage from "@/app/components/DetailImage";
 import "@/app/styles/detail.css";
 
 // 生成产品页 SEO metadata
+// SKU 自动取 specifications 里的型号（多个型号用横杠隔开）；无型号时回退 slug
+function productSku(product: { slug: string; specs: unknown }): string {
+  if (Array.isArray(product.specs)) {
+    const models = (product.specs as { model?: unknown }[])
+      .map((s) => (s && typeof s === "object" && typeof s.model === "string" ? s.model.trim() : ""))
+      .filter(Boolean);
+    if (models.length > 0) return models.join(" - ");
+  }
+  return `FBW-${product.slug.toUpperCase()}`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -280,7 +291,7 @@ export default async function ProductDetailPage({
               "@type": "Brand",
               name: "Fotobestway",
             },
-            sku: product.slug,
+            sku: productSku(product),
             category: product.categoryRef?.name || "Photography Equipment",
             offers: {
               "@type": "Offer",
@@ -387,7 +398,7 @@ export default async function ProductDetailPage({
           <div className="product-meta">
             <div className="meta-item">
               <span className="meta-label">SKU:</span>
-              <span className="meta-value">FBW-{product.slug.toUpperCase()}</span>
+              <span className="meta-value">{productSku(product)}</span>
             </div>
             {product.categoryRef && (
               <>
