@@ -189,6 +189,7 @@
   max-width: 460px;
   background: #fafafa;
   padding: 30px 32px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
 }
 
 .categorySidebar h2 {
@@ -318,16 +319,15 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单：分割线列表 + 台阶阴影 + 整体右缩进 */
+/* 二级分类菜单：分割线列表 + 整体右缩进 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding: 12px 0 0;
-  margin: 10px 0 14px 16px;
+  padding: 0;
+  margin: 8px 0 14px 16px;
   background: transparent;
   border: 0;
   border-radius: 0;
-  box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.12);
 }
 
 .subCategoryLink {
@@ -357,6 +357,10 @@
   height: 5px;
   border-radius: 50%;
   background: #d5d8dc;
+  overflow: hidden;
+  font-size: 0;
+  line-height: 0;
+  text-indent: -9999px;
   transition: background 0.3s ease;
 }
 
@@ -730,6 +734,7 @@
     width: 100%;
     max-width: none;
     padding: 17px 18px 22px;
+    box-shadow: none;
   }
 
   .productSearch {
