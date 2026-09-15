@@ -56,6 +56,9 @@ export default function Header({
   // 英文时导航文字转大写
   const upper = (text: string) => locale === "en" ? text.toUpperCase() : text;
 
+  // 移动端（<=1024px）点击 Products 展开/收起菜单，桌面仍用 hover
+  const isTouch = () => typeof window !== "undefined" && window.innerWidth <= 1024;
+
   return (
     <header className="header" data-locale={locale}>
       <Link href={withLocale("/", locale)} className="logo">
@@ -87,6 +90,13 @@ export default function Header({
           <Link
             href={withLocale("/products", locale)}
             className={pathWithoutLocale.startsWith("/products") ? "active" : ""}
+            onClick={(e) => {
+              // 移动端点击：先展开/收起菜单，不直接跳转
+              if (isTouch()) {
+                e.preventDefault();
+                setMegaMenuOpen((v) => !v);
+              }
+            }}
           >
             {upper(t.nav.products)}
             <span className="mega-arrow">▾</span>
@@ -104,6 +114,7 @@ export default function Header({
                       <Link
                         href={`${withLocale("/products", locale)}?category=${category.slug}`}
                         className="mega-category-header"
+                        onClick={() => setMegaMenuOpen(false)}
                       >
                         <h4>{categoryName}</h4>
                       </Link>
@@ -113,6 +124,7 @@ export default function Header({
                           <li key={sub.id}>
                             <Link
                               href={`${withLocale("/products", locale)}?category=${category.slug}&subCategory=${sub.slug}`}
+                              onClick={() => setMegaMenuOpen(false)}
                             >
                               {(t.subCategories as Record<string, Record<string, string>>)[category.slug]?.[sub.slug] || sub.name}
                             </Link>

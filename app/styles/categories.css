@@ -41,6 +41,7 @@ font-weight:500;
 
 
 
+
 .categoryHeader h2{
 
 margin:0;
@@ -54,6 +55,7 @@ font-weight:700;
 letter-spacing:-2px;
 
 }
+
 
 
 
@@ -111,6 +113,7 @@ object-fit:cover;
 transition:.8s;
 
 }
+
 
 
 
@@ -174,6 +177,7 @@ rgba(0,0,0,.75)
 
 
 
+
 .categoryText{
 
 position:absolute;
@@ -193,6 +197,7 @@ text-align:center;
 color:white;
 
 }
+
 
 
 
@@ -236,6 +241,7 @@ letter-spacing:3px;
 
 
 
+
 .categoryText p::after{
 
 content:"";
@@ -251,6 +257,8 @@ background:white;
 margin:18px auto 0;
 
 }
+
+
 
 
 
@@ -302,6 +310,17 @@ grid-template-columns:1fr;
 
 font-size:30px;
 
+}
+
+
+/* 手机端遮罩改浅：避免文字像压了一层黑色底色 */
+.categoryMask{
+background:
+linear-gradient(
+to bottom,
+rgba(0,0,0,.02),
+rgba(0,0,0,.30)
+);
 }
 
 
