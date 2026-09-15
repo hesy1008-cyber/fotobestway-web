@@ -888,28 +888,26 @@
 
   .benefitItem {
     flex-direction: column;
-    gap: 4px;
-    padding: 14px 4px;
+    gap: 5px;
+    padding: 12px 2px;
     text-align: center;
   }
 
   .benefitIcon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .benefitItem strong {
-    margin-bottom: 2px;
-    font-size: 8.5px;
-    letter-spacing: 0;
-    line-height: 1.25;
-  }
-
-  .benefitItem span:not(.benefitIcon) {
-    font-size: 8px;
+    margin-bottom: 0;
+    font-size: 7.5px;
     letter-spacing: 0;
     line-height: 1.25;
     white-space: normal;
+  }
+
+  .benefitItem span:not(.benefitIcon) {
+    display: none;
   }
 
   .productLayout {
