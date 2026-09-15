@@ -1032,18 +1032,18 @@
     display: none;
   }
 
-  /* 两个按钮并排等宽：字号9px、文字超长省略号、箭头固定不裁 */
+  /* 两个按钮上下两排整宽：字号10px、英文完整显示不省略 */
   .productsGrid .productCardButton,
   .productsGrid .productCardInquiryBtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: calc(50% - 3px);
+    width: 100%;
     margin-top: 8px;
-    padding: 8px 3px;
-    font-size: 9px;
-    letter-spacing: 0;
-    gap: 3px;
+    padding: 9px 8px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    gap: 4px;
     box-sizing: border-box;
   }
 
@@ -1057,14 +1057,13 @@
 
   .productsGrid .productCardButton span:last-child,
   .productsGrid .productCardInquiryBtn span:last-child {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1;
     flex-shrink: 0;
   }
 
   .productsGrid .productCardInquiryBtn {
-    margin-left: 6px;
-    width: calc(50% - 9px);
+    margin-top: 6px;
   }
 
   .productListSection .sectionHeader {
