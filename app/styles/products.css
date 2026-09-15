@@ -318,15 +318,16 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单：分割线列表（方案D），与一级类目区分 */
+/* 二级分类菜单：分割线列表 + 台阶阴影 + 整体右缩进 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding: 0;
-  margin: 6px 0 12px;
+  padding: 12px 0 0;
+  margin: 10px 0 14px 16px;
   background: transparent;
   border: 0;
   border-radius: 0;
+  box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.12);
 }
 
 .subCategoryLink {
@@ -351,11 +352,12 @@
 }
 
 .subCategoryLink span {
-  min-width: 24px;
-  color: #bbb;
-  font-size: 9px;
-  letter-spacing: 2px;
-  transition: color 0.3s ease;
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5d8dc;
+  transition: background 0.3s ease;
 }
 
 .subCategoryLink:hover {
@@ -368,8 +370,9 @@
   font-weight: 600;
 }
 
+.subCategoryLink:hover span,
 .subCategoryLink.active span {
-  color: #ef2028;
+  background: #ef2028;
 }
 
 .productListSection .sectionHeader {
@@ -785,6 +788,7 @@
     margin: 0;
     background: #f4f4f4;
     border-radius: 10px;
+    box-shadow: none;
   }
 
   .subCategoryLink {
