@@ -318,15 +318,15 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单：白底卡片与一级类目区分 */
+/* 二级分类菜单：分割线列表（方案D），与一级类目区分 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding: 10px 14px;
+  padding: 0;
   margin: 6px 0 12px;
-  background: #ffffff;
-  border: 1px solid #ececec;
-  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .subCategoryLink {
@@ -335,14 +335,19 @@
   min-height: 40px;
   gap: 12px;
   padding-left: 0;
-  border-left: 2px solid transparent;
+  border: 0;
+  border-bottom: 1px solid #f0f0f0;
   color: #888;
   font-size: 13px;
   white-space: normal;
   word-break: break-all;
   line-height: 1.4;
-  transition: padding-left 0.3s ease, border-left-color 0.3s ease, color 0.3s ease;
+  transition: color 0.3s ease;
   text-decoration: none;
+}
+
+.subCategoryLink:last-child {
+  border-bottom: 0;
 }
 
 .subCategoryLink span {
@@ -354,15 +359,11 @@
 }
 
 .subCategoryLink:hover {
-  padding-left: 10px;
-  border-left-color: #ef2028;
   color: #333;
   font-weight: 600;
 }
 
 .subCategoryLink.active {
-  padding-left: 10px;
-  border-left-color: #ef2028;
   color: #ef2028;
   font-weight: 600;
 }
