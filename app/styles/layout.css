@@ -1180,7 +1180,14 @@ font-size:18px;
   }
 }
 
-/* 语言切换器 */
+/* 语言切换器 - 移动端微调 */
+@media (max-width: 480px) {
+  .language-switcher-trigger {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
 .language-switcher {
   position: relative;
 }
@@ -1197,6 +1204,9 @@ font-size:18px;
   padding: 5px 10px;
   border-radius: 4px;
   transition: background 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+  font-family: inherit;
 }
 
 .language-switcher-trigger:hover {
@@ -1206,6 +1216,7 @@ font-size:18px;
 .language-switcher-arrow {
   font-size: 10px;
   opacity: 0.7;
+  white-space: nowrap;
 }
 
 .language-switcher-dropdown {
@@ -1228,6 +1239,7 @@ font-size:18px;
   text-decoration: none;
   font-size: 14px;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .language-switcher-option:hover {
