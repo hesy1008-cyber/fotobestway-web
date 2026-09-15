@@ -1431,6 +1431,51 @@
     font-size: 10px;
     white-space: nowrap;
   }
+
+  /* 窄屏/手机：卖点一行四个，只留图标+标题，副文隐藏防遮挡 */
+  .productBenefits {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-bottom: 0;
+  }
+
+  .benefitItem,
+  .benefitItem:nth-child(2) {
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .benefitItem:last-child {
+    border-bottom: 0;
+  }
+
+  .benefitItem:first-child::before,
+  .benefitItem:nth-child(3)::before {
+    display: none;
+  }
+
+  .benefitItem {
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 2px;
+    text-align: center;
+  }
+
+  .benefitIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .benefitItem strong {
+    margin-bottom: 0;
+    font-size: 7.5px;
+    letter-spacing: 0;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .benefitItem span:not(.benefitIcon) {
+    display: none;
+  }
 }
 /* 中文按钮优化 */
 .productCardButton.btn-zh,
