@@ -1131,7 +1131,7 @@ font-size:18px;
 @media (max-width: 768px) {
   .mega-menu {
     position: fixed;
-    top: 82px;
+    top: 70px;
     left: 50%;
     transform: translateX(-50%);
     width: 95vw;
@@ -1171,6 +1171,10 @@ font-size:18px;
 }
 
 @media (max-width: 480px) {
+  .mega-menu {
+    top: 60px;
+  }
+
   .mega-column {
     flex: 1 1 100%;
   }
