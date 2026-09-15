@@ -443,7 +443,7 @@ transform:scale(1.2);
   height: 70px;
   padding: 0 16px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
 }
 
@@ -457,12 +457,27 @@ transform:scale(1.2);
 }
 
 .nav {
-  justify-self: center;
-  gap: 18px;
+  justify-self: stretch;
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
 }
 
 .nav a {
-  font-size: 13px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.nav .mega-arrow {
+  display: none;
 }
 
 .headerRight {

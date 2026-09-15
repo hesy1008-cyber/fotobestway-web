@@ -948,7 +948,12 @@
   }
 
   .productsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .productListSection .sectionHeader {
+    padding: 0 18px 22px;
   }
 }
 
@@ -1307,6 +1312,7 @@
   .productListSection .sectionHeader {
     flex-direction: column;
     align-items: flex-start;
+    padding: 0 18px 26px;
   }
 
   .featuresGrid {
