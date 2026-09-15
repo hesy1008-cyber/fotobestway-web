@@ -318,12 +318,12 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单：一级/二级之间台阶阴影，文字与一级对齐，圆点置于左侧 */
+/* 二级分类菜单：一级/二级之间台阶阴影（横向贯穿整个导航栏），文字对齐一级类目文字 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding: 12px 0 0 11px;
-  margin: 8px 0 14px 0;
+  padding: 12px 32px 0 88px;
+  margin: 8px -32px 14px -32px;
   background: transparent;
   border: 0;
   border-radius: 0;
