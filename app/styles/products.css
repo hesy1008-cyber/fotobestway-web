@@ -301,14 +301,14 @@
 }
 
 .categoryLink:hover {
-  padding-left: 12px;
+  padding-left: 0;
   border-left-color: #ef2028;
   color: #111;
   font-weight: 700;
 }
 
 .categoryLink.active {
-  padding-left: 12px;
+  padding-left: 0;
   border-left-color: #ef2028;
   color: #ef2028;
   font-weight: 700;
@@ -336,7 +336,7 @@
   align-items: center;
   min-height: 40px;
   gap: 0;
-  padding-left: 56px;
+  padding-left: 44px;
   border: 0;
   border-bottom: 1px solid #f0f0f0;
   color: #888;
