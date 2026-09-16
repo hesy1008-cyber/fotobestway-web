@@ -318,11 +318,11 @@
   color: #ef2028;
 }
 
-/* 二级分类菜单：一级/二级之间台阶阴影（横向贯穿整个导航栏），文字对齐一级类目文字 */
+/* 二级分类菜单：分割线左右卡边对称，文字对齐一级类目文字，圆点对齐一级序号 */
 .subCategoryMenu {
   display: flex;
   flex-direction: column;
-  padding: 12px 32px 0 88px;
+  padding: 12px 32px 0 32px;
   margin: 8px -32px 14px -32px;
   background: transparent;
   border: 0;
@@ -336,7 +336,7 @@
   align-items: center;
   min-height: 40px;
   gap: 0;
-  padding-left: 0;
+  padding-left: 56px;
   border: 0;
   border-bottom: 1px solid #f0f0f0;
   color: #888;
@@ -354,7 +354,7 @@
 
 .subCategoryLink span {
   position: absolute;
-  left: -11px;
+  left: 11.5px;
   top: 50%;
   transform: translateY(-50%);
   flex-shrink: 0;
