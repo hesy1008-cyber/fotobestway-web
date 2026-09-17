@@ -777,14 +777,14 @@
 .detail-images-list {
   display: flex;
   flex-direction: column;
-  gap: clamp(20px, 2vw, 30px);
+  gap: 0;
 }
 
 .detail-image-item {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
-  background: #f8f8f8;
+  background: transparent;
 }
 
 .detail-image-item img {
