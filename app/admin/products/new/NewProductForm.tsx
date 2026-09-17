@@ -26,6 +26,8 @@ export default function NewProductForm({
   const [galleryFileMap, setGalleryFileMap] = useState<Map<string, File>>(new Map());
   const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [detailPreview, setDetailPreview] = useState<string[]>([]);
+  const [detailFiles, setDetailFiles] = useState<File[]>([]);
+  const [detailFileMap, setDetailFileMap] = useState<Map<string, File>>(new Map());
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
   const [title, setTitle] = useState<string>("");
@@ -103,6 +105,11 @@ export default function NewProductForm({
         formData.delete("gallery");
         galleryFiles.forEach((f) => formData.append("gallery", f));
         formData.set("image", galleryFiles[0]);
+      }
+      // 详情图按拖拽排序后的顺序提交
+      if (detailFiles.length > 0) {
+        formData.delete("detailImages");
+        detailFiles.forEach((f) => formData.append("detailImages", f));
       }
 
       const res = await fetch("/api/products/create", {
@@ -187,6 +194,42 @@ export default function NewProductForm({
     setGalleryPreview(next);
     setGalleryFiles(
       next.map((url) => galleryFileMap.get(url)).filter((f): f is File => !!f)
+    );
+  }
+
+  // 详情图上传：保存文件映射 + 缩略图预览
+  async function addDetailFiles(fileList: File[]) {
+    if (fileList.length === 0) return;
+    detailPreview.forEach((url) => URL.revokeObjectURL(url));
+    const thumbs = await filesToThumbnails(fileList);
+    const fileMap = new Map<string, File>();
+    fileList.forEach((file, i) => fileMap.set(thumbs[i], file));
+    setDetailFileMap(fileMap);
+    setDetailFiles(fileList);
+    setDetailPreview(thumbs);
+  }
+
+  function handleDetailSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const fileList = Array.from(files).filter((f) => f.size > 0);
+    e.target.value = "";
+    void addDetailFiles(fileList);
+  }
+
+  function handleDetailReorder(imgs: string[]) {
+    setDetailPreview(imgs);
+    setDetailFiles(
+      imgs.map((url) => detailFileMap.get(url)).filter((f): f is File => !!f)
+    );
+  }
+
+  function handleDetailRemove(img: string) {
+    URL.revokeObjectURL(img);
+    const next = detailPreview.filter((i) => i !== img);
+    setDetailPreview(next);
+    setDetailFiles(
+      next.map((url) => detailFileMap.get(url)).filter((f): f is File => !!f)
     );
   }
 
@@ -479,21 +522,22 @@ export default function NewProductForm({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => previewImage(e, setDetailPreview)}
+            onChange={handleDetailSelect}
             className="admin-form-input admin-form-file"
           />
         </div>
 
         {detailPreview.length > 0 && (
-          <div className="admin-new-images">
-            <p className="admin-new-images-title">
-              Preview ({detailPreview.length})
-            </p>
-            {detailPreview.map((img) => (
-              <div key={img} className="admin-new-images-item">
-                <img src={img} alt="Detail preview" />
-              </div>
-            ))}
+          <div style={{ marginTop: "16px" }}>
+            <div className="admin-image-section-label">
+              <span>Detail Images ({detailPreview.length})</span>
+              <span className="admin-image-section-hint">拖拽排序 · 点击 × 删除</span>
+            </div>
+            <SortableGallery
+              images={detailPreview}
+              onChange={handleDetailReorder}
+              onRemove={handleDetailRemove}
+            />
           </div>
         )}
       </div>

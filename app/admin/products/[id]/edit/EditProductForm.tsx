@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { updateProduct } from "@/app/actions/product";
 import { useRef, useState } from "react";
@@ -278,6 +278,11 @@ export default function EditProductForm({
     newFileMapRef.current.delete(img);
   }
 
+  // 详情图拖拽排序
+  function handleDetailReorder(imgs: string[]) {
+    setDetailImages(imgs);
+  }
+
   return (
     <form onSubmit={handleSubmit} className="admin-form">
       {/* ====== 基本信息 ====== */}
@@ -541,23 +546,13 @@ export default function EditProductForm({
           <div style={{ marginBottom: "16px" }}>
             <div className="admin-image-section-label">
               <span>Current Images ({detailImages.length})</span>
-              <span className="admin-image-section-hint">点击 × 删除</span>
+              <span className="admin-image-section-hint">拖拽排序 · 点击 × 删除</span>
             </div>
-            <div className="admin-image-grid">
-              {detailImages.map((img, i) => (
-                <div key={i} className="admin-image-grid-item">
-                  <img src={img} alt={`Detail ${i}`} />
-                  <button
-                    type="button"
-                    onClick={() => removeDetailImage(img)}
-                    className="admin-image-grid-remove"
-                    title="Remove image"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
+            <SortableGallery
+              images={detailImages}
+              onChange={handleDetailReorder}
+              onRemove={removeDetailImage}
+            />
           </div>
         )}
 
