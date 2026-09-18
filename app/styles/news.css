@@ -630,6 +630,33 @@
   word-break: break-all;
 }
 
+/* 侧边栏返回按钮 */
+.sidebar-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: #fff;
+  color: #e63946;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1.5px solid #e63946;
+  transition: all 0.3s;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+.sidebar-back-btn:hover {
+  background: #e63946;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.25);
+}
+
 /* 相关新闻 */
 .news-related-section {
   padding: 80px 0;
