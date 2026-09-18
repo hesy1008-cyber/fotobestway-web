@@ -97,12 +97,6 @@ export default async function NewsDetailPage({
         )}
         <div className="news-detail-hero-overlay" />
         <div className="news-detail-hero-content">
-          <Link href={`/${locale}/news`} className="news-detail-back">
-            ← {labels.backToNews}
-          </Link>
-          <span className="news-category-tag news-category-tag-large">
-            {labels.categories[news.category as keyof typeof labels.categories] || news.category}
-          </span>
           <h1 className="news-detail-title">{news.title}</h1>
           <div className="news-detail-meta">
             <span>{new Date(news.publishDate).toLocaleDateString(isZh ? "zh-CN" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
@@ -243,6 +237,13 @@ export default async function NewsDetailPage({
                 </a>
               </div>
             </div>
+
+            <Link href={`/${locale}/news`} className="sidebar-back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              {labels.backToNews}
+            </Link>
           </aside>
         </div>
       </section>
