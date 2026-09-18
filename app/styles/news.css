@@ -494,6 +494,72 @@
   background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
 }
 
+/* 侧边栏联系方式 */
+.sidebar-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.sidebar-contact-item:hover {
+  background: #fff;
+}
+
+.sidebar-contact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar-contact-email {
+  background: #e63946;
+}
+
+.sidebar-contact-phone {
+  background: #2a9d8f;
+}
+
+.sidebar-contact-whatsapp {
+  background: #25d366;
+}
+
+.sidebar-contact-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-contact-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.sidebar-contact-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  word-break: break-all;
+}
+
 /* 相关新闻 */
 .news-related-section {
   padding: 80px 0;
@@ -533,6 +599,10 @@
 
   .news-detail-sidebar {
     position: static;
+  }
+
+  .news-detail-layout {
+    padding: 0 24px;
   }
 }
 
@@ -589,5 +659,35 @@
 
   .news-related-section {
     padding: 50px 0;
+  }
+
+  .news-detail-layout {
+    padding: 0 20px;
+    gap: 32px;
+  }
+
+  .news-detail-content {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .news-detail-content h2 {
+    font-size: 22px;
+  }
+
+  .sidebar-widget {
+    padding: 18px;
+  }
+
+  .sidebar-contact-list {
+    gap: 10px;
+  }
+
+  .sidebar-contact-value {
+    font-size: 12px;
+  }
+
+  .news-detail-hero {
+    height: 320px;
   }
 }
