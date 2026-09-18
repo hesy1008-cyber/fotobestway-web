@@ -87,7 +87,7 @@ export default async function AdminNewsPage() {
 
             <div className="admin-card-actions" style={{ flexShrink: 0 }}>
               <Link
-                href={`/news/${news.slug}`}
+                href={`/en/news/${news.slug}`}
                 className="admin-btn admin-btn-secondary admin-btn-sm"
                 target="_blank"
               >
