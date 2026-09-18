@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { createNews } from "../actions";
+import NewsContentEditor from "@/app/components/NewsContentEditor";
 
 const labelStyle = {
   display: "block" as const,
@@ -18,12 +19,37 @@ const inputStyle = {
 
 export default function NewsForm() {
   const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setCoverUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload/news", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) setCoverImage(data.url);
+      else alert("上传失败：" + (data.error || "未知错误"));
+    } catch (err) {
+      alert("上传失败：" + (err instanceof Error ? err.message : "未知错误"));
+    } finally {
+      setCoverUploading(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     try {
       const formData = new FormData(e.currentTarget);
+      formData.set("content", content);
+      formData.set("coverImage", coverImage);
       await createNews(formData);
     } catch (error: any) {
       if (error?.message?.includes("NEXT_REDIRECT")) return;
@@ -93,14 +119,35 @@ export default function NewsForm() {
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>封面图 URL</label>
+        <label style={labelStyle}>封面图</label>
         <input
-          type="text"
-          name="coverImage"
-          placeholder="/uploads/news-cover.jpg 或 https://..."
-          className="admin-form-input"
-          style={inputStyle}
+          ref={coverInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleCoverUpload}
+          style={{ display: "none" }}
         />
+        {coverImage ? (
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <img src={coverImage} alt="cover" style={{ maxWidth: "400px", borderRadius: "8px", display: "block" }} />
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              style={{ position: "absolute", top: "8px", right: "8px", padding: "6px 12px", fontSize: "12px", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}
+            >
+              更换
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={coverUploading}
+            style={{ padding: "40px 20px", width: "100%", maxWidth: "400px", border: "2px dashed #ccc", borderRadius: "8px", background: "#fff", fontSize: "14px", color: "#888", cursor: "pointer" }}
+          >
+            {coverUploading ? "上传中..." : "点击上传封面图"}
+          </button>
+        )}
         <p style={{ fontSize: "12px", color: "#999", marginTop: "6px", margin: 0 }}>
           建议尺寸 1200x675px，显示在新闻列表和详情页顶部
         </p>
@@ -118,16 +165,10 @@ export default function NewsForm() {
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>正文内容（支持 HTML）</label>
-        <textarea
-          name="content"
-          rows={12}
-          placeholder="<p>新闻正文内容...</p>"
-          className="admin-form-input"
-          style={{ ...inputStyle, resize: "vertical", fontFamily: "monospace", fontSize: "13px" }}
-        />
-        <p style={{ fontSize: "12px", color: "#999", marginTop: "6px", margin: 0 }}>
-          可以直接写 HTML 标签，如 &lt;p&gt;、&lt;h2&gt;、&lt;img&gt; 等
+        <label style={labelStyle}>正文内容（图文混排）</label>
+        <NewsContentEditor value={content} onChange={setContent} />
+        <p style={{ fontSize: "12px", color: "#999", marginTop: "8px", margin: 0 }}>
+          添加文字段落和图片块，拖拽上下箭头调整顺序，图片会自动上传
         </p>
       </div>
 
