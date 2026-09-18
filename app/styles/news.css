@@ -239,7 +239,7 @@
 .news-detail-hero {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 520px;
   overflow: hidden;
 }
 
@@ -252,45 +252,70 @@
 .news-detail-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.15) 100%);
 }
 
+/* 顶部：返回链接 */
+.news-detail-hero-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  z-index: 3;
+}
+
+.news-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+
+.news-detail-back:hover {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 底部：标题区 */
 .news-detail-hero-content {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 60px 40px;
+  padding: 0 40px 56px;
   max-width: 1280px;
   margin: 0 auto;
   z-index: 2;
 }
 
-.news-detail-back {
-  display: inline-block;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-  text-decoration: none;
-  margin-bottom: 20px;
-  transition: color 0.3s;
-}
-
-.news-detail-back:hover {
-  color: #fff;
+.news-detail-hero-content .news-category-tag {
+  margin-bottom: 18px;
 }
 
 .news-detail-title {
-  font-size: 42px;
+  font-size: 40px;
   font-weight: 700;
   color: #fff;
-  line-height: 1.2;
-  margin-bottom: 16px;
+  line-height: 1.25;
+  margin-bottom: 14px;
   max-width: 900px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .news-detail-meta {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* 正文内容 */
@@ -688,6 +713,29 @@
   }
 
   .news-detail-hero {
-    height: 320px;
+    height: 380px;
+  }
+
+  .news-detail-hero-top {
+    padding: 16px 20px;
+  }
+
+  .news-detail-back {
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+
+  .news-detail-hero-content {
+    padding: 0 20px 32px;
+  }
+
+  .news-detail-title {
+    font-size: 26px;
+  }
+
+  .news-detail-hero-content .news-category-tag {
+    margin-bottom: 12px;
+    font-size: 11px;
+    padding: 5px 12px;
   }
 }
