@@ -13,10 +13,7 @@ export default function NewCategoryPage() {
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  async function uploadCategoryFile(file: File) {
     setUploading(true)
     try {
       const formData = new FormData()
@@ -37,6 +34,11 @@ export default function NewCategoryPage() {
     } finally {
       setUploading(false)
     }
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) await uploadCategoryFile(file)
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -100,8 +102,16 @@ export default function NewCategoryPage() {
             这张图会显示在首页六个板块的对应分类位置
           </p>
 
-          <div className="admin-form-group">
-            <label className="admin-form-label">上传封面图</label>
+          <div
+            className="admin-form-group"
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => {
+              e.preventDefault(); e.stopPropagation();
+              const file = e.dataTransfer.files?.[0];
+              if (file && file.type.startsWith("image/")) void uploadCategoryFile(file);
+            }}
+          >
+            <label className="admin-form-label">上传封面图（可点击或拖拽上传）</label>
             <input
               type="file"
               accept="image/*"

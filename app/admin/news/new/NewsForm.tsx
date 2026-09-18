@@ -24,10 +24,7 @@ export default function NewsForm() {
   const [coverUploading, setCoverUploading] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
+  async function uploadCoverFile(file: File) {
     setCoverUploading(true);
     try {
       const fd = new FormData();
@@ -41,6 +38,11 @@ export default function NewsForm() {
     } finally {
       setCoverUploading(false);
     }
+  }
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) await uploadCoverFile(file);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -118,8 +120,16 @@ export default function NewsForm() {
         </div>
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>封面图</label>
+      <div
+        style={{ marginBottom: "20px" }}
+        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onDrop={(e) => {
+          e.preventDefault(); e.stopPropagation();
+          const file = e.dataTransfer.files?.[0];
+          if (file && file.type.startsWith("image/")) void uploadCoverFile(file);
+        }}
+      >
+        <label style={labelStyle}>封面图（可点击或拖拽上传）</label>
         <input
           ref={coverInputRef}
           type="file"

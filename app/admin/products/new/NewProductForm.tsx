@@ -516,7 +516,16 @@ export default function NewProductForm({
           建议宽度：<strong>1500 px</strong>
         </p>
 
-        <div className="admin-form-group">
+        <div
+          className="admin-form-group"
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onDrop={(e) => {
+            e.preventDefault(); e.stopPropagation();
+            const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+            if (files.length > 0) void addDetailFiles(files);
+          }}
+        >
+          <label className="admin-form-label">Add New Images（可点击或拖拽上传）</label>
           <input
             name="detailImages"
             type="file"

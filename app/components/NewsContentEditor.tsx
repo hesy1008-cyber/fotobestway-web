@@ -118,10 +118,7 @@ export default function NewsContentEditor({
     updateBlocks(next);
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, blockId: string) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
+  async function uploadImageFile(file: File, blockId: string) {
     setUploadingId(blockId);
     try {
       const fd = new FormData();
@@ -138,6 +135,11 @@ export default function NewsContentEditor({
     } finally {
       setUploadingId(null);
     }
+  }
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, blockId: string) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) await uploadImageFile(file, blockId);
   }
 
   function triggerUpload(blockId: string) {
@@ -238,7 +240,14 @@ export default function NewsContentEditor({
               }}
             />
           ) : (
-            <div>
+            <div
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => {
+                e.preventDefault(); e.stopPropagation();
+                const file = e.dataTransfer.files?.[0];
+                if (file && file.type.startsWith("image/")) void uploadImageFile(file, block.id);
+              }}
+            >
               {block.content ? (
                 <div style={{ position: "relative" }}>
                   <img
@@ -281,7 +290,7 @@ export default function NewsContentEditor({
                     cursor: "pointer",
                   }}
                 >
-                  {uploadingId === block.id ? "上传中..." : "点击上传图片"}
+                  {uploadingId === block.id ? "上传中..." : "点击或拖拽图片到此处上传"}
                 </button>
               )}
             </div>

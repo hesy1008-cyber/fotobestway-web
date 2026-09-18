@@ -249,7 +249,19 @@ export default function MediaManager({
           </p>
 
           <form onSubmit={handleBannerUpload}>
-            <div className="admin-form-group">
+            <div
+              className="admin-form-group"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => {
+                e.preventDefault(); e.stopPropagation();
+                const input = e.currentTarget.querySelector("input[type=file]") as HTMLInputElement;
+                const file = e.dataTransfer.files?.[0];
+                if (input && file && file.type.startsWith("image/")) {
+                  const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+                }
+              }}
+            >
+              <label className="admin-form-label">图片（可点击或拖拽上传）</label>
               <input
                 name="image"
                 type="file"
@@ -489,7 +501,19 @@ export default function MediaManager({
           </p>
 
           <form onSubmit={handleGalleryUpload}>
-            <div className="admin-form-group">
+            <div
+              className="admin-form-group"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => {
+                e.preventDefault(); e.stopPropagation();
+                const input = e.currentTarget.querySelector("input[type=file]") as HTMLInputElement;
+                const file = e.dataTransfer.files?.[0];
+                if (input && file && file.type.startsWith("image/")) {
+                  const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+                }
+              }}
+            >
+              <label className="admin-form-label">图片（可点击或拖拽上传）</label>
               <input
                 name="image"
                 type="file"
@@ -658,8 +682,19 @@ export default function MediaManager({
 
                       <input type="hidden" name="id" value={category.id} />
 
-                      <div className="admin-form-group">
-                        <label className="admin-form-label">横幅大图（不上传则保留原图）</label>
+                      <div
+                        className="admin-form-group"
+                        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onDrop={(e) => {
+                          e.preventDefault(); e.stopPropagation();
+                          const input = e.currentTarget.querySelector("input[type=file]") as HTMLInputElement;
+                          const file = e.dataTransfer.files?.[0];
+                          if (input && file && file.type.startsWith("image/")) {
+                            const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+                          }
+                        }}
+                      >
+                        <label className="admin-form-label">横幅大图（可点击或拖拽上传，不上传则保留原图）</label>
                         <input
                           name="bannerImage"
                           type="file"

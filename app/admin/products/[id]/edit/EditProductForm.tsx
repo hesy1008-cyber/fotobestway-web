@@ -187,6 +187,15 @@ export default function EditProductForm({
     setter(urls);
   }
 
+  async function handleDetailDrop(e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/") && f.size > 0);
+    if (files.length === 0) return;
+    const urls = await filesToThumbnails(files);
+    setDetailPreview((prev) => [...prev, ...urls]);
+  }
+
   function jsonToText(obj: Record<string, string> | null | undefined) {
     if (!obj || typeof obj !== "object") return "";
     return Object.entries(obj)
@@ -556,8 +565,12 @@ export default function EditProductForm({
           </div>
         )}
 
-        <div className="admin-form-group">
-          <label className="admin-form-label">Add New Images</label>
+        <div
+          className="admin-form-group"
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onDrop={handleDetailDrop}
+        >
+          <label className="admin-form-label">Add New Images（可点击或拖拽上传）</label>
           <input
             name="detailImagesNew"
             type="file"
