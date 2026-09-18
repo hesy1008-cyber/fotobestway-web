@@ -100,19 +100,6 @@ export default async function NewsPage({
               {featuredNews && (
                 <div className="news-featured">
                   <Link href={`/${locale}/news/${featuredNews.slug}`} className="news-featured-link">
-                    <div className="news-featured-image">
-                      {featuredNews.coverImage ? (
-                        <Image
-                          src={featuredNews.coverImage}
-                          alt={featuredNews.title}
-                          fill
-                          style={{ objectFit: "cover" }}
-                        />
-                      ) : (
-                        <div className="news-featured-placeholder" />
-                      )}
-                      <div className="news-featured-overlay" />
-                    </div>
                     <div className="news-featured-content">
                       <span className="news-category-tag">
                         {labels.categories[featuredNews.category as keyof typeof labels.categories] ||
@@ -127,6 +114,19 @@ export default async function NewsPage({
                         <span className="news-read-more">{labels.readMore} →</span>
                       </div>
                     </div>
+                    <div className="news-featured-image">
+                      {featuredNews.coverImage ? (
+                        <Image
+                          src={featuredNews.coverImage}
+                          alt={featuredNews.title}
+                          fill
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div className="news-featured-placeholder" />
+                      )}
+                      <div className="news-featured-overlay" />
+                    </div>
                   </Link>
                 </div>
               )}
@@ -140,18 +140,6 @@ export default async function NewsPage({
                       href={`/${locale}/news/${news.slug}`}
                       className="news-card"
                     >
-                      <div className="news-card-image">
-                        {news.coverImage ? (
-                          <Image
-                            src={news.coverImage}
-                            alt={news.title}
-                            fill
-                            style={{ objectFit: "cover" }}
-                          />
-                        ) : (
-                          <div className="news-card-placeholder" />
-                        )}
-                      </div>
                       <div className="news-card-content">
                         <span className="news-category-tag">
                           {labels.categories[news.category as keyof typeof labels.categories] ||
@@ -167,6 +155,18 @@ export default async function NewsPage({
                           </span>
                           <span className="news-read-more">{labels.readMore} →</span>
                         </div>
+                      </div>
+                      <div className="news-card-image">
+                        {news.coverImage ? (
+                          <Image
+                            src={news.coverImage}
+                            alt={news.title}
+                            fill
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : (
+                          <div className="news-card-placeholder" />
+                        )}
                       </div>
                     </Link>
                   ))}

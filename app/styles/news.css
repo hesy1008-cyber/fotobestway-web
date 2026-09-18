@@ -54,7 +54,7 @@
   height: 480px;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 28px;
+  margin-bottom: 0px;
 }
 
 .news-featured-placeholder {
@@ -71,6 +71,7 @@
 
 .news-featured-content {
   padding: 0 20px;
+  margin-bottom: 28px;
 }
 
 .news-category-tag {
