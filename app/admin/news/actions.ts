@@ -4,9 +4,19 @@ import { prisma } from "@/app/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+function normalizeSlug(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^ws-]/g, "")
+    .replace(/[s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function createNews(formData: FormData) {
   const title = String(formData.get("title") || "");
-  const slug = String(formData.get("slug") || "");
+  const rawSlug = String(formData.get("slug") || "");
+  const slug = normalizeSlug(rawSlug);
   const summary = String(formData.get("summary") || "");
   const content = String(formData.get("content") || "");
   const coverImage = String(formData.get("coverImage") || "");
@@ -18,7 +28,7 @@ export async function createNews(formData: FormData) {
   const focusKeywords = String(formData.get("focusKeywords") || "");
 
   if (!title || !slug) {
-    throw new Error("标题和标识不能为空");
+    throw new Error("标题和标识不能为空（标识需包含英文字母或数字）");
   }
 
   await prisma.news.create({
@@ -44,7 +54,8 @@ export async function createNews(formData: FormData) {
 
 export async function updateNews(id: string, formData: FormData) {
   const title = String(formData.get("title") || "");
-  const slug = String(formData.get("slug") || "");
+  const rawSlug = String(formData.get("slug") || "");
+  const slug = normalizeSlug(rawSlug);
   const summary = String(formData.get("summary") || "");
   const content = String(formData.get("content") || "");
   const coverImage = String(formData.get("coverImage") || "");
