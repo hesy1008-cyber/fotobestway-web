@@ -7,8 +7,8 @@ import { redirect } from "next/navigation";
 function normalizeSlug(s: string): string {
   return s
     .toLowerCase()
-    .replace(/[^ws-]/g, "")
-    .replace(/[s_]+/g, "-")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
