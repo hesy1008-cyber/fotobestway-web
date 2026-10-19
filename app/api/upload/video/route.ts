@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import Busboy from "busboy";
 import { Readable } from "stream";
+import { compressVideoIfPossible } from "@/app/lib/video";
 
 // 使用 Node.js runtime，支持大文件上传
 export const runtime = "nodejs";
@@ -92,7 +93,7 @@ export async function POST(req: Request): Promise<Response> {
         });
       });
 
-      busboy.on("finish", () => {
+      busboy.on("finish", async () => {
         console.log("Busboy finished");
 
         if (!uploadedFile) {
@@ -103,6 +104,38 @@ export async function POST(req: Request): Promise<Response> {
             )
           );
           return;
+        }
+
+        // 保存完成后尝试自动压缩
+        const fullPath = path.join(uploadPath, uploadedFile.filename);
+        try {
+          console.log("Compressing video:", fullPath);
+          const compressed = await compressVideoIfPossible(fullPath);
+          if (compressed) {
+            try {
+              fs.unlinkSync(fullPath);
+            } catch {}
+            const compressedName = path.basename(compressed);
+            const compressedSize = fs.statSync(compressed).size;
+            console.log(
+              "Video compressed:",
+              compressedName,
+              "size:",
+              compressedSize,
+              "bytes"
+            );
+            resolve(
+              NextResponse.json({
+                url: `/uploads/videos/${compressedName}`,
+                name: compressedName,
+                size: compressedSize,
+              })
+            );
+            return;
+          }
+          console.log("No compression applied, using original file");
+        } catch (err) {
+          console.error("Video compression step error:", err);
         }
 
         resolve(

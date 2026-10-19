@@ -4,6 +4,7 @@ import { prisma } from "@/app/lib/prisma";
 import { redirect } from "next/navigation";
 import fs from "fs/promises";
 import path from "path";
+import { compressVideoIfPossible } from "@/app/lib/video";
 
 // ============================
 // 保存单张图片
@@ -83,8 +84,23 @@ export async function updateProduct(id: string, formData: FormData) {
       const buffer = Buffer.from(bytes);
       await fs.writeFile(path.join(uploadDir, filename), buffer);
 
-      video = `/uploads/videos/${filename}`;
-      console.log("Video uploaded successfully:", video);
+      // 自动压缩到网页播放友好大小
+      const fullPath = path.join(uploadDir, filename);
+      try {
+        console.log("Compressing video:", fullPath);
+        const compressed = await compressVideoIfPossible(fullPath);
+        if (compressed) {
+          await fs.unlink(fullPath).catch(() => {});
+          video = `/uploads/videos/${path.basename(compressed)}`;
+          console.log("Video compressed successfully:", video);
+        } else {
+          video = `/uploads/videos/${filename}`;
+          console.log("No compression applied, using original:", video);
+        }
+      } catch (err) {
+        console.error("Video compression error:", err);
+        video = `/uploads/videos/${filename}`;
+      }
     }
   }
 
@@ -141,7 +157,7 @@ export async function updateProduct(id: string, formData: FormData) {
     ? (oldProduct.detailImages as string[])
     : [];
 
-  // 从前端获取删除后的列表
+  // 从前端获取删除后的列表（可能包含 blob: 占位，表示新上传的图片）
   const detailImagesText = String(formData.get("detailImages") || "");
   if (detailImagesText) {
     try {
@@ -157,7 +173,14 @@ export async function updateProduct(id: string, formData: FormData) {
 
   if (detailFiles.length > 0) {
     const newDetailImages = await saveMultipleFiles(detailFiles);
-    detailImages = [...detailImages, ...newDetailImages];
+    // blob: 占位按顺序替换为真实 URL（支持新旧图片混合拖拽排序）
+    let blobIdx = 0;
+    detailImages = detailImages
+      .map((url) =>
+        url.startsWith("blob:") ? newDetailImages[blobIdx++] : url
+      )
+      .filter((url) => url && !url.startsWith("blob:"));
+    console.log("Detail images after merge:", detailImages);
   }
 
   // ============================

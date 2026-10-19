@@ -125,8 +125,6 @@ export default function EditProductForm({
     }))
   );
 
-  const [detailPreview, setDetailPreview] = useState<string[]>([]);
-
   const [videoUrl, setVideoUrl] = useState<string>(product.video ?? "");
   const [videoUploading, setVideoUploading] = useState(false);
 
@@ -140,10 +138,13 @@ export default function EditProductForm({
   // 新上传图片的 blob URL -> File 映射（保存时按拖拽顺序提交）
   const newFileMapRef = useRef<Map<string, File>>(new Map());
 
-  // 详情图（支持前端删除，保存时一起更新）
+  // 详情图（支持前端删除、拖拽排序，保存时一起更新）
   const [detailImages, setDetailImages] = useState<string[]>(
     Array.isArray(product.detailImages) ? product.detailImages : []
   );
+
+  // 新上传详情图的 blob URL -> File 映射（保存时提交）
+  const newDetailFileMapRef = useRef<Map<string, File>>(new Map());
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -161,6 +162,14 @@ export default function EditProductForm({
           if (file) formData.append("gallery", file);
         });
       formData.append("detailImages", JSON.stringify(detailImages));
+      // 新上传的详情图文件（blob 占位，后端按顺序替换为真实 URL）
+      formData.delete("detailImagesNew");
+      detailImages
+        .filter((url) => url.startsWith("blob:"))
+        .forEach((url) => {
+          const file = newDetailFileMapRef.current.get(url);
+          if (file) formData.append("detailImagesNew", file);
+        });
       // 显式追加 specsJson，确保多型号规格参数被提交
       formData.set("specsJson", specsJson);
 
@@ -176,24 +185,31 @@ export default function EditProductForm({
     }
   }
 
-  async function previewImage(
-    e: React.ChangeEvent<HTMLInputElement>,
-    setter: React.Dispatch<React.SetStateAction<string[]>>
-  ) {
-    const files = e.target.files;
-    if (!files) return;
-    const fileList = Array.from(files).filter((f) => f.size > 0);
-    const urls = await filesToThumbnails(fileList);
-    setter(urls);
+  // 核心：追加新详情图文件到混合列表（缩略图 blob 占位，可与现有图片一起拖拽排序，保存时提交文件）
+  async function addNewDetailFiles(fileList: File[]) {
+    if (fileList.length === 0) return;
+    const thumbs = await filesToThumbnails(fileList);
+    fileList.forEach((file, i) => newDetailFileMapRef.current.set(thumbs[i], file));
+    setDetailImages((prev) => [...prev, ...thumbs]);
   }
 
   async function handleDetailDrop(e: React.DragEvent) {
     e.preventDefault();
     e.stopPropagation();
-    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/") && f.size > 0);
+    const files = Array.from(e.dataTransfer.files).filter(
+      (f) => f.type.startsWith("image/") && f.size > 0
+    );
     if (files.length === 0) return;
-    const urls = await filesToThumbnails(files);
-    setDetailPreview((prev) => [...prev, ...urls]);
+    await addNewDetailFiles(files);
+  }
+
+  // 删除详情图：从混合列表移除，新上传的 blob 同时清除文件映射并释放内存
+  function removeDetailImage(img: string) {
+    if (img.startsWith("blob:")) {
+      URL.revokeObjectURL(img);
+      newDetailFileMapRef.current.delete(img);
+    }
+    setDetailImages(detailImages.filter((i) => i !== img));
   }
 
   function jsonToText(obj: Record<string, string> | null | undefined) {
@@ -237,11 +253,6 @@ export default function EditProductForm({
     } finally {
       setVideoUploading(false);
     }
-  }
-
-  // 删除详情图
-  function removeDetailImage(img: string) {
-    setDetailImages(detailImages.filter((i) => i !== img));
   }
 
   // 核心：追加新文件到混合列表（缩略图 blob 占位，可与现有图片一起拖拽排序）
@@ -547,8 +558,8 @@ export default function EditProductForm({
       <div className="admin-form-section">
         <h2 className="admin-form-section-title">📐 Detail Images (详情图)</h2>
         <p className="admin-form-help">
-          产品详情大图，用于详情页展示。点击右上角 × 删除。
-          建议宽度：<strong>1500 px</strong>
+          产品详情大图，用于详情页展示。可拖拽排序、点击右上角 × 删除。
+          也可以直接把图片文件拖到下方区域上传。建议宽度：<strong>1500 px</strong>
         </p>
 
         {detailImages.length > 0 && (
@@ -576,23 +587,18 @@ export default function EditProductForm({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => previewImage(e, setDetailPreview)}
+            onChange={async (e) => {
+              const files = e.target.files;
+              if (!files) return;
+              e.target.value = ""; // 允许重复选择同一批文件
+              await addNewDetailFiles(Array.from(files).filter((f) => f.size > 0));
+            }}
             className="admin-form-input admin-form-file"
           />
+          <p className="admin-form-help">
+            新上传的详情图会追加到上方列表，可直接拖拽调整顺序，保存后生效
+          </p>
         </div>
-
-        {detailPreview.length > 0 && (
-          <div className="admin-new-images">
-            <p className="admin-new-images-title">
-              New ({detailPreview.length}) - 保存后生效
-            </p>
-            {detailPreview.map((img) => (
-              <div key={img} className="admin-new-images-item">
-                <img src={img} alt="Detail preview" />
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ====== 视频 ====== */}
