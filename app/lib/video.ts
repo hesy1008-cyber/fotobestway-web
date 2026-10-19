@@ -7,8 +7,8 @@ const execFileAsync = promisify(execFile);
 
 /**
  * 用 ffmpeg 把视频压缩到网页播放友好大小：
- * - 分辨率限制 1280px 宽（竖屏则按高度等比缩放）
- * - H.264 + AAC，CRF 27，码率上限 2Mbps
+ * - 分辨率限制 960px 宽（竖屏则按高度等比缩放），帧率 30
+ * - H.264 + AAC，CRF 28，码率上限 1.2Mbps —— 保证低带宽也能流畅播放
  * - faststart 保证浏览器边下边播
  *
  * 成功返回压缩后文件路径；失败（无 ffmpeg / 压缩出错 / 压缩后没变小）返回 null，原文件保留。
@@ -42,21 +42,23 @@ export async function compressVideoIfPossible(
         "-i",
         srcPath,
         "-vf",
-        "scale='min(1280,iw)':-2",
+        "scale='min(960,iw)':-2",
+        "-r",
+        "30",
         "-c:v",
         "libx264",
         "-preset",
         "veryfast",
         "-crf",
-        "27",
+        "28",
         "-maxrate",
-        "2M",
+        "1200k",
         "-bufsize",
-        "4M",
+        "2400k",
         "-c:a",
         "aac",
         "-b:a",
-        "128k",
+        "96k",
         "-movflags",
         "+faststart",
         outPath,
