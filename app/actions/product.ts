@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import fs from "fs/promises";
 import path from "path";
 import { compressVideoIfPossible } from "@/app/lib/video";
+import { isCosConfigured, uploadToCos } from "@/app/lib/cos";
 
 // ============================
 // 保存单张图片
@@ -91,8 +92,26 @@ export async function updateProduct(id: string, formData: FormData) {
         const compressed = await compressVideoIfPossible(fullPath);
         if (compressed) {
           await fs.unlink(fullPath).catch(() => {});
-          video = `/uploads/videos/${path.basename(compressed)}`;
-          console.log("Video compressed successfully:", video);
+          const compressedName = path.basename(compressed);
+
+          // 配置了 COS 就上传到 COS（服务器带宽小，视频走 CDN/对象存储更流畅）
+          if (isCosConfigured()) {
+            try {
+              const cosKey = `videos/${Date.now()}-${compressedName}`;
+              video = await uploadToCos(compressed, cosKey);
+              await fs.unlink(compressed).catch(() => {});
+              console.log("Video compressed + uploaded to COS:", video);
+            } catch (cosErr) {
+              console.error(
+                "[cos] upload failed, fallback to local:",
+                cosErr
+              );
+              video = `/uploads/videos/${compressedName}`;
+            }
+          } else {
+            video = `/uploads/videos/${compressedName}`;
+            console.log("Video compressed successfully (local):", video);
+          }
         } else {
           video = `/uploads/videos/${filename}`;
           console.log("No compression applied, using original:", video);

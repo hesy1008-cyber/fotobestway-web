@@ -4,6 +4,7 @@ import path from "path";
 import Busboy from "busboy";
 import { Readable } from "stream";
 import { compressVideoIfPossible } from "@/app/lib/video";
+import { isCosConfigured, uploadToCos } from "@/app/lib/cos";
 
 // 使用 Node.js runtime，支持大文件上传
 export const runtime = "nodejs";
@@ -111,14 +112,44 @@ export async function POST(req: Request): Promise<Response> {
         try {
           console.log("Compressing video:", fullPath);
           const compressed = await compressVideoIfPossible(fullPath);
+
+          // 压缩成功 → 优先上传 COS（配置了的话），否则用本地压缩文件
           if (compressed) {
             try {
               fs.unlinkSync(fullPath);
             } catch {}
             const compressedName = path.basename(compressed);
             const compressedSize = fs.statSync(compressed).size;
+
+            if (isCosConfigured()) {
+              try {
+                const cosKey = `videos/${Date.now()}-${compressedName}`;
+                const cosUrl = await uploadToCos(compressed, cosKey);
+                try {
+                  fs.unlinkSync(compressed);
+                } catch {}
+                console.log(
+                  "Video compressed + uploaded to COS:",
+                  cosUrl,
+                  "size:",
+                  compressedSize,
+                  "bytes"
+                );
+                resolve(
+                  NextResponse.json({
+                    url: cosUrl,
+                    name: compressedName,
+                    size: compressedSize,
+                  })
+                );
+                return;
+              } catch (cosErr) {
+                console.error("[cos] upload failed, fallback to local:", cosErr);
+              }
+            }
+
             console.log(
-              "Video compressed:",
+              "Video compressed (local):",
               compressedName,
               "size:",
               compressedSize,
