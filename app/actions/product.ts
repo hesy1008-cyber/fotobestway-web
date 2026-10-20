@@ -15,13 +15,34 @@ async function saveFile(file: File) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const fileName = Date.now() + "-" + file.name;
+  // 文件名统一用 .jpg（后台下载/查看是 JPG，前端显示由 next/image 自动转 WebP）
+  const originalName = file.name.replace(/\.[^/.]+$/, "");
+  const fileName = Date.now() + "-" + originalName + ".jpg";
 
   const uploadDir = path.join(process.cwd(), "public/uploads");
 
   await fs.mkdir(uploadDir, { recursive: true });
 
-  await fs.writeFile(path.join(uploadDir, fileName), buffer);
+  // 压缩并转 JPG：限 1600px、质量 82%，体积通常降到原来的 1/10 以下
+  try {
+    const sharp = (await import("sharp")).default;
+    await sharp(buffer)
+      .resize({
+        width: 1600,
+        height: 1600,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 82,
+        progressive: true,
+      })
+      .toFile(path.join(uploadDir, fileName));
+  } catch (e) {
+    // sharp 处理失败时回退原样保存（保留原格式）
+    console.error("[saveFile] sharp failed, fallback to raw:", e);
+    await fs.writeFile(path.join(uploadDir, fileName), buffer);
+  }
 
   return "/uploads/" + fileName;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 interface ProductGalleryProps {
   images: string[];
@@ -70,10 +71,18 @@ export default function ProductGallery({ images, video, title, mainImageAlt }: P
             aria-label={`View ${item.type} ${index + 1}`}
           >
             {item.type === "image" ? (
-              <img src={item.src} alt={index === 0 && mainImageAlt ? mainImageAlt : `${title} - ${index + 1}`} loading="lazy" />
+              <Image
+                src={item.src}
+                alt={index === 0 && mainImageAlt ? mainImageAlt : `${title} - ${index + 1}`}
+                width={80}
+                height={80}
+                sizes="80px"
+                loading="lazy"
+                className="thumb-item-img"
+              />
             ) : (
               <div className="thumb-video-wrapper">
-                <img src={images[0]} alt="Video thumbnail" className="thumb-video-thumb" loading="lazy" />
+                <Image src={images[0]} alt="Video thumbnail" width={80} height={80} sizes="80px" loading="lazy" className="thumb-video-thumb" />
                 <div className="thumb-video-play">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 5v14l11-7z" />
@@ -98,10 +107,13 @@ export default function ProductGallery({ images, video, title, mainImageAlt }: P
               poster={images[0]}
             />
           ) : (
-            <img
+            <Image
               src={images[currentIndex]}
               alt={currentIndex === 0 && mainImageAlt ? mainImageAlt : `${title} - ${currentIndex + 1}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 600px"
               className="main-image"
+              priority={currentIndex === 0}
             />
           )}
 
@@ -143,9 +155,11 @@ export default function ProductGallery({ images, video, title, mainImageAlt }: P
             </button>
 
             {/* 图片 */}
-            <img
+            <Image
               src={images[currentIndex]}
               alt={currentIndex === 0 && mainImageAlt ? mainImageAlt : `${title} - ${currentIndex + 1}`}
+              fill
+              sizes="(max-width: 1100px) 100vw, 1100px"
               className="lightbox-image"
             />
 

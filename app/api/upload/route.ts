@@ -30,36 +30,41 @@ export async function POST(req: Request) {
     const uploadPath = path.join(process.cwd(), "public/uploads/products");
     await fs.mkdir(uploadPath, { recursive: true });
 
-    // 生成三个尺寸的 WebP 图片
-    const sizes = [
-      { suffix: "-thumb", width: 400, height: 400, quality: 80 },
-      { suffix: "-medium", width: 800, height: 800, quality: 82 },
-      { suffix: "", width: 1500, height: 1500, quality: 85 }, // 主图（大图）
-    ];
+    // 1. JPG 源文件（后台下载/查看用 JPG，前端 next/image 会自动转 WebP 显示）
+    const jpgFilename = `${baseFilename}.jpg`;
+    await sharp(buffer)
+      .resize({
+        width: 1600,
+        height: 1600,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 85,
+        progressive: true,
+      })
+      .toFile(path.join(uploadPath, jpgFilename));
 
-    for (const size of sizes) {
-      const filename = `${baseFilename}${size.suffix}.webp`;
-      const filePath = path.join(uploadPath, filename);
+    // 2. 缩略 WebP（后台列表/小图场景直接用，体积小）
+    const thumbFilename = `${baseFilename}-thumb.webp`;
+    await sharp(buffer)
+      .resize({
+        width: 400,
+        height: 400,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({
+        quality: 80,
+        effort: 6,
+      })
+      .toFile(path.join(uploadPath, thumbFilename));
 
-      await sharp(buffer)
-        .resize({
-          width: size.width,
-          height: size.height,
-          fit: "inside",
-          withoutEnlargement: true,
-        })
-        .webp({
-          quality: size.quality,
-          effort: 6,
-        })
-        .toFile(filePath);
-    }
-
-    // 返回主图 URL（大图版本）
+    // 返回主图 URL（JPG 源）
     return NextResponse.json({
-      url: `/uploads/products/${baseFilename}.webp`,
-      thumbUrl: `/uploads/products/${baseFilename}-thumb.webp`,
-      mediumUrl: `/uploads/products/${baseFilename}-medium.webp`,
+      url: `/uploads/products/${jpgFilename}`,
+      thumbUrl: `/uploads/products/${thumbFilename}`,
+      mediumUrl: `/uploads/products/${jpgFilename}`,
     });
   } catch (error) {
     console.log(error);
