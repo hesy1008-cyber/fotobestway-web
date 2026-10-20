@@ -224,10 +224,13 @@ export default function EditProductForm({
     return arr.join("\n");
   }
 
-  // 视频上传
+  // 视频上传：选择文件后立即上传并自动压缩，保存时只提交压缩后的 URL（避免大文件塞进 server action 导致崩溃）
   async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 立即清空 input，确保保存时 FormData 不携带原始大文件
+    e.target.value = "";
 
     setVideoUploading(true);
 
@@ -247,6 +250,7 @@ export default function EditProductForm({
 
       const data = await response.json();
       setVideoUrl(data.url);
+      alert("视频上传成功，已自动压缩：" + (data.size ? `(${(data.size / 1024 / 1024).toFixed(1)} MB)` : ""));
     } catch (error: any) {
       console.error("Video upload failed:", error);
       alert("视频上传失败：" + (error.message || "未知错误"));
@@ -613,14 +617,18 @@ export default function EditProductForm({
             name="videoFile"
             type="file"
             accept="video/mp4,video/webm,video/ogg,video/quicktime"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setVideoUrl(URL.createObjectURL(file));
-              }
-            }}
+            onChange={handleVideoUpload}
+            disabled={videoUploading}
             className="admin-form-input admin-form-file"
           />
+          <p className="admin-form-help">
+            选择视频后会自动上传并压缩（分辨率 960px、码率 ≤1.2Mbps），保存时直接提交压缩后的链接。
+          </p>
+          {videoUploading && (
+            <p className="admin-form-help" style={{ color: "#e60012" }}>
+              视频上传压缩中，请稍候……（大视频可能需要 1-2 分钟，期间不要关闭页面）
+            </p>
+          )}
         </div>
 
         <p className="admin-form-help" style={{ marginTop: "8px", marginBottom: "8px" }}>
