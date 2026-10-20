@@ -18,10 +18,26 @@ export async function POST(req: Request): Promise<Response> {
     const contentType = req.headers.get("content-type") || "";
     console.log("Content-Type:", contentType);
 
+    // 没有 multipart/form-data 直接拒绝（避免空请求触发 busboy 500）
+    if (!contentType || !contentType.includes("multipart/form-data")) {
+      console.log("Invalid content type, rejecting");
+      return NextResponse.json(
+        { error: "Invalid content type, expected multipart/form-data" },
+        { status: 400 }
+      );
+    }
+
     // 读取请求体
     const arrayBuffer = await req.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     console.log("Total request size:", buffer.length, "bytes");
+
+    if (buffer.length === 0) {
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 }
+      );
+    }
 
     return new Promise<Response>((resolve) => {
       const busboy = Busboy({
