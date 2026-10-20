@@ -51,6 +51,15 @@ export async function POST(req: Request): Promise<Response> {
 
       let uploadedFile: { filename: string; mimeType: string; size: number } | null = null;
 
+      // 等文件真正写完再继续（busboy finish 可能先于磁盘写入完成触发）
+      let resolveWrite: (() => void) | null = null;
+      let rejectWrite: ((err: Error) => void) | null = null;
+      const writeDone = new Promise<void>((res, rej) => {
+        resolveWrite = res;
+        rejectWrite = rej;
+      });
+      let writeStreamRef: fs.WriteStream | null = null;
+
       const uploadPath = path.join(process.cwd(), "public/uploads/videos");
       if (!fs.existsSync(uploadPath)) {
         fs.mkdirSync(uploadPath, { recursive: true });
@@ -88,10 +97,15 @@ export async function POST(req: Request): Promise<Response> {
         console.log("Saving to:", savePath);
 
         const writeStream = fs.createWriteStream(savePath);
+        writeStreamRef = writeStream;
         let fileSize = 0;
 
         file.on("data", (data) => {
           fileSize += data.length;
+        });
+
+        file.on("limit", () => {
+          console.error("File size limit exceeded");
         });
 
         file.pipe(writeStream);
@@ -103,15 +117,40 @@ export async function POST(req: Request): Promise<Response> {
             mimeType,
             size: fileSize,
           };
+          if (resolveWrite) resolveWrite();
         });
 
         writeStream.on("error", (err) => {
           console.error("Write stream error:", err);
+          if (rejectWrite) rejectWrite(err);
         });
       });
 
       busboy.on("finish", async () => {
-        console.log("Busboy finished");
+        console.log("Busboy finished, waiting for file write to complete...");
+        if (!writeStreamRef) {
+          console.log("No file received");
+          resolve(
+            NextResponse.json(
+              { error: "No file uploaded or unsupported format" },
+              { status: 400 }
+            )
+          );
+          return;
+        }
+        try {
+          await writeDone;
+        } catch (writeErr: any) {
+          console.error("File write failed:", writeErr?.message);
+          resolve(
+            NextResponse.json(
+              { error: "File write failed: " + (writeErr?.message || "write error") },
+              { status: 500 }
+            )
+          );
+          return;
+        }
+        console.log("Write completed, uploadedFile:", uploadedFile ? uploadedFile.filename : null);
 
         if (!uploadedFile) {
           resolve(
