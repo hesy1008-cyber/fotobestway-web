@@ -1,0 +1,54 @@
+<html style="margin:0;padding:0;">
+<div style="background-color:transparent;box-sizing:border-box;font-family:'Roboto','PingFang SC','Segoe UI',Arial,sans-serif;color:#1A1B1C;max-width:760px;">
+  <div style="padding:4px 0 12px;">
+    <div style="font-size:15px;font-weight:600;color:#1A1B1C;">代码审查问题分级 · 按优先级处理顺序</div>
+    <div style="font-size:12px;color:#6B7280;margin-top:4px;">共 14 项：严重 4 · 高 2 · 中 4 · 建议 4（2026-10-23 审查）</div>
+  </div>
+
+  <!-- 严重 -->
+  <div style="border:1px solid #F3C6C8;border-left:4px solid #EA6668;border-radius:10px;background:#FFF8F8;padding:12px 14px;margin:10px 0;box-sizing:border-box;">
+    <div style="font-size:13px;font-weight:600;color:#C0392B;margin-bottom:8px;">🔴 严重 · 立即处理</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;box-sizing:border-box;">
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F0E0E0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">1 · API 路由无鉴权</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">/api/batch-import、products/*、upload/* 可匿名调用，任何人可改产品/灌磁盘</div></div>
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F0E0E0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">2 · 视频上传路径穿越</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">文件名含 ../ 可写任意路径，构造 multipart 即可触发</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;box-sizing:border-box;margin-top:8px;">
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F0E0E0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">3 · SVG 存储型 XSS</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">上传无类型白名单 + /api/uploads 无 nosniff，可传脚本型 SVG</div></div>
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F0E0E0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">4 · 会话密钥硬编码兜底</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">ADMIN_SESSION_SECRET 未配置时用公开默认值，可伪造后台 cookie</div></div>
+    </div>
+  </div>
+
+  <!-- 高 -->
+  <div style="border:1px solid #F5E3C4;border-left:4px solid #FAAD14;border-radius:10px;background:#FFFBF3;padding:12px 14px;margin:10px 0;box-sizing:border-box;">
+    <div style="font-size:13px;font-weight:600;color:#B26E00;margin-bottom:8px;">🟠 高 · 尽快处理</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;box-sizing:border-box;">
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F2E4C8;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">5 · 邮件 HTML 未转义</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">name/message 直拼模板，可注入 HTML/钓鱼</div></div>
+      <div style="flex:1 1 220px;min-width:0;background:#fff;border:1px solid #F2E4C8;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">6 · 图片上传无大小限制</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">formData 全量读内存，超大文件可拖垮内存</div></div>
+    </div>
+  </div>
+
+  <!-- 中 -->
+  <div style="border:1px solid #F0E0C8;border-left:4px solid #E1B98F;border-radius:10px;background:#FFFDF9;padding:12px 14px;margin:10px 0;box-sizing:border-box;">
+    <div style="font-size:13px;font-weight:600;color:#8A6A3B;margin-bottom:8px;">🟡 中 · 安排处理</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;box-sizing:border-box;">
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #F0E4D0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">7 · 构建扫描 10204 文件</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">uploads 在 public 下，已隐藏警告未除根</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #F0E4D0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">8 · 硬编码默认密码</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">ADMIN_PASSWORD 兜底值应去掉</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #F0E4D0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">9 · as any 滥用</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">cos.ts / batch-import 类型弱</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #F0E4D0;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">10 · 错误处理不统一</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">console.log / 静默吞错</div></div>
+    </div>
+  </div>
+
+  <!-- 建议 -->
+  <div style="border:1px solid #D8E6D8;border-left:4px solid #52C41A;border-radius:10px;background:#F7FBF7;padding:12px 14px;margin:10px 0;box-sizing:border-box;">
+    <div style="font-size:13px;font-weight:600;color:#3D7A3D;margin-bottom:8px;">🟢 建议 · 后续优化</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;box-sizing:border-box;">
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #DCE8DC;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">11 · COS 启用需配 images</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">next.config 缺 remotePatterns</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #DCE8DC;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">12 · i18n/RTL 覆盖不全</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">About 等组件未接字典；ar 未 RTL</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #DCE8DC;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">13 · 首页 DB 查询可缓存</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">force-dynamic 每访必查库</div></div>
+      <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid #DCE8DC;border-radius:8px;padding:8px 10px;box-sizing:border-box;"><div style="font-size:12px;font-weight:600;">14 · 删除逻辑加 basename</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">file 删除路径防越界</div></div>
+    </div>
+  </div>
+
+  <div style="font-size:11px;color:#9CA3AF;margin-top:12px;padding-top:8px;border-top:1px solid #E4E3DD;">处理顺序建议：4 → 1 → 2 → 3（安全防线）→ 5 → 6 → 其余。修复前请先在服务器 .env 确认 ADMIN_SESSION_SECRET / ADMIN_PASSWORD 均已配置。</div>
+</div>
+</html>

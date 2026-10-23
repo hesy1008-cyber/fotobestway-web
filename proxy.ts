@@ -5,7 +5,7 @@ import { defaultLocale, locales } from "./app/i18n/config";
 
 // 后台账号配置（与 /api/admin/login 保持一致）
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const SECRET = process.env.ADMIN_SESSION_SECRET || "fotobestway-admin-session-secret";
+const SECRET = process.env.ADMIN_SESSION_SECRET || "";
 
 // HMAC-SHA256 签名（Node.js runtime 使用 Web Crypto）
 async function sign(payload: string): Promise<string> {
@@ -27,6 +27,8 @@ async function sign(payload: string): Promise<string> {
 async function checkSession(request: NextRequest): Promise<string> {
   const cookie = request.cookies.get("admin_session")?.value;
   if (!cookie) return "";
+  // 未配置会话密钥时一律视为未登录（防止弱密钥伪造）
+  if (!SECRET) return "";
 
   const parts = cookie.split(".");
   if (parts.length !== 4) return "";

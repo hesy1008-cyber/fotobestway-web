@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-// 从环境变量读取凭据，与 middleware 保持一致
+// 从环境变量读取凭据，与 proxy 保持一致
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const ADMIN_PASS = process.env.ADMIN_PASSWORD || "fotobestway2026";
-const SECRET = process.env.ADMIN_SESSION_SECRET || "fotobestway-admin-session-secret";
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || "";
+const SECRET = process.env.ADMIN_SESSION_SECRET || "";
 
 // 额外账号（内部人员，仅导出权限）：从环境变量读取 JSON
 // 格式: ADMIN_USERS_EXTRA=[{"username":"mingshi1","password":"ms803","role":"limited"}]
@@ -44,6 +44,20 @@ async function sign(payload: string): Promise<string> {
 
 export async function POST(req: Request) {
   try {
+    // 未配置会话密钥时拒绝登录（防止使用弱/默认密钥）
+    if (!SECRET) {
+      return NextResponse.json(
+        { success: false, error: "服务器未配置 ADMIN_SESSION_SECRET，请联系管理员" },
+        { status: 500 }
+      );
+    }
+    if (!ADMIN_PASS) {
+      return NextResponse.json(
+        { success: false, error: "服务器未配置 ADMIN_PASSWORD，请联系管理员" },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
     const username = String(body?.username || "").trim();
     const password = String(body?.password || "");
