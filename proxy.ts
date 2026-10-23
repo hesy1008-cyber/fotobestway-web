@@ -7,7 +7,7 @@ import { defaultLocale, locales } from "./app/i18n/config";
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
 const SECRET = process.env.ADMIN_SESSION_SECRET || "fotobestway-admin-session-secret";
 
-// HMAC-SHA256 签名（edge runtime 使用 Web Crypto）
+// HMAC-SHA256 签名（Node.js runtime 使用 Web Crypto）
 async function sign(payload: string): Promise<string> {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
@@ -46,7 +46,7 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 后台路径会话保护

@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // 忽略 uploads 上传代码里 path.join(process.cwd(),"public/uploads") 的
+  // "Overly broad patterns" 静态分析警告（运行时动态路径，构建期扫描 public/uploads 无意义）
+  turbopack: {
+    ignoreIssue: [
+      { path: /app[\\/]actions[\\/](about|media)\.ts/ },
+      { path: /app[\\/]api[\\/]uploads/ },
+    ],
+  },
+
 };
 
 
