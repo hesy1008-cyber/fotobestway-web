@@ -31,9 +31,9 @@ function productSku(product: { slug: string; specs: unknown }): string {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -89,6 +89,15 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    // 三语 hreflang：声明同一页面的语言版本，避免被当作重复内容
+    alternates: {
+      languages: {
+        en: `https://www.fotobestway.com.cn/en/products/${slug}`,
+        zh: `https://www.fotobestway.com.cn/zh/products/${slug}`,
+        ar: `https://www.fotobestway.com.cn/ar/products/${slug}`,
+        "x-default": `https://www.fotobestway.com.cn/en/products/${slug}`,
+      },
+    },
     openGraph: {
       title,
       description,
@@ -316,6 +325,37 @@ export default async function ProductDetailPage({
               ratingValue: "5.0",
               reviewCount: "100",
             },
+          }),
+        }}
+      />
+
+      {/* 面包屑结构化数据 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: `https://www.fotobestway.com.cn/${locale}`,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Products",
+                item: `https://www.fotobestway.com.cn/${locale}/products`,
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.title,
+                item: `https://www.fotobestway.com.cn/${locale}/products/${product.slug}`,
+              },
+            ],
           }),
         }}
       />

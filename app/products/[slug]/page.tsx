@@ -86,6 +86,15 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    // 三语 hreflang：无前缀版本作为 x-default（默认英文）
+    alternates: {
+      languages: {
+        en: `https://www.fotobestway.com.cn/en/products/${slug}`,
+        zh: `https://www.fotobestway.com.cn/zh/products/${slug}`,
+        ar: `https://www.fotobestway.com.cn/ar/products/${slug}`,
+        "x-default": `https://www.fotobestway.com.cn/products/${slug}`,
+      },
+    },
     openGraph: {
       title,
       description,
@@ -305,6 +314,37 @@ export default async function ProductDetailPage({
               ratingValue: "5.0",
               reviewCount: "100",
             },
+          }),
+        }}
+      />
+
+      {/* 面包屑结构化数据 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://www.fotobestway.com.cn",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Products",
+                item: "https://www.fotobestway.com.cn/products",
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.title,
+                item: `https://www.fotobestway.com.cn/products/${product.slug}`,
+              },
+            ],
           }),
         }}
       />
