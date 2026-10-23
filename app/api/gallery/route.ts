@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import fs from "fs/promises";
 import path from "path";
 import { revalidatePath } from "next/cache";
+import { requireAdminRole } from "@/app/lib/auth";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const role = await requireAdminRole(req);
+  if (!role) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const formData = await req.formData();
     const file = formData.get("image") as File | null;

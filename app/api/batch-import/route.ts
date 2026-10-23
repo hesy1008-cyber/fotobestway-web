@@ -1,5 +1,7 @@
 ﻿import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { requireAdminRole } from "@/app/lib/auth";
 
 /**
  * 批量导入产品 API
@@ -69,7 +71,11 @@ function parseStringArray(val: any): string[] {
   return [];
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const role = await requireAdminRole(req);
+  if (!role) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await req.json();
     const products = Array.isArray(body) ? body : body.products;

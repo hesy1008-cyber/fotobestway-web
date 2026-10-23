@@ -1,11 +1,16 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminRole } from "@/app/lib/auth";
 
 // 强制动态渲染，避免缓存
 export const dynamic = "force-dynamic";
 
 // 拖动产品到某个二级分类（subCategoryId 为 null 表示放到一级分类下）
 export async function POST(req: NextRequest) {
+  const role = await requireAdminRole(req);
+  if (!role) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await req.json();
     const productId = String(body.productId || "");

@@ -1,17 +1,23 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
 import Busboy from "busboy";
 import { Readable } from "stream";
 import { compressVideoIfPossible } from "@/app/lib/video";
 import { isCosConfigured, uploadToCos } from "@/app/lib/cos";
+import { requireAdminRole } from "@/app/lib/auth";
 
 // 使用 Node.js runtime，支持大文件上传
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 最长上传时间 5 分钟
 
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: NextRequest): Promise<Response> {
+  const role = await requireAdminRole(req);
+  if (!role) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     console.log("Video upload request received");
 
