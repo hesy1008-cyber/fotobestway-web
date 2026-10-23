@@ -1,4 +1,4 @@
-﻿/* =========================
+/* =========================
  HEADER
 ========================= */
 
@@ -392,43 +392,162 @@ color:white;
 
 
 /* =====================
- SWIPER PAGINATION
+ HERO 数字指示器（倒计时圆环）
 ===================== */
 
 
-.swiper-pagination{
+.heroIndicators{
 
-bottom:35px!important;
+position:absolute;
 
-z-index:5;
+left:50%;
 
-}
+bottom:35px;
 
+transform:translateX(-50%);
 
+z-index:10;
 
+display:flex;
 
+gap:14px;
 
-.swiper-pagination-bullet{
-
-width:9px;
-
-height:9px;
-
-background:white;
-
-opacity:.55;
+align-items:center;
 
 }
 
 
 
 
+.heroIndicator{
 
-.swiper-pagination-bullet-active{
+position:relative;
 
-opacity:1;
+width:36px;
 
-transform:scale(1.2);
+height:36px;
+
+padding:0;
+
+border:none;
+
+background:transparent;
+
+cursor:pointer;
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+
+
+
+.heroIndicator .heroRing{
+
+position:absolute;
+
+inset:0;
+
+width:100%;
+
+height:100%;
+
+transform:rotate(-90deg);
+
+}
+
+
+
+
+.heroRingBg{
+
+stroke:rgba(255,255,255,.25);
+
+}
+
+
+
+
+.heroRingFg{
+
+stroke:#fff;
+
+stroke-dasharray:94.25;
+
+stroke-dashoffset:94.25;
+
+}
+
+
+
+
+.heroIndicator.active .heroRingFg{
+
+animation:heroRingCountdown 5s linear forwards;
+
+}
+
+
+
+
+/* 鼠标悬停 hero 时暂停倒计时（与 Swiper autoplay 的 pauseOnMouseEnter 同步） */
+.hero:hover .heroIndicator.active .heroRingFg{
+
+animation-play-state:paused;
+
+}
+
+
+
+
+@keyframes heroRingCountdown{
+
+from{stroke-dashoffset:94.25;}
+
+to{stroke-dashoffset:0;}
+
+}
+
+
+
+
+.heroIndicatorNum{
+
+position:relative;
+
+z-index:1;
+
+color:rgba(255,255,255,.55);
+
+font-size:13px;
+
+font-weight:600;
+
+line-height:1;
+
+transition:color .2s ease;
+
+}
+
+
+
+
+.heroIndicator.active .heroIndicatorNum{
+
+color:#fff;
+
+}
+
+
+
+
+.heroIndicator:hover .heroIndicatorNum{
+
+color:#fff;
 
 }
 

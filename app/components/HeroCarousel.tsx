@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef, useState } from "react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade, Pagination } from "swiper/modules";
+import { Autoplay, EffectFade } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
-import "swiper/css/pagination";
 
 export interface HeroSlide {
   image: string;
@@ -124,20 +124,29 @@ export default function HeroCarousel({
       ? slides
       : (defaultSlides[locale] || defaultSlides.en);
 
+  // 当前轮播序号（realIndex，loop 模式下与实际数据对齐）
+  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<any>(null);
+
+  // 圆环倒计时时长 = 自动播放间隔，两者保持同步
+  const AUTOPLAY_MS = 5000;
+
   return (
     <section className="hero">
       <Swiper
-        modules={[Autoplay, EffectFade, Pagination]}
+        modules={[Autoplay, EffectFade]}
         effect="fade"
         autoplay={{
-          delay: 5000,
+          delay: AUTOPLAY_MS,
           disableOnInteraction: false,
-        }}
-        pagination={{
-          clickable: true,
+          pauseOnMouseEnter: true,
         }}
         loop
         className="heroSwiper"
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
       >
         {data.map((slide, index) => (
           <SwiperSlide key={index}>
@@ -163,6 +172,37 @@ export default function HeroCarousel({
           </SwiperSlide>
         ))}
       </Swiper>
+
+      {/* 数字指示器：激活数字外圈为倒计时圆环，走完一圈自动切换 */}
+      <div className="heroIndicators" role="tablist" aria-label="Slides">
+        {data.map((slide, index) => {
+          const isActive = index === activeIndex;
+          return (
+            <button
+              key={index}
+              className={`heroIndicator${isActive ? " active" : ""}`}
+              onClick={() => swiperRef.current?.slideToLoop(index)}
+              aria-label={`Slide ${index + 1}: ${slide.title}`}
+              aria-current={isActive}
+            >
+              <svg className="heroRing" viewBox="0 0 36 36" aria-hidden="true">
+                <circle className="heroRingBg" cx="18" cy="18" r="15" fill="none" strokeWidth="2" />
+                <circle
+                  key={isActive ? `active-${activeIndex}` : `idle-${index}`}
+                  className="heroRingFg"
+                  cx="18"
+                  cy="18"
+                  r="15"
+                  fill="none"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="heroIndicatorNum">{index + 1}</span>
+            </button>
+          );
+        })}
+      </div>
     </section>
   );
 }
