@@ -398,7 +398,8 @@
 }
 
 /* 分类卡片按钮组 - 选项卡样式 */
-.admin-category-card .admin-card-actions {
+/* 高特异性(.admin-card.admin-category-card)防止被后面的 .admin-card .admin-card-actions 覆盖 */
+.admin-card.admin-category-card .admin-card-actions {
   flex-direction: row; /* 覆盖 .admin-card 的 column 布局（子分类卡片误命中） */
   align-items: center;
   min-width: auto; /* 不强制 180px 拉伸 */
@@ -407,8 +408,8 @@
   overflow: hidden;
 }
 
-.admin-category-card .admin-card-actions .admin-btn,
-.admin-category-card .admin-card-actions form .admin-btn {
+.admin-card.admin-category-card .admin-card-actions .admin-btn,
+.admin-card.admin-category-card .admin-card-actions form .admin-btn {
   flex: none; /* 按钮按内容宽度，不拉伸 */
   width: auto;
   justify-content: center;
@@ -417,12 +418,12 @@
   margin: 0;
 }
 
-.admin-category-card .admin-card-actions form {
+.admin-card.admin-category-card .admin-card-actions form {
   flex: none; /* form 不拉伸，内部按钮保持内容宽度 */
 }
 
-.admin-category-card .admin-card-actions .admin-btn:last-child,
-.admin-category-card .admin-card-actions form:last-child .admin-btn {
+.admin-card.admin-category-card .admin-card-actions .admin-btn:last-child,
+.admin-card.admin-category-card .admin-card-actions form:last-child .admin-btn {
   border-right: none;
 }
 
