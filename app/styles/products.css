@@ -463,6 +463,15 @@
   text-transform: uppercase;
 }
 
+/* 产品卡型号（SKU） */
+.productCardSku {
+  margin: -4px 0 8px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .productCardBody h3 {
   min-height: 40px;
   margin: 0 0 6px;
@@ -1212,6 +1221,14 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+/* 列表卡型号（SKU） */
+.productListSku {
+  margin: -2px 0 10px;
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .productListTitle {

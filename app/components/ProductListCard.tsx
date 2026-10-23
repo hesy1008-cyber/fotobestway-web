@@ -45,6 +45,16 @@ export default function ProductListCard({
     ? (t.categories as Record<string, string>)[product.categoryRef.slug] || product.categoryRef?.name
     : product.categoryRef?.name;
 
+  // 解析型号（SKU）：与详情页逻辑一致，取 specs 里的 model
+  const models = Array.isArray(product.specs)
+    ? (product.specs as { model?: unknown }[])
+        .map((s) =>
+          s && typeof s === "object" && typeof s.model === "string" ? s.model.trim() : ""
+        )
+        .filter(Boolean)
+    : [];
+  const sku = models.length > 0 ? models.join(" / ") : "";
+
   return (
     <article className="productListCard">
       <div className="productListCardImage">
@@ -64,6 +74,7 @@ export default function ProductListCard({
             <div className="productListCategory">
               {(categoryName || t.products.product)?.toUpperCase()}
             </div>
+            {sku && <div className="productListSku">SKU: {sku}</div>}
             <Link href={`/${locale}/products/${product.slug}`} className="productListTitle">
               {product.title}
             </Link>
