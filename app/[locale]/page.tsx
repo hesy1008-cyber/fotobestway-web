@@ -48,7 +48,7 @@ return(
 
 
 
-<HeroCarousel slides={slides} />
+<HeroCarousel slides={slides} locale={locale} />
 
 
 
