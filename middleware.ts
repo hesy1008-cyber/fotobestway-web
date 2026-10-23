@@ -41,13 +41,8 @@ async function checkSession(request: NextRequest): Promise<string> {
 
 // 获取用户偏好的语言
 function getLocale(request: NextRequest): string {
-  // 1. 先从 cookie 读取（用户手动选择的语言，持久记住）
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-  if (cookieLocale && locales.includes(cookieLocale as any)) {
-    return cookieLocale;
-  }
-
-  // 2. 默认英文（不根据浏览器语言自动切换，需要中文的用户手动在右上角切换）
+  // 一律默认英文，不做浏览器语言检测、不记忆用户选择；
+  // 需要中文/阿拉伯语的用户手动在页面右上角切换
   return defaultLocale;
 }
 
