@@ -139,7 +139,6 @@ export default function HeroCarousel({
         autoplay={{
           delay: AUTOPLAY_MS,
           disableOnInteraction: false,
-          pauseOnMouseEnter: true,
         }}
         loop
         className="heroSwiper"
