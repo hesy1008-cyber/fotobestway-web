@@ -1,5 +1,5 @@
 import { prisma } from "@/app/lib/prisma";
-import EditNewsForm from "./EditNewsForm";
+import EditNewsForm, { type NewsItem } from "./EditNewsForm";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,22 @@ export default async function EditNewsPage({
     notFound();
   }
 
+  // 映射为组件需要的类型（类型安全，去掉 as any）
+  const newsItem: NewsItem = {
+    id: news.id,
+    title: news.title,
+    slug: news.slug,
+    summary: news.summary,
+    content: news.content,
+    coverImage: news.coverImage,
+    category: news.category,
+    sortOrder: news.sortOrder,
+    isActive: news.isActive,
+    seoTitle: news.seoTitle,
+    metaDescription: news.metaDescription,
+    focusKeywords: news.focusKeywords,
+  };
+
   return (
     <div>
       <div className="admin-page-header">
@@ -25,7 +41,7 @@ export default async function EditNewsPage({
         </div>
       </div>
       <div className="admin-form-container">
-        <EditNewsForm news={news as any} />
+        <EditNewsForm news={newsItem} />
       </div>
     </div>
   );

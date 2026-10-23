@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { prisma } from "@/app/lib/prisma";
-import ProductManager from "./ProductManager";
+import ProductManager, { type ProductSimple, type CategorySimple } from "./ProductManager";
 
 // 强制动态渲染，避免缓存导致新增产品不显示
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export default async function AdminProductsPage() {
   const role = (await cookies()).get("admin_role")?.value || "admin";
   const isLimited = role === "limited";
 
-  const [products, categories] = await Promise.all([
+  const [rawProducts, categories] = await Promise.all([
     prisma.product.findMany({
       select: {
         id: true,
@@ -33,6 +33,30 @@ export default async function AdminProductsPage() {
     }),
   ]);
 
+  // Prisma 的 JSON 字段映射为 string[]（类型安全，去掉 as any）
+  const products: ProductSimple[] = rawProducts.map((p) => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    image: p.image,
+    categoryId: p.categoryId,
+    categoryRef: p.categoryRef,
+    gallery: Array.isArray(p.gallery)
+      ? p.gallery.filter((x): x is string => typeof x === "string")
+      : null,
+    detailImages: Array.isArray(p.detailImages)
+      ? p.detailImages.filter((x): x is string => typeof x === "string")
+      : null,
+  }));
+
+  const categoriesProp: CategorySimple[] = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    bannerImage: c.bannerImage,
+    products: c.products,
+  }));
+
   return (
     <div>
       {/* 页面标题 */}
@@ -50,7 +74,7 @@ export default async function AdminProductsPage() {
         )}
       </div>
 
-      <ProductManager products={products as any} categories={categories as any} isLimited={isLimited} />
+      <ProductManager products={products} categories={categoriesProp} isLimited={isLimited} />
     </div>
   );
 }

@@ -48,7 +48,7 @@ export async function createNews(formData: FormData) {
   });
 
   revalidatePath("/admin/news");
-  revalidatePath("/news");
+  revalidatePath("/", "layout");
   redirect("/admin/news");
 }
 
@@ -88,12 +88,12 @@ export async function updateNews(id: string, formData: FormData) {
   });
 
   revalidatePath("/admin/news");
-  revalidatePath("/news");
+  revalidatePath("/", "layout");
   redirect("/admin/news");
 }
 
 export async function deleteNews(id: string) {
   await prisma.news.delete({ where: { id } });
   revalidatePath("/admin/news");
-  revalidatePath("/news");
+  revalidatePath("/", "layout");
 }

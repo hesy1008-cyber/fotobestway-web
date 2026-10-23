@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// COS 对象存储域名（构建时从 env 读取；未配置 COS 则空数组，不限制任何域名）
+const cosHost =
+  process.env.COS_BUCKET && process.env.COS_REGION
+    ? `${process.env.COS_BUCKET}.cos.${process.env.COS_REGION}.myqcloud.com`
+    : null;
 
 const nextConfig: NextConfig = {
 
@@ -7,6 +12,13 @@ const nextConfig: NextConfig = {
     '192.168.10.108:3000',
     '192.168.10.108',
   ],
+
+  // next/image 允许优化外部域名（COS 存储桶）
+  images: {
+    remotePatterns: cosHost
+      ? [{ protocol: "https", hostname: cosHost }]
+      : [],
+  },
 
   experimental: {
     serverActions: {

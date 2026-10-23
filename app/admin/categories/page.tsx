@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
         </Link>
       </div>
 
-      <CategoryManager categories={categoriesWithUnassigned as any} />
+      <CategoryManager categories={categoriesWithUnassigned} />
     </div>
   );
 }

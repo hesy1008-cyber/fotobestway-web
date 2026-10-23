@@ -29,7 +29,7 @@ export async function createPdfCategory(formData: FormData) {
 
   revalidatePath("/admin/pdf-categories");
   revalidatePath("/admin/pdfs");
-  revalidatePath("/support");
+  revalidatePath("/", "layout");
   redirect("/admin/pdf-categories");
 }
 
@@ -62,7 +62,7 @@ export async function updatePdfCategory(formData: FormData) {
 
   revalidatePath("/admin/pdf-categories");
   revalidatePath("/admin/pdfs");
-  revalidatePath("/support");
+  revalidatePath("/", "layout");
   redirect("/admin/pdf-categories");
 }
 
@@ -88,6 +88,6 @@ export async function deletePdfCategory(formData: FormData) {
 
   revalidatePath("/admin/pdf-categories");
   revalidatePath("/admin/pdfs");
-  revalidatePath("/support");
+  revalidatePath("/", "layout");
   redirect("/admin/pdf-categories");
 }

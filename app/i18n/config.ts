@@ -12,7 +12,7 @@ export const localeNames: Record<Locale, string> = {
 };
 
 // RTL 语言（从右到左）
-export const rtlLocales: Locale[] = []; // 暂时取消 RTL，所有语言都用 LTR 布局
+export const rtlLocales: Locale[] = ["ar"];
 
 // 判断是否是 RTL 语言
 export function isRtl(locale: string): boolean {

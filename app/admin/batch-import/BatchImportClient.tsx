@@ -305,7 +305,7 @@ export default function BatchImportClient({ categories }: { categories: Category
     const parsed: ProductDraft[] = [];
     for (const sheetName of workbook.SheetNames) {
       const worksheet = workbook.Sheets[sheetName];
-      const data = XLSXmod.utils.sheet_to_json(worksheet, { header: 1, defval: "" }) as any[][];
+      const data = XLSXmod.utils.sheet_to_json(worksheet, { header: 1, defval: "" }) as (string | number | boolean)[][];
       const sheetProducts = parseSheetToProduct(data, sheetName, categories);
       parsed.push(...sheetProducts);
     }

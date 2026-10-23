@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       mediumUrl: `/uploads/products/${jpgFilename}`,
     });
   } catch (error) {
-    console.log(error);
+    console.error("[upload] error:", error);
 
     return NextResponse.json(
       {

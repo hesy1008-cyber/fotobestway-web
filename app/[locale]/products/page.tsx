@@ -17,7 +17,7 @@ export default async function ProductsPage({
   searchParams: Promise<{ category?: string; subCategory?: string; view?: string }>;
 }) {
   const { locale } = await params;
-  const t = getMessages(locale as any);
+  const t = getMessages(locale);
   const search = await searchParams;
   const currentCategory = search.category || "";
   const currentSubCategory = search.subCategory || "";

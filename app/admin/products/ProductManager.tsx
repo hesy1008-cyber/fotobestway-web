@@ -8,7 +8,7 @@ import { saveAs } from "file-saver";
 import DeleteButton from "@/app/components/DeleteButton";
 import { deleteProduct } from "../products/actions";
 
-type CategorySimple = {
+export type CategorySimple = {
   id: string;
   name: string;
   slug: string;
@@ -16,7 +16,7 @@ type CategorySimple = {
   products: { id: string }[];
 };
 
-type ProductSimple = {
+export type ProductSimple = {
   id: string;
   title: string;
   slug: string;

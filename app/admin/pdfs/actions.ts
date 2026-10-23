@@ -30,7 +30,7 @@ export async function createPdf(formData: FormData) {
   });
 
   revalidatePath("/admin/pdfs");
-  revalidatePath("/support");
+  revalidatePath("/", "layout");
   redirect("/admin/pdfs");
 }
 
@@ -62,7 +62,7 @@ export async function updatePdf(formData: FormData) {
   });
 
   revalidatePath("/admin/pdfs");
-  revalidatePath("/support");
+  revalidatePath("/", "layout");
   redirect("/admin/pdfs");
 }
 

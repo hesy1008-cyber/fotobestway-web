@@ -2,6 +2,7 @@
 
 import { prisma } from "@/app/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 // 创建产品
 export async function createProduct(formData: FormData) {
@@ -73,6 +74,7 @@ export async function createProduct(formData: FormData) {
     },
   });
 
+  revalidatePath("/", "layout");
   redirect("/admin/products");
 }
 
@@ -80,6 +82,7 @@ export async function createProduct(formData: FormData) {
 export async function deleteProduct(formData: FormData) {
   const id = String(formData.get("id"));
   await prisma.product.delete({ where: { id } });
+  revalidatePath("/", "layout");
   redirect("/admin/products");
 }
 
@@ -194,5 +197,6 @@ export async function updateProduct(id: string, formData: FormData) {
     data: updateData,
   });
 
+  revalidatePath("/", "layout");
   redirect("/admin/products");
 }

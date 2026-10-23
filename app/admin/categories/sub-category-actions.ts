@@ -2,6 +2,7 @@
 
 import { prisma } from "@/app/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 function generateSlug(name: string): string {
   return name
@@ -33,6 +34,7 @@ export async function createSubCategory(formData: FormData) {
     },
   });
 
+  revalidatePath("/", "layout");
   redirect(`/admin/categories/${categoryId}/sub-categories`);
 }
 
@@ -54,6 +56,7 @@ export async function updateSubCategory(id: string, formData: FormData) {
     },
   });
 
+  revalidatePath("/", "layout");
   redirect(`/admin/categories/${categoryId}/sub-categories`);
 }
 
@@ -66,5 +69,6 @@ export async function deleteSubCategory(formData: FormData) {
     where: { id },
   });
 
+  revalidatePath("/", "layout");
   redirect(`/admin/categories/${categoryId}/sub-categories`);
 }

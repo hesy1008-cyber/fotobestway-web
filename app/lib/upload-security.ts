@@ -32,3 +32,18 @@ export function sanitizeFilename(originalName: string, ext: string): string {
   const rand = crypto.randomBytes(4).toString("hex");
   return `${Date.now()}-${base}-${rand}${ext}`;
 }
+
+/**
+ * 把数据库里存的公开路径（/uploads/xxx）转成可安全删除的绝对路径。
+ * - 必须 /uploads/ 开头（否则是外部 URL 或静态文件，不删）
+ * - 目录段白名单校验 + 文件名取 basename，杜绝 ../ 穿越删除
+ * 返回 null 表示不应删除。
+ */
+export function getSafeUploadPath(publicPath: string): string | null {
+  if (!publicPath || !publicPath.startsWith("/uploads/")) return null;
+  const dir = path.posix.dirname(publicPath);
+  const base = path.posix.basename(publicPath);
+  if (!/^\/uploads\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*$/.test(dir)) return null;
+  if (!base || base === "." || base === "..") return null;
+  return path.join(process.cwd(), "public", dir, base);
+}

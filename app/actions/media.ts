@@ -4,7 +4,7 @@ import { prisma } from "@/app/lib/prisma";
 import fs from "fs/promises";
 import path from "path";
 import { revalidatePath } from "next/cache";
-import { ALLOWED_EXT, getSafeExt, sanitizeFilename } from "@/app/lib/upload-security";
+import { ALLOWED_EXT, getSafeExt, sanitizeFilename, getSafeUploadPath } from "@/app/lib/upload-security";
 
 // 保存文件（只允许图片类型，文件名随机化防路径穿越）
 async function saveFile(file: File, subfolder: string) {
@@ -56,7 +56,7 @@ export async function createBanner(formData: FormData) {
     },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -64,17 +64,17 @@ export async function deleteBanner(id: string) {
   const banner = await prisma.banner.findUnique({ where: { id } });
   if (!banner) return;
 
-  // 删除文件
+  // 删除文件（安全路径，防穿越）
   try {
-    const filePath = path.join(process.cwd(), "public", banner.image);
-    await fs.unlink(filePath);
+    const filePath = getSafeUploadPath(banner.image || "");
+    if (filePath) await fs.unlink(filePath);
   } catch (e) {
     // ignore
   }
 
   await prisma.banner.delete({ where: { id } });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -86,7 +86,7 @@ export async function updateBannerSort(items: { id: string; sortOrder: number }[
     });
   }
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -99,7 +99,7 @@ export async function toggleBannerActive(id: string) {
     data: { isActive: !banner.isActive },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -123,7 +123,7 @@ export async function updateBanner(id: string, data: {
     },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -154,7 +154,7 @@ export async function createGalleryItem(formData: FormData) {
     },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -162,17 +162,17 @@ export async function deleteGalleryItem(id: string) {
   const item = await prisma.galleryItem.findUnique({ where: { id } });
   if (!item) return;
 
-  // 删除文件
+  // 删除文件（安全路径，防穿越）
   try {
-    const filePath = path.join(process.cwd(), "public", item.image);
-    await fs.unlink(filePath);
+    const filePath = getSafeUploadPath(item.image || "");
+    if (filePath) await fs.unlink(filePath);
   } catch (e) {
     // ignore
   }
 
   await prisma.galleryItem.delete({ where: { id } });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -184,7 +184,7 @@ export async function updateGallerySort(items: { id: string; sortOrder: number }
     });
   }
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -197,7 +197,7 @@ export async function toggleGalleryActive(id: string) {
     data: { isActive: !item.isActive },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/media");
 }
 
@@ -233,7 +233,7 @@ export async function updateCategoryBanner(formData: FormData) {
     data: updateData,
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/products");
   revalidatePath("/admin/media");
 }

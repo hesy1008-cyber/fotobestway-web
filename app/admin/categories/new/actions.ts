@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/app/lib/prisma"
+import { revalidatePath } from "next/cache"
 
 function generateSlug(name: string): string {
   return name
@@ -51,6 +52,8 @@ export async function createCategory(
         bannerDescription: bannerDescription || null,
       }
     })
+
+    revalidatePath("/", "layout")
 
     return {
       success: true,

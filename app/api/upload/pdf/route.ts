@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       fileSize: file.size,
     });
   } catch (error) {
-    console.log("PDF upload error:", error);
+    console.error("[upload-pdf] error:", error);
     return NextResponse.json(
       { error: "Upload failed" },
       { status: 500 }

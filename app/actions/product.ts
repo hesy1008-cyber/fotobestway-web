@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import path from "path";
 import { compressVideoIfPossible } from "@/app/lib/video";
 import { isCosConfigured, uploadToCos } from "@/app/lib/cos";
+import { getSafeUploadPath } from "@/app/lib/upload-security";
 
 // ============================
 // 保存单张图片
@@ -329,13 +330,13 @@ export async function removeGalleryImage(id: string, image: string) {
 
   const newGallery = oldGallery.filter((item) => item !== image);
 
-  // 删除真实文件
+  // 删除真实文件（安全路径，防穿越；COS 外部 URL 不删本地）
   try {
-    const filePath = path.join(process.cwd(), "public", image);
-    await fs.unlink(filePath);
+    const filePath = getSafeUploadPath(image);
+    if (filePath) await fs.unlink(filePath);
     console.log("DELETE FILE:", filePath);
   } catch (error) {
-    console.log("FILE DELETE FAILED:", error);
+    console.error("FILE DELETE FAILED:", error);
   }
 
   // 更新数据库

@@ -113,7 +113,7 @@ export default async function ProductDetailPage({
   }>;
 }) {
   const { slug, locale } = await params;
-  const t = getMessages(locale as any);
+  const t = getMessages(locale);
 
   const originalProduct = await prisma.product.findUnique({
     where: {
@@ -451,20 +451,31 @@ export default async function ProductDetailPage({
                   ]
                 : []),
               ...(() => {
-                // 检查 specs 是否有有效内容
+                // 检查 specs 是否有有效内容（支持多型号 / 旧数组 / 对象三种格式）
+                type SpecRow = { label?: string; value?: string };
+                type SpecModel = { model?: string; specs?: SpecRow[] };
+                type ProductSpecs =
+                  | SpecModel[]
+                  | (string | SpecRow)[]
+                  | Record<string, string>
+                  | null;
                 let hasValidSpecs = false;
-                const specsAny = product.specs as any;
-                const isMultiModel = Array.isArray(specsAny) && specsAny.length > 0 && specsAny[0]?.model !== undefined;
+                const specsAny = product.specs as ProductSpecs;
+                const isMultiModel =
+                  Array.isArray(specsAny) &&
+                  specsAny.length > 0 &&
+                  (specsAny[0] as SpecModel)?.model !== undefined;
 
                 if (isMultiModel) {
                   hasValidSpecs = specsAny.some(
-                    (m: any) => m.specs && m.specs.some((s: any) => s.label?.trim() || s.value?.trim())
+                    (m: SpecModel) =>
+                      m.specs && m.specs.some((s: SpecRow) => s.label?.trim() || s.value?.trim())
                   );
                 } else if (Array.isArray(specsAny)) {
                   hasValidSpecs = specsAny.some(
-                    (s: any) => {
+                    (s: string | SpecRow) => {
                       if (typeof s === "string") return s.trim().length > 0;
-                      return s && (s.label || s.value) && (s.label?.trim() || s.value?.trim());
+                      return !!s && (s.label || s.value) && (s.label?.trim() || s.value?.trim());
                     }
                   );
                 } else if (typeof specsAny === "object" && specsAny) {
@@ -480,58 +491,64 @@ export default async function ProductDetailPage({
                       <div className="specs-table">
                         {isMultiModel ? (
                           // 多型号格式
-                          specsAny
-                            .filter((m: any) => m.specs && m.specs.some((s: any) => s.label?.trim() || s.value?.trim()))
-                            .map((m: any, mi: number) => (
-                              <div key={mi} style={{ marginBottom: mi < specsAny.length - 1 ? "24px" : "0" }}>
-                                {m.model && (
-                                  <h4 style={{
-                                    fontSize: "16px",
-                                    fontWeight: "bold",
-                                    color: "#e60012",
-                                    marginBottom: "12px",
-                                    paddingBottom: "8px",
-                                    borderBottom: "2px solid #e60012",
-                                  }}>
-                                    {m.model}
-                                  </h4>
-                                )}
-                                {m.specs
-                                  .filter((s: any) => s.label?.trim() || s.value?.trim())
-                                  .map((s: any, i: number) => (
-                                    <div key={i} className="spec-row">
-                                      <span className="spec-label">{s.label}</span>
-                                      <span className="spec-value">{s.value}</span>
-                                    </div>
-                                  ))}
-                              </div>
-                            ))
+                          (() => {
+                            const models = specsAny as SpecModel[];
+                            return models
+                              .filter((m) => m.specs && m.specs.some((s) => s.label?.trim() || s.value?.trim()))
+                              .map((m, mi) => (
+                                <div key={mi} style={{ marginBottom: mi < models.length - 1 ? "24px" : "0" }}>
+                                  {m.model && (
+                                    <h4 style={{
+                                      fontSize: "16px",
+                                      fontWeight: "bold",
+                                      color: "#e60012",
+                                      marginBottom: "12px",
+                                      paddingBottom: "8px",
+                                      borderBottom: "2px solid #e60012",
+                                    }}>
+                                      {m.model}
+                                    </h4>
+                                  )}
+                                  {(m.specs || [])
+                                    .filter((s) => s.label?.trim() || s.value?.trim())
+                                    .map((s, i) => (
+                                      <div key={i} className="spec-row">
+                                        <span className="spec-label">{s.label}</span>
+                                        <span className="spec-value">{s.value}</span>
+                                      </div>
+                                    ))}
+                                </div>
+                              ));
+                          })()
                         ) : Array.isArray(specsAny) ? (
                           // 旧格式：数组 [{label, value}] 或字符串数组 ["Power: 600W"]
-                          specsAny
-                            .filter((s: any) => {
-                              if (typeof s === "string") return s.trim().length > 0;
-                              return s && (s.label?.trim() || s.value?.trim());
-                            })
-                            .map((s: any, i: number) => {
-                              if (typeof s === "string") {
-                                const colonIndex = s.indexOf(":");
-                                const label = colonIndex > 0 ? s.substring(0, colonIndex).trim() : s.trim();
-                                const value = colonIndex > 0 ? s.substring(colonIndex + 1).trim() : "";
+                          (() => {
+                            const rows = specsAny as (string | SpecRow)[];
+                            return rows
+                              .filter((s) => {
+                                if (typeof s === "string") return s.trim().length > 0;
+                                return !!s && (s.label?.trim() || s.value?.trim());
+                              })
+                              .map((s, i) => {
+                                if (typeof s === "string") {
+                                  const colonIndex = s.indexOf(":");
+                                  const label = colonIndex > 0 ? s.substring(0, colonIndex).trim() : s.trim();
+                                  const value = colonIndex > 0 ? s.substring(colonIndex + 1).trim() : "";
+                                  return (
+                                    <div key={i} className="spec-row">
+                                      <span className="spec-label">{label}</span>
+                                      <span className="spec-value">{value}</span>
+                                    </div>
+                                  );
+                                }
                                 return (
                                   <div key={i} className="spec-row">
-                                    <span className="spec-label">{label}</span>
-                                    <span className="spec-value">{value}</span>
+                                    <span className="spec-label">{s.label}</span>
+                                    <span className="spec-value">{s.value}</span>
                                   </div>
                                 );
-                              }
-                              return (
-                                <div key={i} className="spec-row">
-                                  <span className="spec-label">{s.label}</span>
-                                  <span className="spec-value">{s.value}</span>
-                                </div>
-                              );
-                            })
+                              });
+                          })()
                         ) : typeof specsAny === "object" && specsAny ? (
                           // 旧格式：对象 {key: value}
                           Object.entries(specsAny as Record<string, string>)

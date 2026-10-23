@@ -18,7 +18,7 @@ export default function ProductListCard({
   product: ProductListCardData;
   locale?: string;
 }) {
-  const t = getMessages(locale as any);
+  const t = getMessages(locale);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const featuresRef = useRef<HTMLDivElement>(null);

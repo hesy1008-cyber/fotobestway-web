@@ -17,7 +17,7 @@ const inputStyle = {
   width: "100%",
 };
 
-type NewsItem = {
+export type NewsItem = {
   id: string;
   title: string;
   slug: string;

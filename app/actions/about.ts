@@ -4,7 +4,7 @@ import { prisma } from "@/app/lib/prisma";
 import fs from "fs/promises";
 import path from "path";
 import { revalidatePath } from "next/cache";
-import { ALLOWED_EXT, getSafeExt, sanitizeFilename } from "@/app/lib/upload-security";
+import { ALLOWED_EXT, getSafeExt, sanitizeFilename, getSafeUploadPath } from "@/app/lib/upload-security";
 
 // 保存文件（只允许图片类型，扩展名白名单 + 随机文件名）
 async function saveFile(file: File, subfolder: string) {
@@ -129,7 +129,7 @@ export async function updateAboutPage(formData: FormData) {
     },
   });
 
-  revalidatePath("/about");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/about");
 }
 
@@ -155,7 +155,7 @@ export async function addFactoryImage(formData: FormData) {
     data: { factoryImages: newImages },
   });
 
-  revalidatePath("/about");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/about");
 
   return { success: true, url: imageUrl };
@@ -174,8 +174,8 @@ export async function removeFactoryImage(imageUrl: string) {
   // 只删除用户上传的文件（/uploads/ 开头），不删除静态文件
   if (imageUrl.startsWith("/uploads/")) {
     try {
-      const filePath = path.join(process.cwd(), "public", imageUrl);
-      await fs.unlink(filePath);
+      const filePath = getSafeUploadPath(imageUrl);
+      if (filePath) await fs.unlink(filePath);
     } catch (e) {
       // ignore
     }
@@ -186,7 +186,7 @@ export async function removeFactoryImage(imageUrl: string) {
     data: { factoryImages: newImages },
   });
 
-  revalidatePath("/about");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/about");
 }
 
@@ -212,7 +212,7 @@ export async function addCertificateImage(formData: FormData) {
     data: { certificates: newCerts },
   });
 
-  revalidatePath("/about");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/about");
 
   return { success: true, url: imageUrl };
@@ -231,8 +231,8 @@ export async function removeCertificateImage(imageUrl: string) {
   // 只删除用户上传的文件（/uploads/ 开头），不删除静态文件
   if (imageUrl.startsWith("/uploads/")) {
     try {
-      const filePath = path.join(process.cwd(), "public", imageUrl);
-      await fs.unlink(filePath);
+      const filePath = getSafeUploadPath(imageUrl);
+      if (filePath) await fs.unlink(filePath);
     } catch (e) {
       // ignore
     }
@@ -243,6 +243,6 @@ export async function removeCertificateImage(imageUrl: string) {
     data: { certificates: newCerts },
   });
 
-  revalidatePath("/about");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/about");
 }

@@ -15,7 +15,7 @@ export default function ProductCard({
   product: ProductCardData;
   locale?: string;
 }) {
-  const t = getMessages(locale as any);
+  const t = getMessages(locale);
 
   // 解析特性列表
   const features = Array.isArray(product.features)

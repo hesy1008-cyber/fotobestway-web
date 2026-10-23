@@ -8,8 +8,8 @@ import { prisma } from "@/app/lib/prisma";
 import { getMessages } from "@/app/i18n/messages";
 import { type Locale } from "@/app/i18n/config";
 
-// 强制动态渲染，后台修改后刷新即可生效
-export const dynamic = "force-dynamic";
+// ISR：5 分钟自动增量更新（后台修改时会手动 revalidate 立即生效）
+export const revalidate = 300;
 
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }){

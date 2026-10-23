@@ -4,7 +4,8 @@ import { prisma } from "@/app/lib/prisma";
 import "@/app/styles/about.css";
 import "@/app/styles/news.css";
 
-export const dynamic = "force-dynamic";
+// ISR：5 分钟自动增量更新
+export const revalidate = 300;
 
 export const metadata = {
   title: "News - Fotobestway",

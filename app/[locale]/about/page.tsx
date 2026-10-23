@@ -11,7 +11,7 @@ export default async function AboutPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = getMessages(locale as any);
+  const t = getMessages(locale);
   const about = await getAboutPage();
 
   // 中文时翻译数据库字段
@@ -24,7 +24,8 @@ export default async function AboutPage({
       "factoryTitle",
       "introTitle",
       "introContent",
-    ];
+    ] as const;
+    type TranslateField = (typeof fieldsToTranslate)[number];
     const tasks = fieldsToTranslate.map(async (field) => {
       if (about[field as keyof typeof about]) {
         return {
@@ -38,7 +39,7 @@ export default async function AboutPage({
     translatedAbout = { ...about };
     for (const result of results) {
       if (result) {
-        (translatedAbout as any)[result.field] = result.value;
+        (translatedAbout as unknown as Record<TranslateField, string>)[result.field] = result.value;
       }
     }
   }

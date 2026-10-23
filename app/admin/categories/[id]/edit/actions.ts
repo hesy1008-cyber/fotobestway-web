@@ -2,6 +2,7 @@
 
 import { prisma } from "@/app/lib/prisma"
 import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 export async function updateCategory(
   formData: FormData
@@ -23,6 +24,8 @@ export async function updateCategory(
       bannerDescription: bannerDescription || null,
     }
   })
+
+  revalidatePath("/", "layout")
 
   redirect("/admin/categories")
 }
