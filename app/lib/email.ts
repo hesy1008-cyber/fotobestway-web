@@ -1,5 +1,15 @@
 import nodemailer from "nodemailer";
 
+// HTML 转义（防邮件模板注入）
+function escapeHtml(value: string): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // 创建邮件传输器
 function createTransporter() {
   // 从环境变量读取配置
@@ -51,7 +61,7 @@ export async function sendInquiryNotification(inquiry: {
     await transporter.sendMail({
       from: `"Fotobestway Website" <${from}>`,
       to: to,
-      subject: `[新询盘] ${inquiry.subject || "来自网站的新询盘"}`,
+      subject: `[新询盘] ${escapeHtml(inquiry.subject || "来自网站的新询盘")}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 10px;">
@@ -61,33 +71,33 @@ export async function sendInquiryNotification(inquiry: {
           <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
             <tr>
               <td style="padding: 10px; background: #f5f5f5; width: 120px; font-weight: bold;">姓名</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${inquiry.name}</td>
+              <td style="padding: 10px; border: 1px solid #eee;">${escapeHtml(inquiry.name)}</td>
             </tr>
             <tr>
               <td style="padding: 10px; background: #f5f5f5; font-weight: bold;">邮箱</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${inquiry.email}</td>
+              <td style="padding: 10px; border: 1px solid #eee;">${escapeHtml(inquiry.email)}</td>
             </tr>
             ${inquiry.company ? `
             <tr>
               <td style="padding: 10px; background: #f5f5f5; font-weight: bold;">公司</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${inquiry.company}</td>
+              <td style="padding: 10px; border: 1px solid #eee;">${escapeHtml(inquiry.company)}</td>
             </tr>
             ` : ""}
             ${inquiry.phone ? `
             <tr>
               <td style="padding: 10px; background: #f5f5f5; font-weight: bold;">电话</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${inquiry.phone}</td>
+              <td style="padding: 10px; border: 1px solid #eee;">${escapeHtml(inquiry.phone)}</td>
             </tr>
             ` : ""}
             ${inquiry.subject ? `
             <tr>
               <td style="padding: 10px; background: #f5f5f5; font-weight: bold;">主题</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${inquiry.subject}</td>
+              <td style="padding: 10px; border: 1px solid #eee;">${escapeHtml(inquiry.subject)}</td>
             </tr>
             ` : ""}
             <tr>
               <td style="padding: 10px; background: #f5f5f5; font-weight: bold; vertical-align: top;">留言内容</td>
-              <td style="padding: 10px; border: 1px solid #eee; white-space: pre-wrap;">${inquiry.message}</td>
+              <td style="padding: 10px; border: 1px solid #eee; white-space: pre-wrap;">${escapeHtml(inquiry.message)}</td>
             </tr>
           </table>
           

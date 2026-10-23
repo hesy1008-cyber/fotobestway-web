@@ -4,13 +4,19 @@ import { prisma } from "@/app/lib/prisma";
 import fs from "fs/promises";
 import path from "path";
 import { revalidatePath } from "next/cache";
+import { ALLOWED_EXT, getSafeExt, sanitizeFilename } from "@/app/lib/upload-security";
 
-// 保存文件
+// 保存文件（只允许图片类型，文件名随机化防路径穿越）
 async function saveFile(file: File, subfolder: string) {
+  const ext = getSafeExt(file.name, ALLOWED_EXT.image);
+  if (!ext) {
+    throw new Error("不支持的文件类型，仅允许 jpg/png/webp/gif");
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const fileName = Date.now() + "-" + file.name;
+  const fileName = sanitizeFilename(file.name.replace(/\.[^/.]+$/, ""), ext);
   const uploadDir = path.join(process.cwd(), "public/uploads", subfolder);
 
   await fs.mkdir(uploadDir, { recursive: true });

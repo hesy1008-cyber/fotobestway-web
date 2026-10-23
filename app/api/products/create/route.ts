@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { requireAdminRole } from "@/app/lib/auth";
+import { sanitizeFilename } from "@/app/lib/upload-security";
 
 export async function POST(req: NextRequest) {
   const role = await requireAdminRole(req);
@@ -38,8 +39,7 @@ export async function POST(req: NextRequest) {
 
       if (allowedExts.includes(ext)) {
         const originalName = videoFile.name.replace(/\.[^/.]+$/, "");
-        const timestamp = Date.now();
-        const filename = `${timestamp}-${originalName}${ext}`;
+        const filename = sanitizeFilename(originalName, ext);
 
         const videoUploadDir = path.join(process.cwd(), "public/uploads/videos");
         await fs.mkdir(videoUploadDir, { recursive: true });

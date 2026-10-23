@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 import { requireAdminRole } from "@/app/lib/auth";
+import { sanitizeFilename } from "@/app/lib/upload-security";
 
 export async function POST(req: NextRequest) {
   const role = await requireAdminRole(req);
@@ -22,14 +23,12 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const originalName = file.name.replace(/\.[^/.]+$/, "");
-    const timestamp = Date.now();
-    const baseFilename = `${timestamp}-${originalName}`;
 
     const uploadPath = path.join(process.cwd(), "public/uploads/news");
     await fs.mkdir(uploadPath, { recursive: true });
 
     // 新闻图片：保持原始比例，限制最大宽度 1600px，webp 压缩
-    const filename = `${baseFilename}.webp`;
+    const filename = sanitizeFilename(originalName, ".webp");
     const filePath = path.join(uploadPath, filename);
 
     await sharp(buffer)

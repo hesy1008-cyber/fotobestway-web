@@ -63,6 +63,7 @@ export async function GET(
           "Content-Range": `bytes ${start}-${end}/${fileSize}`,
           "Accept-Ranges": "bytes",
           "Cache-Control": "public, max-age=31536000, immutable",
+          "X-Content-Type-Options": "nosniff",
         },
       });
     }
@@ -76,6 +77,7 @@ export async function GET(
         "Content-Length": fileSize.toString(),
         "Accept-Ranges": "bytes",
         "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (error) {

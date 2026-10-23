@@ -4,6 +4,10 @@ import fs from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 import { requireAdminRole } from "@/app/lib/auth";
+import { ALLOWED_EXT, getSafeExt } from "@/app/lib/upload-security";
+
+// 主图上传：只允许图片，单文件上限 20MB（防内存拖垮）
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   const role = await requireAdminRole(req);
@@ -22,6 +26,23 @@ export async function POST(req: NextRequest) {
         {
           status: 400,
         }
+      );
+    }
+
+    // 类型白名单（防 .svg/.html 等恶意文件）
+    const ext = getSafeExt(file.name, ALLOWED_EXT.image);
+    if (!ext) {
+      return NextResponse.json(
+        { error: "Unsupported file type, only jpg/png/webp/gif allowed" },
+        { status: 400 }
+      );
+    }
+
+    // 大小限制
+    if (file.size > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large, max 20MB" },
+        { status: 400 }
       );
     }
 

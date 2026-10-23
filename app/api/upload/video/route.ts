@@ -7,6 +7,7 @@ import { Readable } from "stream";
 import { compressVideoIfPossible } from "@/app/lib/video";
 import { isCosConfigured, uploadToCos } from "@/app/lib/cos";
 import { requireAdminRole } from "@/app/lib/auth";
+import { sanitizeFilename } from "@/app/lib/upload-security";
 
 // 使用 Node.js runtime，支持大文件上传
 export const runtime = "nodejs";
@@ -94,10 +95,9 @@ export async function POST(req: NextRequest): Promise<Response> {
           return;
         }
 
-        // 生成文件名
+        // 生成文件名（清洗掉路径分隔符等，防路径穿越）
         const originalName = filename.replace(/\.[^/.]+$/, "");
-        const timestamp = Date.now();
-        const saveFilename = `${timestamp}-${originalName}${ext}`;
+        const saveFilename = sanitizeFilename(originalName, ext);
         const savePath = path.join(uploadPath, saveFilename);
 
         console.log("Saving to:", savePath);
