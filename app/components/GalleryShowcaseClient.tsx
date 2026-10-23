@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "@/app/i18n/TranslationContext";
@@ -107,9 +108,11 @@ export default function GalleryShowcaseClient({
                   className="gallery-showcase-item"
                   onClick={() => openLightbox(1, index)}
                 >
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title || `Gallery ${index + 1}`}
+                    fill
+                    sizes="(max-width: 600px) 220px, (max-width: 900px) 240px, 280px"
                     loading="lazy"
                   />
                 </div>
@@ -130,9 +133,11 @@ export default function GalleryShowcaseClient({
                   className="gallery-showcase-item"
                   onClick={() => openLightbox(2, index)}
                 >
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title || `Gallery ${index + 1}`}
+                    fill
+                    sizes="(max-width: 600px) 220px, (max-width: 900px) 240px, 280px"
                     loading="lazy"
                   />
                 </div>
@@ -193,10 +198,14 @@ export default function GalleryShowcaseClient({
             className="lightbox-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={currentItem.image}
               alt={currentItem.title || "Gallery"}
+              width={1920}
+              height={1440}
+              sizes="90vw"
               className="lightbox-image"
+              priority
             />
 
             {/* 底部信息 */}

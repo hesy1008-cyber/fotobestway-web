@@ -768,6 +768,7 @@ font-size:18px;
   position: relative;
   border-radius: 12px;
   overflow: hidden;
+  background: #e5e5e5; /* 图片加载中的占位底色 */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
