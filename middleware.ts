@@ -41,33 +41,13 @@ async function checkSession(request: NextRequest): Promise<string> {
 
 // 获取用户偏好的语言
 function getLocale(request: NextRequest): string {
-  // 1. 先从 cookie 读取
+  // 1. 先从 cookie 读取（用户手动选择的语言，持久记住）
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   if (cookieLocale && locales.includes(cookieLocale as any)) {
     return cookieLocale;
   }
 
-  // 2. 从 Accept-Language header 读取
-  const acceptLanguage = request.headers.get("accept-language");
-  if (acceptLanguage) {
-    const preferredLocales = acceptLanguage
-      .split(",")
-      .map((lang) => lang.split(";")[0].trim().toLowerCase());
-
-    for (const lang of preferredLocales) {
-      // 精确匹配
-      if (locales.includes(lang as any)) {
-        return lang;
-      }
-      // 前缀匹配（如 zh-CN → zh）
-      const prefix = lang.split("-")[0];
-      if (locales.includes(prefix as any)) {
-        return prefix;
-      }
-    }
-  }
-
-  // 3. 使用默认语言
+  // 2. 默认英文（不根据浏览器语言自动切换，需要中文的用户手动在右上角切换）
   return defaultLocale;
 }
 
