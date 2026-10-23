@@ -44,6 +44,7 @@ const nextConfig: NextConfig = {
     ignoreIssue: [
       { path: /app[\\/]actions[\\/](about|media)\.ts/ },
       { path: /app[\\/]api[\\/]uploads/ },
+      { path: /app[\\/]lib[\\/]upload-security\.ts/ },
     ],
   },
 
