@@ -1488,6 +1488,115 @@
   padding-left: 13px;
 }
 
+/* ====== 一级分类排序交互 ====== */
+.sidebar-item {
+  position: relative;
+  user-select: none;
+}
+
+.sidebar-item .sidebar-badge {
+  cursor: grab;
+}
+
+.sidebar-item.dragging {
+  opacity: 0.45;
+}
+
+.sidebar-item.drag-over-before::before,
+.sidebar-item.drag-over-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e63946;
+  z-index: 3;
+}
+
+.sidebar-item.drag-over-before::before {
+  top: -1px;
+}
+
+.sidebar-item.drag-over-after::after {
+  bottom: -1px;
+}
+
+.sidebar-item-actions {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  padding-left: 12px;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar-item.active .sidebar-item-actions {
+  background: #fff5f5;
+}
+
+.sidebar-item:hover .sidebar-item-actions,
+.sidebar-item:focus-within .sidebar-item-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-item:hover .sidebar-item-stats,
+.sidebar-item:focus-within .sidebar-item-stats {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar-move-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fff;
+  color: #666;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-move-btn:hover:not(:disabled) {
+  border-color: #e63946;
+  color: #e63946;
+}
+
+.sidebar-move-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sidebar-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-sort-hint,
+.sidebar-saving {
+  font-size: 10px;
+  font-weight: 500;
+  color: #999;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.sidebar-saving {
+  font-weight: 600;
+  color: #e63946;
+}
+
 .sidebar-badge {
   display: inline-flex;
   align-items: center;

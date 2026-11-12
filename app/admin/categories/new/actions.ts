@@ -43,10 +43,17 @@ export async function createCategory(
   }
 
   try {
+    // 新分类默认排在最后，避免与已有分类同为 0 导致顺序不确定
+    const maxSort = await prisma.category.aggregate({
+      _max: { sortOrder: true },
+    })
+    const nextSortOrder = (maxSort._max.sortOrder ?? -1) + 1
+
     await prisma.category.create({
       data: {
         name,
         slug,
+        sortOrder: nextSortOrder,
         bannerImage: bannerImage || null,
         bannerTitle: bannerTitle || null,
         bannerDescription: bannerDescription || null,

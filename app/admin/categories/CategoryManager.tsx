@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DeleteCategoryButton from "./DeleteCategoryButton";
@@ -23,12 +23,112 @@ type Category = {
 };
 
 export default function CategoryManager({ categories }: { categories: Category[] }) {
+  const [items, setItems] = useState<Category[]>(categories);
   const [selectedId, setSelectedId] = useState(categories[0]?.id || "");
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
   const [dragOverSub, setDragOverSub] = useState<string | null>(null);
+
+  // 分类排序状态
+  const [saving, setSaving] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | null>(null);
+  const dragIdRef = useRef<string | null>(null);
+
   const router = useRouter();
 
-  const selected = categories.find((c) => c.id === selectedId);
+  // 服务端刷新后同步顺序
+  useEffect(() => {
+    setItems(categories);
+  }, [categories]);
+
+  const selected = items.find((c) => c.id === selectedId);
+
+  // 保存顺序：乐观更新，失败回滚并刷新服务端数据
+  const persistOrder = async (next: Category[]) => {
+    const prev = items;
+    setItems(next);
+    setSaving(true);
+    try {
+      const res = await fetch("/api/categories/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: next.map((c) => c.id) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || String(res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      setItems(prev);
+      alert("顺序保存失败，请重试");
+    } finally {
+      setSaving(false);
+      router.refresh();
+    }
+  };
+
+  // 上移 / 下移
+  const moveBy = (id: string, delta: number) => {
+    if (saving) return;
+    const arr = [...items];
+    const idx = arr.findIndex((c) => c.id === id);
+    const target = idx + delta;
+    if (idx < 0 || target < 0 || target >= arr.length) return;
+    [arr[idx], arr[target]] = [arr[target], arr[idx]];
+    void persistOrder(arr);
+  };
+
+  // 拖动排序
+  const onCategoryDragStart = (e: React.DragEvent, id: string) => {
+    dragIdRef.current = id;
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", "CATEGORY:" + id);
+  };
+
+  const onCategoryDragOver = (e: React.DragEvent, id: string) => {
+    if (!dragIdRef.current || dragIdRef.current === id) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const rect = e.currentTarget.getBoundingClientRect();
+    const after = e.clientY - rect.top > rect.height / 2;
+    setDropTarget({ id, after });
+  };
+
+  const onCategoryDragLeave = (e: React.DragEvent, id: string) => {
+    // 在子元素之间移动会触发 dragleave，用 relatedTarget 过滤掉
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+    setDropTarget((cur) => (cur?.id === id ? null : cur));
+  };
+
+  const onCategoryDrop = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    const draggedId = dragIdRef.current;
+    dragIdRef.current = null;
+    setDraggingId(null);
+    setDropTarget(null);
+    if (!draggedId || draggedId === id) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const after = e.clientY - rect.top > rect.height / 2;
+
+    const arr = [...items];
+    const from = arr.findIndex((c) => c.id === draggedId);
+    if (from === -1) return;
+    const [moved] = arr.splice(from, 1);
+    const to = arr.findIndex((c) => c.id === id);
+    if (to === -1) return;
+    arr.splice(after ? to + 1 : to, 0, moved);
+
+    void persistOrder(arr);
+  };
+
+  const onCategoryDragEnd = () => {
+    dragIdRef.current = null;
+    setDraggingId(null);
+    setDropTarget(null);
+  };
 
   // 拖动产品到目标分类，成功后刷新服务端数据
   const moveProduct = async (productId: string, subCategoryId: string | null, categoryId?: string) => {
@@ -53,8 +153,10 @@ export default function CategoryManager({ categories }: { categories: Category[]
   const onDropProduct = (e: React.DragEvent, subCategoryId: string | null, categoryId?: string) => {
     e.preventDefault();
     setDragOverSub(null);
-    const productId = e.dataTransfer.getData("text/plain");
-    if (productId) moveProduct(productId, subCategoryId, categoryId);
+    const raw = e.dataTransfer.getData("text/plain");
+    // 分类排序拖动不应触发产品移动
+    if (!raw || raw.startsWith("CATEGORY:")) return;
+    moveProduct(raw, subCategoryId, categoryId);
   };
 
   const toggleSub = (id: string) => {
@@ -68,7 +170,7 @@ export default function CategoryManager({ categories }: { categories: Category[]
 
   return (
     <div className="category-manager">
-      {/* 左侧：一级分类导航 */}
+      {/* 左侧：一级分类导航（可拖动 / 上下移动调整顺序） */}
       <aside className="category-sidebar">
         <div
           className="sidebar-banner"
@@ -91,16 +193,39 @@ export default function CategoryManager({ categories }: { categories: Category[]
         </div>
         <div className="sidebar-list-header">
           <span>全部分类</span>
-          <span className="sidebar-total">{categories.length}</span>
+          <div className="sidebar-header-right">
+            {saving ? (
+              <span className="sidebar-saving">保存中…</span>
+            ) : (
+              <span className="sidebar-sort-hint">拖动排序</span>
+            )}
+            <span className="sidebar-total">{items.length}</span>
+          </div>
         </div>
         <div className="sidebar-list">
-          {categories.map((cat, i) => (
+          {items.map((cat, i) => (
             <div
               key={cat.id}
-              className={`sidebar-item ${selectedId === cat.id ? "active" : ""}`}
+              className={`sidebar-item ${selectedId === cat.id ? "active" : ""} ${
+                draggingId === cat.id ? "dragging" : ""
+              } ${
+                dropTarget?.id === cat.id
+                  ? dropTarget.after
+                    ? "drag-over-after"
+                    : "drag-over-before"
+                  : ""
+              }`}
               onClick={() => setSelectedId(cat.id)}
+              draggable={!saving}
+              onDragStart={(e) => onCategoryDragStart(e, cat.id)}
+              onDragOver={(e) => onCategoryDragOver(e, cat.id)}
+              onDragLeave={(e) => onCategoryDragLeave(e, cat.id)}
+              onDrop={(e) => onCategoryDrop(e, cat.id)}
+              onDragEnd={onCategoryDragEnd}
             >
-              <span className="sidebar-badge">{String(i + 1).padStart(2, "0")}</span>
+              <span className="sidebar-badge" title="拖动可调整顺序">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <span className="sidebar-name">{cat.name}</span>
               <div className="sidebar-item-stats">
                 <span className="sidebar-stat">
@@ -112,6 +237,34 @@ export default function CategoryManager({ categories }: { categories: Category[]
                   <span className="sidebar-stat-num">{cat.subCategories.length}</span>
                   <span className="sidebar-stat-label">子分类</span>
                 </span>
+              </div>
+              <div className="sidebar-item-actions">
+                <button
+                  type="button"
+                  className="sidebar-move-btn"
+                  title="上移"
+                  aria-label={`上移 ${cat.name}`}
+                  disabled={i === 0 || saving}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveBy(cat.id, -1);
+                  }}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="sidebar-move-btn"
+                  title="下移"
+                  aria-label={`下移 ${cat.name}`}
+                  disabled={i === items.length - 1 || saving}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveBy(cat.id, 1);
+                  }}
+                >
+                  ↓
+                </button>
               </div>
             </div>
           ))}
