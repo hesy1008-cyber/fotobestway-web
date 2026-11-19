@@ -2469,10 +2469,15 @@
   opacity: 0.4;
 }
 
-.product-tag-item.drag-target {
-  outline: 2px solid #e60012;
-  outline-offset: 1px;
-  background: #fff;
-  color: #e60012;
+/* 产品拖拽落点：不占位的红条，插在前一个标签左侧 / 末尾标签右侧 */
+.product-tag-item.drop-before {
+  box-shadow: inset 3px 0 0 #e60012;
   border-color: #e60012;
+  color: #e60012;
+}
+
+.product-tag-item.drop-end {
+  box-shadow: inset -3px 0 0 #e60012;
+  border-color: #e60012;
+  color: #e60012;
 }

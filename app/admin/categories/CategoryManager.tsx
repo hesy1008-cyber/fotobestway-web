@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DeleteCategoryButton from "./DeleteCategoryButton";
+import { findDropBeforeId } from "./productDropTarget";
 
 type ProductSimple = { id: string; title: string };
 type SubCategory = {
@@ -32,7 +33,11 @@ export default function CategoryManager({ categories }: { categories: Category[]
   const [selectedId, setSelectedId] = useState(categories[0]?.id || "");
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
-  const [overProductId, setOverProductId] = useState<string | null>(null);
+  // 产品拖拽落点：groupKey + 插入到哪个产品之前（null = 末尾）
+  const [productDrop, setProductDrop] = useState<{
+    groupKey: string;
+    beforeId: string | null;
+  } | null>(null);
 
   // 分类排序状态
   const [savingCategory, setSavingCategory] = useState(false);
@@ -326,7 +331,7 @@ export default function CategoryManager({ categories }: { categories: Category[]
     dragRef.current = null;
     setDraggingProductId(null);
     setDragOverGroup(null);
-    setOverProductId(null);
+    setProductDrop(null);
   };
 
   const onGroupDragOver = (e: React.DragEvent, groupKey: string) => {
@@ -334,14 +339,23 @@ export default function CategoryManager({ categories }: { categories: Category[]
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     setDragOverGroup(groupKey);
-    const el = (e.target as HTMLElement).closest?.("[data-product-id]") as HTMLElement | null;
-    setOverProductId(el?.getAttribute("data-product-id") || null);
+    const beforeId = findDropBeforeId(
+      e.currentTarget as HTMLElement,
+      e.clientX,
+      e.clientY,
+      dragRef.current.id
+    );
+    setProductDrop((cur) =>
+      cur && cur.groupKey === groupKey && cur.beforeId === beforeId
+        ? cur
+        : { groupKey, beforeId }
+    );
   };
 
   const onGroupDragLeave = (e: React.DragEvent, groupKey: string) => {
     if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
     setDragOverGroup((cur) => (cur === groupKey ? null : cur));
-    setOverProductId(null);
+    setProductDrop((cur) => (cur && cur.groupKey === groupKey ? null : cur));
   };
 
   const onGroupDrop = (
@@ -353,16 +367,24 @@ export default function CategoryManager({ categories }: { categories: Category[]
     const drag = dragRef.current;
     if (!drag) return;
     e.preventDefault();
+
+    const beforeId =
+      drag.kind === "product"
+        ? findDropBeforeId(
+            e.currentTarget as HTMLElement,
+            e.clientX,
+            e.clientY,
+            drag.id
+          )
+        : null;
+
     setDragOverGroup(null);
-    setOverProductId(null);
+    setProductDrop(null);
     dragRef.current = null;
     setDraggingProductId(null);
 
     // 二级分类拖动由各自的 handler 处理，这里只处理产品
     if (drag.kind !== "product") return;
-
-    const el = (e.target as HTMLElement).closest?.("[data-product-id]") as HTMLElement | null;
-    const beforeId = el?.getAttribute("data-product-id") || null;
 
     const sameGroup = drag.categoryId === categoryId && drag.subCategoryId === subCategoryId;
 
@@ -547,14 +569,25 @@ export default function CategoryManager({ categories }: { categories: Category[]
                   onDrop={(e) => onGroupDrop(e, selected.id, null, "__unassigned__")}
                 >
                   <div className="accordion-product-tags">
-                    {selected.unassignedProducts.map((p) => (
+                    {selected.unassignedProducts.map((p, idx, arr) => (
                       <Link
                         key={p.id}
                         href={`/admin/products/${p.id}/edit`}
                         data-product-id={p.id}
                         className={`product-tag-item ${
                           draggingProductId === p.id ? "dragging" : ""
-                        } ${overProductId === p.id ? "drag-target" : ""}`}
+                        } ${
+                          productDrop?.groupKey === "__unassigned__" &&
+                          productDrop.beforeId === p.id
+                            ? "drop-before"
+                            : ""
+                        } ${
+                          productDrop?.groupKey === "__unassigned__" &&
+                          productDrop.beforeId === null &&
+                          idx === arr.length - 1
+                            ? "drop-end"
+                            : ""
+                        }`}
                         draggable={!saving}
                         onDragStart={(e) =>
                           onProductDragStart(e, selected.id, null, p.id)
@@ -645,14 +678,25 @@ export default function CategoryManager({ categories }: { categories: Category[]
                               <p className="accordion-empty">该分类下暂无产品（可拖入产品到此）</p>
                             ) : (
                               <div className="accordion-product-tags">
-                                {sub.products.map((p) => (
+                                {sub.products.map((p, idx, arr) => (
                                   <Link
                                     key={p.id}
                                     href={`/admin/products/${p.id}/edit`}
                                     data-product-id={p.id}
                                     className={`product-tag-item ${
                                       draggingProductId === p.id ? "dragging" : ""
-                                    } ${overProductId === p.id ? "drag-target" : ""}`}
+                                    } ${
+                                      productDrop?.groupKey === groupKey &&
+                                      productDrop.beforeId === p.id
+                                        ? "drop-before"
+                                        : ""
+                                    } ${
+                                      productDrop?.groupKey === groupKey &&
+                                      productDrop.beforeId === null &&
+                                      idx === arr.length - 1
+                                        ? "drop-end"
+                                        : ""
+                                    }`}
                                     draggable={!saving}
                                     onDragStart={(e) =>
                                       onProductDragStart(e, selected.id, sub.id, p.id)
