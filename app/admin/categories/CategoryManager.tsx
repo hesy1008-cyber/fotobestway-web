@@ -22,17 +22,30 @@ type Category = {
   unassignedProducts: ProductSimple[];
 };
 
+type DragState =
+  | { kind: "category"; id: string }
+  | { kind: "sub"; id: string; categoryId: string }
+  | { kind: "product"; id: string; categoryId: string; subCategoryId: string | null };
+
 export default function CategoryManager({ categories }: { categories: Category[] }) {
   const [items, setItems] = useState<Category[]>(categories);
   const [selectedId, setSelectedId] = useState(categories[0]?.id || "");
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
-  const [dragOverSub, setDragOverSub] = useState<string | null>(null);
+  const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
+  const [overProductId, setOverProductId] = useState<string | null>(null);
 
   // 分类排序状态
-  const [saving, setSaving] = useState(false);
+  const [savingCategory, setSavingCategory] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | null>(null);
-  const dragIdRef = useRef<string | null>(null);
+
+  // 二级分类 / 产品排序状态
+  const [savingList, setSavingList] = useState(false);
+  const [draggingSubId, setDraggingSubId] = useState<string | null>(null);
+  const [subDropTarget, setSubDropTarget] = useState<{ id: string; after: boolean } | null>(null);
+  const [draggingProductId, setDraggingProductId] = useState<string | null>(null);
+
+  const dragRef = useRef<DragState | null>(null);
 
   const router = useRouter();
 
@@ -43,11 +56,14 @@ export default function CategoryManager({ categories }: { categories: Category[]
 
   const selected = items.find((c) => c.id === selectedId);
 
-  // 保存顺序：乐观更新，失败回滚并刷新服务端数据
+  const saving = savingCategory || savingList;
+
+  /* ===================== 一级分类排序 ===================== */
+
   const persistOrder = async (next: Category[]) => {
     const prev = items;
     setItems(next);
-    setSaving(true);
+    setSavingCategory(true);
     try {
       const res = await fetch("/api/categories/reorder", {
         method: "POST",
@@ -63,12 +79,11 @@ export default function CategoryManager({ categories }: { categories: Category[]
       setItems(prev);
       alert("顺序保存失败，请重试");
     } finally {
-      setSaving(false);
+      setSavingCategory(false);
       router.refresh();
     }
   };
 
-  // 上移 / 下移
   const moveBy = (id: string, delta: number) => {
     if (saving) return;
     const arr = [...items];
@@ -79,16 +94,16 @@ export default function CategoryManager({ categories }: { categories: Category[]
     void persistOrder(arr);
   };
 
-  // 拖动排序
   const onCategoryDragStart = (e: React.DragEvent, id: string) => {
-    dragIdRef.current = id;
+    dragRef.current = { kind: "category", id };
     setDraggingId(id);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", "CATEGORY:" + id);
   };
 
   const onCategoryDragOver = (e: React.DragEvent, id: string) => {
-    if (!dragIdRef.current || dragIdRef.current === id) return;
+    const drag = dragRef.current;
+    if (!drag || drag.kind !== "category" || drag.id === id) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     const rect = e.currentTarget.getBoundingClientRect();
@@ -97,24 +112,24 @@ export default function CategoryManager({ categories }: { categories: Category[]
   };
 
   const onCategoryDragLeave = (e: React.DragEvent, id: string) => {
-    // 在子元素之间移动会触发 dragleave，用 relatedTarget 过滤掉
     if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
     setDropTarget((cur) => (cur?.id === id ? null : cur));
   };
 
   const onCategoryDrop = (e: React.DragEvent, id: string) => {
+    const drag = dragRef.current;
+    if (!drag || drag.kind !== "category") return;
     e.preventDefault();
-    const draggedId = dragIdRef.current;
-    dragIdRef.current = null;
+    dragRef.current = null;
     setDraggingId(null);
     setDropTarget(null);
-    if (!draggedId || draggedId === id) return;
+    if (drag.id === id) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const after = e.clientY - rect.top > rect.height / 2;
 
     const arr = [...items];
-    const from = arr.findIndex((c) => c.id === draggedId);
+    const from = arr.findIndex((c) => c.id === drag.id);
     if (from === -1) return;
     const [moved] = arr.splice(from, 1);
     const to = arr.findIndex((c) => c.id === id);
@@ -125,13 +140,126 @@ export default function CategoryManager({ categories }: { categories: Category[]
   };
 
   const onCategoryDragEnd = () => {
-    dragIdRef.current = null;
+    dragRef.current = null;
     setDraggingId(null);
     setDropTarget(null);
   };
 
-  // 拖动产品到目标分类，成功后刷新服务端数据
-  const moveProduct = async (productId: string, subCategoryId: string | null, categoryId?: string) => {
+  /* ===================== 数据分组读写 ===================== */
+
+  const getGroupProducts = (categoryId: string, subCategoryId: string | null, source?: Category[]) => {
+    const list = source || items;
+    const cat = list.find((c) => c.id === categoryId);
+    if (!cat) return [] as ProductSimple[];
+    if (subCategoryId === null) return cat.unassignedProducts;
+    return cat.subCategories.find((s) => s.id === subCategoryId)?.products || [];
+  };
+
+  const setGroupProducts = (
+    categoryId: string,
+    subCategoryId: string | null,
+    next: ProductSimple[]
+  ) => {
+    setItems((prev) =>
+      prev.map((cat) => {
+        if (cat.id !== categoryId) return cat;
+        if (subCategoryId === null) {
+          return { ...cat, unassignedProducts: next };
+        }
+        return {
+          ...cat,
+          subCategories: cat.subCategories.map((sub) =>
+            sub.id === subCategoryId ? { ...sub, products: next } : sub
+          ),
+        };
+      })
+    );
+  };
+
+  /* ===================== 二级分类排序 ===================== */
+
+  const persistSubOrder = async (categoryId: string, nextSubs: SubCategory[], prevSubs: SubCategory[]) => {
+    setItems((prev) =>
+      prev.map((cat) =>
+        cat.id === categoryId ? { ...cat, subCategories: nextSubs } : cat
+      )
+    );
+    setSavingList(true);
+    try {
+      const res = await fetch("/api/subcategories/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryId, ids: nextSubs.map((s) => s.id) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || String(res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      setItems((prev) =>
+        prev.map((cat) =>
+          cat.id === categoryId ? { ...cat, subCategories: prevSubs } : cat
+        )
+      );
+      alert("二级分类顺序保存失败，请重试");
+    } finally {
+      setSavingList(false);
+      router.refresh();
+    }
+  };
+
+  const onSubDragStart = (e: React.DragEvent, categoryId: string, subId: string) => {
+    dragRef.current = { kind: "sub", id: subId, categoryId };
+    setDraggingSubId(subId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", "SUB:" + subId);
+  };
+
+  const onSubDragEnd = () => {
+    dragRef.current = null;
+    setDraggingSubId(null);
+    setSubDropTarget(null);
+  };
+
+  const onSubDragOver = (e: React.DragEvent, subId: string) => {
+    const drag = dragRef.current;
+    if (!drag || drag.kind !== "sub" || drag.id === subId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const rect = e.currentTarget.getBoundingClientRect();
+    setSubDropTarget({ id: subId, after: e.clientY - rect.top > rect.height / 2 });
+  };
+
+  const onSubDrop = (e: React.DragEvent, categoryId: string, subId: string) => {
+    const drag = dragRef.current;
+    if (!drag || drag.kind !== "sub") return;
+    e.preventDefault();
+    dragRef.current = null;
+    setDraggingSubId(null);
+    setSubDropTarget(null);
+
+    if (drag.categoryId !== categoryId || drag.id === subId) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const after = e.clientY - rect.top > rect.height / 2;
+
+    const cat = items.find((c) => c.id === categoryId);
+    if (!cat) return;
+    const arr = [...cat.subCategories];
+    const from = arr.findIndex((s) => s.id === drag.id);
+    if (from === -1) return;
+    const [moved] = arr.splice(from, 1);
+    const to = arr.findIndex((s) => s.id === subId);
+    if (to === -1) return;
+    arr.splice(after ? to + 1 : to, 0, moved);
+
+    void persistSubOrder(categoryId, arr, cat.subCategories);
+  };
+
+  /* ===================== 产品移动 / 排序 ===================== */
+
+  const moveProduct = async (productId: string, subCategoryId: string | null, categoryId: string) => {
     try {
       const res = await fetch("/api/products/move-category", {
         method: "POST",
@@ -150,13 +278,115 @@ export default function CategoryManager({ categories }: { categories: Category[]
     }
   };
 
-  const onDropProduct = (e: React.DragEvent, subCategoryId: string | null, categoryId?: string) => {
+  const persistProductOrder = async (
+    categoryId: string,
+    subCategoryId: string | null,
+    next: ProductSimple[],
+    prev: ProductSimple[]
+  ) => {
+    setGroupProducts(categoryId, subCategoryId, next);
+    setSavingList(true);
+    try {
+      const res = await fetch("/api/products/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ids: next.map((p) => p.id),
+          categoryId,
+          subCategoryId,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || String(res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      setGroupProducts(categoryId, subCategoryId, prev);
+      alert("产品顺序保存失败，请重试");
+    } finally {
+      setSavingList(false);
+      router.refresh();
+    }
+  };
+
+  const onProductDragStart = (
+    e: React.DragEvent,
+    categoryId: string,
+    subCategoryId: string | null,
+    productId: string
+  ) => {
+    dragRef.current = { kind: "product", id: productId, categoryId, subCategoryId };
+    setDraggingProductId(productId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", "PRODUCT:" + productId);
+  };
+
+  const onProductDragEnd = () => {
+    dragRef.current = null;
+    setDraggingProductId(null);
+    setDragOverGroup(null);
+    setOverProductId(null);
+  };
+
+  const onGroupDragOver = (e: React.DragEvent, groupKey: string) => {
+    if (dragRef.current?.kind !== "product") return;
     e.preventDefault();
-    setDragOverSub(null);
-    const raw = e.dataTransfer.getData("text/plain");
-    // 分类排序拖动不应触发产品移动
-    if (!raw || raw.startsWith("CATEGORY:")) return;
-    moveProduct(raw, subCategoryId, categoryId);
+    e.dataTransfer.dropEffect = "move";
+    setDragOverGroup(groupKey);
+    const el = (e.target as HTMLElement).closest?.("[data-product-id]") as HTMLElement | null;
+    setOverProductId(el?.getAttribute("data-product-id") || null);
+  };
+
+  const onGroupDragLeave = (e: React.DragEvent, groupKey: string) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+    setDragOverGroup((cur) => (cur === groupKey ? null : cur));
+    setOverProductId(null);
+  };
+
+  const onGroupDrop = (
+    e: React.DragEvent,
+    categoryId: string,
+    subCategoryId: string | null,
+    groupKey: string
+  ) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    e.preventDefault();
+    setDragOverGroup(null);
+    setOverProductId(null);
+    dragRef.current = null;
+    setDraggingProductId(null);
+
+    // 二级分类拖动由各自的 handler 处理，这里只处理产品
+    if (drag.kind !== "product") return;
+
+    const el = (e.target as HTMLElement).closest?.("[data-product-id]") as HTMLElement | null;
+    const beforeId = el?.getAttribute("data-product-id") || null;
+
+    const sameGroup = drag.categoryId === categoryId && drag.subCategoryId === subCategoryId;
+
+    if (!sameGroup) {
+      // 跨分组 = 移动产品到目标分类，追加到末尾
+      void moveProduct(drag.id, subCategoryId, categoryId);
+      return;
+    }
+
+    const current = getGroupProducts(categoryId, subCategoryId);
+    if (current.length === 0) return;
+
+    const moved = current.find((p) => p.id === drag.id);
+    if (!moved) return;
+    const without = current.filter((p) => p.id !== drag.id);
+    const insertAt = beforeId ? without.findIndex((p) => p.id === beforeId) : -1;
+    const next = [...without];
+    if (insertAt >= 0) next.splice(insertAt, 0, moved);
+    else next.push(moved);
+
+    const unchanged = next.every((p, i) => p.id === current[i]?.id);
+    if (unchanged) return;
+
+    void persistProductOrder(categoryId, subCategoryId, next, current);
   };
 
   const toggleSub = (id: string) => {
@@ -303,29 +533,33 @@ export default function CategoryManager({ categories }: { categories: Category[]
               <div className="sub-category-panel">
                 <div className="panel-header">
                   <h3>直接分类产品（未分配二级分类）</h3>
-                  <span className="panel-hint">{selected.unassignedProducts.length} 个产品</span>
+                  <span className="panel-hint">
+                    拖动产品可调整顺序（{selected.unassignedProducts.length} 个）
+                  </span>
                 </div>
                 <div
-                  className={`accordion-content ${dragOverSub === "__unassigned__" ? "drag-over" : ""}`}
+                  className={`accordion-content ${
+                    dragOverGroup === "__unassigned__" ? "drag-over" : ""
+                  }`}
                   style={{ padding: "16px" }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOverSub("__unassigned__");
-                  }}
-                  onDragLeave={() => setDragOverSub((cur) => (cur === "__unassigned__" ? null : cur))}
-                  onDrop={(e) => onDropProduct(e, null, selected.id)}
+                  onDragOver={(e) => onGroupDragOver(e, "__unassigned__")}
+                  onDragLeave={(e) => onGroupDragLeave(e, "__unassigned__")}
+                  onDrop={(e) => onGroupDrop(e, selected.id, null, "__unassigned__")}
                 >
                   <div className="accordion-product-tags">
                     {selected.unassignedProducts.map((p) => (
                       <Link
                         key={p.id}
                         href={`/admin/products/${p.id}/edit`}
-                        className="product-tag-item"
-                        draggable
-                        onDragStart={(e) => {
-                          e.dataTransfer.setData("text/plain", p.id);
-                          e.dataTransfer.effectAllowed = "move";
-                        }}
+                        data-product-id={p.id}
+                        className={`product-tag-item ${
+                          draggingProductId === p.id ? "dragging" : ""
+                        } ${overProductId === p.id ? "drag-target" : ""}`}
+                        draggable={!saving}
+                        onDragStart={(e) =>
+                          onProductDragStart(e, selected.id, null, p.id)
+                        }
+                        onDragEnd={onProductDragEnd}
                       >
                         {p.title}
                       </Link>
@@ -339,64 +573,102 @@ export default function CategoryManager({ categories }: { categories: Category[]
             <div className="sub-category-panel">
               <div className="panel-header">
                 <h3>二级分类列表</h3>
-                <span className="panel-hint">点击展开查看产品</span>
+                <span className="panel-hint">
+                  拖动左侧把手调整子分类顺序，拖动产品调整组内顺序
+                </span>
               </div>
               <div className="sub-category-accordion">
                 {selected.subCategories.length === 0 ? (
                   <div className="empty-sub">暂无二级分类</div>
                 ) : (
-                  selected.subCategories.map((sub) => (
-                    <div key={sub.id} className="accordion-item">
-                      <div
-                        className={`accordion-header ${dragOverSub === sub.id ? "drag-over" : ""}`}
-                        onClick={() => toggleSub(sub.id)}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          setDragOverSub(sub.id);
-                        }}
-                        onDragLeave={() => setDragOverSub((cur) => (cur === sub.id ? null : cur))}
-                        onDrop={(e) => onDropProduct(e, sub.id)}
-                      >
-                        <span className="accordion-arrow">
-                          {expandedSubs.has(sub.id) ? "▼" : "▶"}
-                        </span>
-                        <span className="accordion-name">{sub.name}</span>
-                        <span className="accordion-count">{sub.products.length} 个产品</span>
-                      </div>
-                      {expandedSubs.has(sub.id) && (
+                  selected.subCategories.map((sub) => {
+                    const groupKey = "sub:" + sub.id;
+                    return (
+                      <div key={sub.id} className="accordion-item">
                         <div
-                          className={`accordion-content ${dragOverSub === sub.id ? "drag-over" : ""}`}
+                          className={`accordion-header ${
+                            dragOverGroup === groupKey ? "drag-over" : ""
+                          } ${draggingSubId === sub.id ? "dragging" : ""} ${
+                            subDropTarget?.id === sub.id
+                              ? subDropTarget.after
+                                ? "drop-after"
+                                : "drop-before"
+                              : ""
+                          }`}
+                          onClick={() => toggleSub(sub.id)}
                           onDragOver={(e) => {
-                            e.preventDefault();
-                            setDragOverSub(sub.id);
+                            if (dragRef.current?.kind === "sub") {
+                              onSubDragOver(e, sub.id);
+                              return;
+                            }
+                            onGroupDragOver(e, groupKey);
                           }}
-                          onDragLeave={() => setDragOverSub((cur) => (cur === sub.id ? null : cur))}
-                          onDrop={(e) => onDropProduct(e, sub.id)}
+                          onDragLeave={(e) => {
+                            if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+                            setDragOverGroup((cur) => (cur === groupKey ? null : cur));
+                            setSubDropTarget((cur) => (cur?.id === sub.id ? null : cur));
+                          }}
+                          onDrop={(e) => {
+                            if (dragRef.current?.kind === "sub") {
+                              onSubDrop(e, selected.id, sub.id);
+                              return;
+                            }
+                            onGroupDrop(e, selected.id, sub.id, groupKey);
+                          }}
                         >
-                          {sub.products.length === 0 ? (
-                            <p className="accordion-empty">该分类下暂无产品（可拖入产品到此）</p>
-                          ) : (
-                            <div className="accordion-product-tags">
-                              {sub.products.map((p) => (
-                                <Link
-                                  key={p.id}
-                                  href={`/admin/products/${p.id}/edit`}
-                                  className="product-tag-item"
-                                  draggable
-                                  onDragStart={(e) => {
-                                    e.dataTransfer.setData("text/plain", p.id);
-                                    e.dataTransfer.effectAllowed = "move";
-                                  }}
-                                >
-                                  {p.title}
-                                </Link>
-                              ))}
-                            </div>
-                          )}
+                          <span
+                            className="accordion-grip"
+                            title="拖动调整二级分类顺序"
+                            draggable={!saving}
+                            onClick={(e) => e.stopPropagation()}
+                            onDragStart={(e) => onSubDragStart(e, selected.id, sub.id)}
+                            onDragEnd={onSubDragEnd}
+                          >
+                            ⠿
+                          </span>
+                          <span className="accordion-arrow">
+                            {expandedSubs.has(sub.id) ? "▼" : "▶"}
+                          </span>
+                          <span className="accordion-name">{sub.name}</span>
+                          <span className="accordion-count">{sub.products.length} 个产品</span>
                         </div>
-                      )}
-                    </div>
-                  ))
+                        {expandedSubs.has(sub.id) && (
+                          <div
+                            className={`accordion-content ${
+                              dragOverGroup === groupKey ? "drag-over" : ""
+                            }`}
+                            onDragOver={(e) => onGroupDragOver(e, groupKey)}
+                            onDragLeave={(e) => onGroupDragLeave(e, groupKey)}
+                            onDrop={(e) => onGroupDrop(e, selected.id, sub.id, groupKey)}
+                          >
+                            {sub.products.length === 0 ? (
+                              <p className="accordion-empty">该分类下暂无产品（可拖入产品到此）</p>
+                            ) : (
+                              <div className="accordion-product-tags">
+                                {sub.products.map((p) => (
+                                  <Link
+                                    key={p.id}
+                                    href={`/admin/products/${p.id}/edit`}
+                                    data-product-id={p.id}
+                                    className={`product-tag-item ${
+                                      draggingProductId === p.id ? "dragging" : ""
+                                    } ${overProductId === p.id ? "drag-target" : ""}`}
+                                    draggable={!saving}
+                                    onDragStart={(e) =>
+                                      onProductDragStart(e, selected.id, sub.id, p.id)
+                                    }
+                                    onDragEnd={onProductDragEnd}
+                                  >
+                                    {p.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>

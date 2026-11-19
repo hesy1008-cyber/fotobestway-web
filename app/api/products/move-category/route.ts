@@ -40,9 +40,18 @@ export async function POST(req: NextRequest) {
       data = { subCategoryId, categoryId: sub.categoryId };
     }
 
+    // 移动到目标分组后追加到末尾
+    const targetWhere = subCategoryId
+      ? { subCategoryId }
+      : { subCategoryId: null, categoryId: data.categoryId as string };
+    const maxOrder = await prisma.product.aggregate({
+      where: targetWhere,
+      _max: { sortOrder: true },
+    });
+
     const product = await prisma.product.update({
       where: { id: productId },
-      data,
+      data: { ...data, sortOrder: (maxOrder._max.sortOrder ?? -1) + 1 },
       select: { id: true, title: true, subCategoryId: true, categoryId: true },
     });
 

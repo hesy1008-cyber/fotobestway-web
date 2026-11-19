@@ -33,6 +33,7 @@ model Product {
   metaDescription   String?
   focusKeywords     String?
   hiddenSeoText     String?
+  sortOrder         Int           @default(0)
   createdAt         DateTime      @default(now())
 }
 

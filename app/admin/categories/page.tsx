@@ -11,7 +11,10 @@ export default async function CategoriesPage() {
       products: { select: { id: true } },
       subCategories: {
         include: {
-          products: { select: { id: true, title: true } },
+          products: {
+            select: { id: true, title: true },
+            orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+          },
         },
         orderBy: { sortOrder: "asc" },
       },
@@ -23,6 +26,7 @@ export default async function CategoriesPage() {
   const unassignedProducts = await prisma.product.findMany({
     where: { subCategoryId: null },
     select: { id: true, title: true, categoryId: true },
+    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
   });
 
   // 按 categoryId 分组

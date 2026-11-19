@@ -107,6 +107,8 @@ export async function POST(req: NextRequest) {
     let successCount = 0;
     let updateCount = 0;
     let failCount = 0;
+    // 按「二级分类 / 一级分类」分组累加 sortOrder，保持导入顺序
+    const sortCursor = new Map<string, number>();
 
     for (let i = 0; i < products.length; i++) {
       const p = products[i];
@@ -144,6 +146,22 @@ export async function POST(req: NextRequest) {
         // 轮播图第一张自动作为主图（与新增/编辑产品规则一致）
         const image = String(p.image || gallery[0] || "/uploads/products/default.webp");
 
+        const groupKey = subCategoryId
+          ? `sub:${subCategoryId}`
+          : `cat:${categoryId ?? ""}`;
+        let lastOrder = sortCursor.get(groupKey);
+        if (lastOrder === undefined) {
+          const agg = await prisma.product.aggregate({
+            where: subCategoryId
+              ? { subCategoryId }
+              : { subCategoryId: null, categoryId },
+            _max: { sortOrder: true },
+          });
+          lastOrder = agg._max.sortOrder ?? -1;
+        }
+        const nextSortOrder = lastOrder + 1;
+        sortCursor.set(groupKey, nextSortOrder);
+
         const data = {
           title,
           slug,
@@ -163,6 +181,7 @@ export async function POST(req: NextRequest) {
           metaDescription: p.metaDescription ? String(p.metaDescription) : null,
           focusKeywords: p.focusKeywords ? String(p.focusKeywords) : null,
           hiddenSeoText: p.hiddenSeoText ? String(p.hiddenSeoText) : null,
+          sortOrder: nextSortOrder,
         };
 
         // 允许标题相同：slug 冲突时自动追加后缀保证唯一，绝不覆盖已有产品

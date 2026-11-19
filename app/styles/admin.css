@@ -2416,3 +2416,63 @@
   outline-offset: -2px;
   background-color: rgba(230, 0, 18, 0.06);
 }
+
+/* 分类管理：二级分类排序 + 组内产品排序 */
+.accordion-header {
+  position: relative;
+}
+
+.accordion-grip {
+  flex-shrink: 0;
+  width: 18px;
+  font-size: 15px;
+  line-height: 1;
+  color: #c4c4c4;
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.accordion-grip:hover {
+  color: #e60012;
+}
+
+.accordion-grip:active {
+  cursor: grabbing;
+}
+
+.accordion-header.dragging {
+  opacity: 0.45;
+}
+
+.accordion-header.drop-before::before,
+.accordion-header.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e60012;
+  z-index: 3;
+}
+
+.accordion-header.drop-before::before {
+  top: -1px;
+}
+
+.accordion-header.drop-after::after {
+  bottom: -1px;
+}
+
+.product-tag-item.dragging {
+  opacity: 0.4;
+}
+
+.product-tag-item.drag-target {
+  outline: 2px solid #e60012;
+  outline-offset: 1px;
+  background: #fff;
+  color: #e60012;
+  border-color: #e60012;
+}

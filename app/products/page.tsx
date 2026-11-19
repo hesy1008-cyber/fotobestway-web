@@ -74,18 +74,35 @@ export default async function ProductsPage({
     orderBy: { createdAt: "asc" },
   });
 
-  // 按分类排序 + 标题排序
+  // 按分类顺序 → 二级分类顺序 → 产品手工顺序 → 标题排序
   const categoryOrderMap: Record<string, number> = {};
+  const subCategoryOrderMap: Record<string, number> = {};
   categories.forEach((cat, index) => {
-    categoryOrderMap[cat.slug] = cat.sortOrder || index;
+    categoryOrderMap[cat.slug] = cat.sortOrder ?? index;
+    cat.subCategories.forEach((sub, subIndex) => {
+      subCategoryOrderMap[`${cat.slug}/${sub.slug}`] = sub.sortOrder ?? subIndex;
+    });
   });
 
   products.sort((a, b) => {
-    const categoryA = categoryOrderMap[a.categoryRef?.slug || ""] || 99;
-    const categoryB = categoryOrderMap[b.categoryRef?.slug || ""] || 99;
-    return categoryA !== categoryB
-      ? categoryA - categoryB
-      : a.title.localeCompare(b.title);
+    const categoryA = categoryOrderMap[a.categoryRef?.slug || ""] ?? 99;
+    const categoryB = categoryOrderMap[b.categoryRef?.slug || ""] ?? 99;
+    if (categoryA !== categoryB) return categoryA - categoryB;
+
+    // 未分配二级分类的产品排在该分类最前（与后台列表面板一致）
+    const subA = a.subCategoryRef
+      ? subCategoryOrderMap[`${a.categoryRef?.slug || ""}/${a.subCategoryRef.slug}`] ?? 99
+      : -1;
+    const subB = b.subCategoryRef
+      ? subCategoryOrderMap[`${b.categoryRef?.slug || ""}/${b.subCategoryRef.slug}`] ?? 99
+      : -1;
+    if (subA !== subB) return subA - subB;
+
+    const orderA = a.sortOrder ?? 0;
+    const orderB = b.sortOrder ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+
+    return a.title.localeCompare(b.title);
   });
 
   // 搜索用的产品数据

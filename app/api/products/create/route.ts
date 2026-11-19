@@ -189,6 +189,16 @@ export async function POST(req: NextRequest) {
 
     const finalSlug = await ensureUniqueSlug(slug);
 
+    // 同组内追加到末尾：有二级分类按二级分类分组，否则按一级分类分组
+    const groupWhere = subCategoryId
+      ? { subCategoryId }
+      : { subCategoryId: null, categoryId };
+    const maxOrder = await prisma.product.aggregate({
+      where: groupWhere,
+      _max: { sortOrder: true },
+    });
+    const sortOrder = (maxOrder._max.sortOrder ?? -1) + 1;
+
     const product = await prisma.product.create({
       data: {
         title,
@@ -209,6 +219,7 @@ export async function POST(req: NextRequest) {
         focusKeywords,
         hiddenSeoText,
         imageAlt,
+        sortOrder,
       },
     });
 
